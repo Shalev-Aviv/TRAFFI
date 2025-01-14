@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@100;200;300;400;500;600;700&display=swap');
+
+body {
+  background-color: black;
+  margin: 0;
+}
+
+.App {
+  height: 100%;
+}
+
+.Master {
+  z-index: 1;
+  position: fixed;
+  margin: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 2vh;
+  height: 6vh;
+  width: 20vw;
+  background: linear-gradient(to left, #FFFFFF40 , white);
+  opacity: 0.6;
+  stroke: white;
+  stroke-width: 1px;
+  border-top-right-radius: 17% 100%;
+  border-bottom-right-radius: 17% 100%;
+  border-top-left-radius: 17% 100%;
+  border-bottom-left-radius: 17% 100%;
+}
+
+.Hero {
+  position: relative;
+  
+}
+
+.Header {
+  position: relative;
+  font-family: 'Agdasima', sans-serif;
+  font-size: 24rem;
+  height: 52rem;
+  margin: 0;
+}
+
+#Stroke {
+  user-select: none;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-text-stroke: 1px white;
+  mask-image: linear-gradient(to top, transparent 17%, white);
+  opacity: 0.8;
+}
+
+#Fill {
+  user-select: none;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(to top, black 15%, #D9D9D9);
+  opacity: 0.05;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.Second-header {
+  top: 70%;
+  font-size: 2rem;
+  font-weight: 100;
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
