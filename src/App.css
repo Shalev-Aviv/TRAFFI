@@ -10,34 +10,44 @@ body {
 }
 
 .Master {
-  z-index: 1;
+  z-index: 999;
   position: fixed;
   margin: 0;
   left: 50%;
   transform: translateX(-50%);
   bottom: 2vh;
-  height: 6vh;
-  width: 20vw;
-  background: linear-gradient(to left, #FFFFFF40 , white);
-  opacity: 0.6;
-  stroke: white;
-  stroke-width: 1px;
+  height: 4rem;
+  width: 22rem;
+  aspect-ratio: 4/22;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(8px);
   border-top-right-radius: 17% 100%;
   border-bottom-right-radius: 17% 100%;
   border-top-left-radius: 17% 100%;
   border-bottom-left-radius: 17% 100%;
+  box-shadow: 0 0 0 1px white;
+}
+
+.IconsContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  padding: 0 1rem;
+}
+.Icons {
+  color: white;
 }
 
 .Hero {
-  position: relative;
-  
+  position: relative; 
 }
 
 .Header {
   position: relative;
   font-family: 'Agdasima', sans-serif;
-  font-size: 24rem;
-  height: 52rem;
+  font-size: 22rem;
+  height: 48rem;
   margin: 0;
 }
 
@@ -57,7 +67,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   background: linear-gradient(to top, black 15%, #D9D9D9);
-  opacity: 0.05;
+  opacity: 0.04;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -69,6 +79,10 @@ body {
   color: white;
   text-align: center;
   margin: 0;
+}
+
+#text {
+  color: white;
 }
 
 .App-header {

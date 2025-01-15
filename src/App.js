@@ -11,7 +11,6 @@ function App() {
         <Header />
         <SecondHeader />
       </div>
-      <p color='white'>lorem ipsum</p>
     </div>
   );
 }
