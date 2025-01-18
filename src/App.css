@@ -1,8 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@100;200;300;400;500;600;700&display=swap');
 
+
+[data-scroll-container] {
+  overflow: hidden; /* Required for Locomotive Scroll to work */
+}
+
 body {
   background-color: black;
   margin: 0;
+  overflow: hidden; /* Prevent default scrolling */
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .App {
@@ -83,6 +93,10 @@ body {
 
 #text {
   color: white;
+  max-width: 50%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .App-header {
