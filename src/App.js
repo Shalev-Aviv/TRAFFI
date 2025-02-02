@@ -1,8 +1,9 @@
 import './App.css';
-import Scrollbar from '.src/components/Scrollbar.jsx';
+import Scrollbar from './components/Scrollbar.jsx';
 import Master from './components/Master.jsx'
 import Header from './components/Header.jsx'
 import SecondHeader from './components/SecondHeader.jsx'
+<script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>
 
 function App() {
   return (

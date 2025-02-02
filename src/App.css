@@ -43,10 +43,32 @@ html {
   justify-content: space-around;
   align-items: center;
   height: 100%;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 .Icons {
   color: white;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  box-sizing: 0 0 24 24;
+  stroke-width: 2;
+}
+#Controller {
+  transform: scale(1.2);
+  stroke-width: 1.7;
+}
+
+.Line {
+  position: absolute;
+  left: 26%;
+  top: 50%;
+  bottom: 10%;
+  transform: translateY(-50%);
+  height: 55px;
+  width: 2px;
+  background-color: white;
 }
 
 .Hero {
@@ -89,6 +111,7 @@ html {
   color: white;
   text-align: center;
   margin: 0;
+  margin-bottom: 20%;
 }
 
 #text {
