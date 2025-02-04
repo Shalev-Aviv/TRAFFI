@@ -1,0 +1,31 @@
+/* base-case */
+html {
+  font-size: 16px;
+}
+
+/* 2K monitor */
+@media (min-width: 2048px) {
+  html {
+    font-size: 18px;
+  }
+}
+/* 4K monitor */
+@media (min-width: 2560px) {
+  html {
+    font-size: 20px;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
