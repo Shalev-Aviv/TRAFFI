@@ -55,6 +55,11 @@ html {
   box-sizing: 0 0 24 24;
   stroke-width: 2;
 }
+.Icons:hover {
+  filter: drop-shadow(0px 0px 5px rgb(0, 140, 255));
+  transition: filter 0.3s ease-in-out;
+}
+
 #Controller {
   transform: scale(1.2);
   stroke-width: 1.7;
