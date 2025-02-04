@@ -12,12 +12,12 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 
 ## Tech Stack
 - **Frontend**: React (Implemented), Three.js (Planned)
-- **Backend**: Java (Coming soon)
+- **Backend**: Java 21 (Coming soon)
 
 ## Installation & Usage
 ### Prerequisites
 - Node.js and npm (for the React frontend)
-- Java Development Kit (JDK) (for the backend, once implemented)
+- JDK 21 (Required for the backend, once implemented)
 
 ### Running the Frontend
 ```sh
@@ -36,8 +36,7 @@ java Main
 
 ## Roadmap
 - [x] Implement GUI in React
-- [ ] Develop graph-based traffic logic
-- [ ] Implement backend in Java
+- [ ] Implement backend
 - [ ] Integrate frontend and backend
 - [ ] Implement Three.js visualization
 - [ ] Optimize traffic flow algorithms
