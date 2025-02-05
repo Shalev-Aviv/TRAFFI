@@ -2,7 +2,7 @@ package Shalev_Aviv.TRAFFI;
 import java.util.*;
 // Car class representing a vehicle in the simulation
 public class Car {
-    enum CarType { PRIVATE, MOTORCYCLE, POLICE, AMBULANCE }
+    public enum CarType { PRIVATE, MOTORCYCLE, POLICE, AMBULANCE }
 
     private CarType type;
     private int weight;

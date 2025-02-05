@@ -9,7 +9,7 @@ class Junction {
 
     public void switchLights() {
         for (TrafficLight light : trafficLights) {
-            trafficLights.switchLight();
+            light.switchLight();
         }
     }
 

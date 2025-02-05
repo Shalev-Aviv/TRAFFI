@@ -3,6 +3,7 @@ import Scrollbar from './components/Scrollbar.jsx';
 import Master from './components/Master.jsx'
 import Header from './components/Header.jsx'
 import SecondHeader from './components/SecondHeader.jsx'
+import Button from './components/Button.jsx';
 <script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>
 
 function App() {
@@ -40,6 +41,11 @@ Cats have a unique duality; they are seen as both independent, solitary animals 
 The thesis of this essay is to explore cats in their entirety. We will examine their origins and how they came to be domesticated, delve into the various breeds and their specific traits, and uncover the intricacies of their biology and behavior. We will discuss the role of cats in human society, not just as pets but as symbols, influencers, and companions, as well as the health and care considerations that come with cat ownership. Furthermore, we will touch on the ethical implications of breeding practices, the importance of conservation efforts for their wild relatives, and what the future may hold for the human-cat relationship.
 As we embark on this journey, we will discover that cats are not just simple pets; they are a tapestry woven into human history, art, and emotion. They challenge our understanding of domestication, display a wide array of personalities, and offer us a unique form of companionship. From their humble beginnings as hunters and gatherers of pests to their current status as beloved members of the family, cats have traversed a remarkable path alongside humans. This essay seeks to honor that journey, shedding light on the myriad ways in which cats contribute to our lives and to the world at large.
 In the following sections, we will explore the fascinating story of cats. From the sands of ancient deserts to the modern-day living room, the tale of the cat is a diverse and captivating one. We will delve into the scientific and cultural threads that make up the tapestry of their existence, aiming to paint a complete picture of these enigmatic animals. Join us as we unravel the history, mysteries, and delights of the cat, a creature as full of paradoxes as it is of charm.</p>
+
+            <Button type="PRIVATE" />
+            <Button type="POLICE" />
+            <Button type="AMBULANCE" />
+            <Button type="MOTORCYCLE" />
           </Scrollbar>
     </div>
   );
