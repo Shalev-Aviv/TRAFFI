@@ -11,17 +11,20 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 - **Three.js Integration**: The junction visualization will be implemented using Three.js, controlled by the backend.
 
 ## Tech Stack
-- **Frontend**: React (Implemented), Three.js (Planned)
+- **Frontend**: React 18 (Implemented), Three.js (Planned)
 - **Backend**: Java 21 (Coming soon)
 
 ## Installation & Usage
 ### Prerequisites
 - Node.js and npm (for the React frontend)
 - JDK 21 (Required for the backend, once implemented)
+## Recommended
+- VS-Code (To run the frontend)
+- IntelliJ (To run the backend)
 
 ### Running the Frontend
 ```sh
-cd frontend
+cd Frontend
 npm install
 npm install locomotive-scroll
 npm start
@@ -29,7 +32,7 @@ npm start
 
 ### Running the Backend (Coming soon)
 ```sh
-cd backend
+cd Backend
 javac Main.java
 java Main
 ```
