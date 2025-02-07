@@ -4,6 +4,8 @@ import Master from './components/Master.jsx'
 import Header from './components/Header.jsx'
 import SecondHeader from './components/SecondHeader.jsx'
 import Button from './components/Button.jsx';
+import Start_Stop from './components/Start_Stop.jsx';
+
 <script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>
 
 function App() {

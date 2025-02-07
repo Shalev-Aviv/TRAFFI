@@ -1,18 +1,21 @@
 /* base-case */
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
 }
 
 /* 2K monitor */
 @media (min-width: 2048px) {
   html {
     font-size: 18px;
+    scroll-behavior: smooth;
   }
 }
 /* 4K monitor */
 @media (min-width: 2560px) {
   html {
     font-size: 20px;
+    scroll-behavior: smooth;
   }
 }
 
@@ -23,6 +26,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: black;
+  margin: 0;
+  overflow: hidden; /* Prevent default scrolling */
 }
 
 code {
