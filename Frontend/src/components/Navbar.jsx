@@ -1,4 +1,4 @@
-import './Master.css'
+import './Navbar.css'
 import React, { useEffect, useRef } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import { Github, House, Gamepad2, FileSpreadsheet } from "lucide-react";

@@ -1,0 +1,63 @@
+.start-button {
+    color: white;
+    background-color: rgba(255, 255, 255, 0);
+    padding: 0.75em 1em;
+    border: 1px white;
+    border-radius: 0.5em;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.8s ease;
+    display: block;
+    margin: 1.25em auto;
+    box-shadow: 0 0 0 1px white;
+}
+
+.start-button:hover {
+    filter: drop-shadow(0 0 0.2em rgb(0, 140, 255));
+    transition: filter 0.3s ease-in-out;
+}
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup-inner {
+    background-color: #fff;
+    padding: 1.25em;
+    border-radius: 0.625em;
+    box-shadow: 0px 0px 0.625em rgba(0, 0, 0, 0.3);
+  }
+  
+.popup-inner input[type="text"] {
+  padding: 0.625em;
+  margin: 0.625em 0;
+  border: 1px solid #ddd;
+  border-radius: 0.3125em;
+  width: 12.5em;
+}
+
+.popup-inner button {
+  background-color: #5cb85c;
+  color: white;
+  padding: 0.625em 0.9375em;
+  border: none;
+  border-radius: 0.3125em;
+  cursor: pointer;
+  margin: 0.3125em;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.popup-inner button:hover {
+  background-color: #449d44;
+}
