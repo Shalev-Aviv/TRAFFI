@@ -1,15 +1,15 @@
 .start-button {
     color: white;
     background-color: rgba(255, 255, 255, 0);
-    padding: 0.75em 1em;
+    box-shadow: 0 0 0 1px white;
     border: 1px white;
+    padding: 0.75em 1em;
     border-radius: 0.5em;
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.8s ease;
     display: block;
     margin: 1.25em auto;
-    box-shadow: 0 0 0 1px white;
 }
 
 .start-button:hover {
@@ -18,34 +18,54 @@
 }
 
 .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .popup-inner {
-    background-color: #fff;
-    padding: 1.25em;
-    border-radius: 0.625em;
-    box-shadow: 0px 0px 0.625em rgba(0, 0, 0, 0.3);
-  }
-  
-.popup-inner input[type="text"] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-inner {
+  background-color: #fff;
+  padding: 1.25em;
+  border-radius: 0.3em;
+  box-shadow: 0px 0px 0.625em rgba(0, 0, 0, 0.3);
+  width: 90%; /* Ensures inner content fits properly */
+  max-width: 25em; /* Limits width for better layout */
+  box-sizing: border-box;
+}
+
+.popup-inner textarea {
   padding: 0.625em;
   margin: 0.625em 0;
   border: 1px solid #ddd;
   border-radius: 0.3125em;
-  width: 12.5em;
+  width: 100%;
+  min-height: 6.25em; /* Adjust height as needed */
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fff;
+  outline: none;
+  box-sizing: border-box; /* Prevents overflowing */
+}
+.popup-inner textarea:focus {
+  border-color: rgb(0, 0, 0);
+  box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0.3em rgba(0, 0, 0, 0.5); /* Glow inside */
 }
 
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+}
 .popup-inner button {
-  background-color: #5cb85c;
   color: white;
   padding: 0.625em 0.9375em;
   border: none;
@@ -53,11 +73,11 @@
   cursor: pointer;
   margin: 0.3125em;
 }
-.popup-buttons {
-  display: flex;
-  justify-content: center;
+button.send {
+  background-color: rgb(0, 0, 0);
 }
-
-.popup-inner button:hover {
-  background-color: #449d44;
+button.close {
+  background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 0 1px white;
+    border: 1px white;
 }
