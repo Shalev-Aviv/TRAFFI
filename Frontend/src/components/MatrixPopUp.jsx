@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './MatrixPopUp.css'; // Make sure to create a CSS file for styling
+import React, { useState, useEffect } from 'react';
+import './MatrixPopUp.css';
 
 const MatrixPopUp = () => {
     const [showPopup, setShowPopup] = useState(false);
@@ -35,10 +35,10 @@ const MatrixPopUp = () => {
             {showPopup && (
             <div className="popup">
                 <div className="popup-inner">
-                    <input type="text" value={text || "12345"} onChange={handleTextChange} />
+                    <textarea type="text" value={text || "G\n[\n[ 1 , 1 , 1 , 0 , 0 ] # node 1\n[ 1 , 0 , 1 , 0 , 1 ] # node 2\n]"} onChange={handleTextChange} />
                     <div className="popup-buttons">
-                        <button onClick={handleSend}>Send</button>
-                        <button onClick={togglePopup}>Close</button>
+                        <button className='send' onClick={handleSend}>Send</button>
+                        <button className='close' onClick={togglePopup}>Close</button>
                     </div>
                 </div>
             </div>
