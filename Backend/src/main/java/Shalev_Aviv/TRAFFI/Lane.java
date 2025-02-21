@@ -24,6 +24,6 @@ public class Lane {
         }
     }
 
-    public int getSumWeight() { return sumWeight; }
+    public int getLaneWeight() { return sumWeight; }
     public Queue<Car> getCars() { return cars; }
 }

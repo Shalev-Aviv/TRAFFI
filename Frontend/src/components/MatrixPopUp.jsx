@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './MatrixPopUp.css';
 
@@ -14,16 +14,32 @@ const MatrixPopUp = () => {
         setText(e.target.value);
     };
 
-    const handleSend = () => {
-        const fileData = JSON.stringify({ message: text });
-        const blob = new Blob([fileData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'message.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        setShowPopup(false);
+    const handleSend = async () => {
+        const jsonData = { message: text };
+
+        try {
+            const response = await fetch('/api/test', { // Replace with your backend endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || response.statusText}`);
+            }
+
+            const responseData = await response.json();
+            console.log('Success:', responseData);
+            // Handle success, e.g., display a success message to the user
+            setShowPopup(false); // Close the popup after successful send
+
+        } catch (error) {
+            console.error('Error sending JSON:', error);
+            // Handle error, e.g., display an error message to the user
+        }
     };
 
     return (
@@ -33,7 +49,7 @@ const MatrixPopUp = () => {
                 ReactDOM.createPortal(
                     <div className="popup">
                         <div className="popup-inner">
-                            <textarea type="text" value={text} onChange={handleTextChange} />
+                            <textarea value={text} onChange={handleTextChange} />
                             <div className="popup-buttons">
                                 <button className='send' onClick={handleSend}>Send</button>
                                 <button className='close' onClick={togglePopup}>Close</button>

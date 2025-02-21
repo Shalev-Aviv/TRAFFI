@@ -9,25 +9,26 @@ class TrafficLight {
 	
     public TrafficLight(Lane[] lanes) {
         this.color = Color.RED;
-		this.state = LightState.RED;
         this.lanes = lanes;
         this.weight = 0;
+        this.id = 0;
     }
+    
+    public Color getColor() { return color; }
 
-    public int getWeight() {
+    public int getWeight() { 
+        weight = 0;
         for (Lane lane : lanes) {
-			// Do something
+            weight += lane.getLaneWeight();
         }
         return weight;
+    }
+
+    public void updateWeight() {
+
     }
 
     public void switchLight() {
         this.color = (color == Color.RED) ? Color.GREEN : Color.RED;
     }
-
-    public Color getColor() { return color; }
-        this.state = (state == LightState.RED) ? LightState.GREEN : LightState.RED;
-    }
-
-    public LightState getState() { return state; }
 }
