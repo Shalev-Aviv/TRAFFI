@@ -1,4 +1,5 @@
 package Shalev_Aviv.TRAFFI;
+
 // Junction class representing the entire intersection
 class Junction {
     private TrafficLight[] trafficLights;
@@ -7,11 +8,7 @@ class Junction {
         this.trafficLights = trafficLights;
     }
 
-    public void switchLights() {
-        for (TrafficLight light : trafficLights) {
-            light.switchLight();
-        }
-    }
+    // Create a graph out of the json object
 
     public TrafficLight[] getTrafficLights() { return trafficLights; }
 }

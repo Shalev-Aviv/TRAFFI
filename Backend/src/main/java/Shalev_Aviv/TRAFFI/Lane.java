@@ -23,10 +23,10 @@ public class Lane {
             regulareCarsCounter++;
         }
     }
-    
+
     public void removeCar() {
         if (!cars.isEmpty()) {
-            if(cars.poll().getEmergency()) {
+            if(cars.remove().getEmergency()) {
                 emergencyCarsCounter--;
             } else {
                 regulareCarsCounter--;
