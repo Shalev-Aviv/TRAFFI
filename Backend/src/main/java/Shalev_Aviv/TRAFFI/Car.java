@@ -1,24 +1,29 @@
 package Shalev_Aviv.TRAFFI;
-import java.util.*;
-// Car class representing a vehicle in the simulation
+// Car class - representing a single vehicle in the simulation
 public class Car {
     public enum CarType { PRIVATE, MOTORCYCLE, POLICE, AMBULANCE }
 
     private CarType type;
-    private int weight;
+    private boolean emergency;
 
+    // Default constructor
+    public Car() {
+        this(CarType.PRIVATE);
+    }
+    // Constructor with type
     public Car(CarType type) {
         this.type = type;
-        setWeight();
+        setEmergency();
     }
 
-    private void setWeight() {
-        this.weight = switch (type) {
-            case POLICE, AMBULANCE -> Integer.MAX_VALUE;
-            case PRIVATE, MOTORCYCLE -> 1;
+    private void setEmergency() {
+        emergency = switch (type) {
+            case POLICE, AMBULANCE -> true;
+            case PRIVATE, MOTORCYCLE -> false;
         };
+        // Add default case to avoid compilation error
     }
 
     public CarType getType() { return type; }
-    public int getWeight() { return weight; }
+    public boolean getEmergency() { return emergency; }
 }

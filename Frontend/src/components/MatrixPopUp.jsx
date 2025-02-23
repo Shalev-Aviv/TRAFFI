@@ -18,7 +18,7 @@ const MatrixPopUp = () => {
         const jsonData = { message: text };
 
         try {
-            const response = await fetch('/api/test', { // Replace with your backend endpoint
+            const response = await fetch('http://localhost:8080/api/json', { // Replace with your backend endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
