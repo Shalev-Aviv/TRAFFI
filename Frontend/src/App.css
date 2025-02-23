@@ -12,6 +12,12 @@
   position: relative; 
 }
 
+.Junction {
+  display: block;
+  margin: 0 auto;
+  scale: 0.75;
+}
+
 #text {
   color: white;
   max-width: 50%;
