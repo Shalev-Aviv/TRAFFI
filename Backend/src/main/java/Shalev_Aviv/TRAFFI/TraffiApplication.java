@@ -25,8 +25,9 @@ public class TraffiApplication {
 
     @PostMapping("/api/json")
     public String postMethodName(@RequestBody Map<String, String> entity) {
-        System.out.println("Received JSON: " + entity.get("message"));
-        return "Received: " + entity.get("message");
+        System.out.println("Received trafficLightsGraph: " + entity.get("trafficLightsGraph"));
+		System.out.println("Received lanesDict: " + entity.get("lanesDict"));
+		return "Received JSON successfully!";
     }
 
 	@GetMapping("/")

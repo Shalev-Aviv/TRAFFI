@@ -6,6 +6,7 @@ public class Lane {
     private int amount; // Amount of cars in the lane
     private int regulareCarsCounter; // Amount of regular cars in the lane
     private int emergencyCarsCounter; // Amount of emergency cars in the lane
+    private int id; // Lane id
 
     public Lane() {
         this.cars = new LinkedList<>();

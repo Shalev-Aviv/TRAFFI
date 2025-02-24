@@ -10,5 +10,7 @@ class Junction {
 
     // Create a graph out of the json object
 
+    // Create a dictionary of lanes
+
     public TrafficLight[] getTrafficLights() { return trafficLights; }
 }

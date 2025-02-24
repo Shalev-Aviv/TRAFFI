@@ -1,8 +1,8 @@
 .start-button {
   color: white;
-  background-color: rgba(255, 255, 255, 0);
+  background-color: transparent;
   box-shadow: 0 0 0 1px white;
-  border: 1px white;
+  border: 1px solid white;
   padding: 0.75em 1em;
   border-radius: 0.5em;
   cursor: pointer;
@@ -33,19 +33,32 @@
   backdrop-filter: blur(0.5em);
   padding: 1.25em;
   border-radius: 0.3em;
-  width: 44em;
-  height: 31em;
+  width: 70em;
+  height: auto;
+  min-height: 25em;
+  max-height: 55em;
   max-width: 150em;
   box-sizing: border-box;
-  box-shadow:
-      0 0 1.5em rgb(0, 0, 0),
-      0 0 0 1px rgb(100, 100, 100);
+  box-shadow: 0 0 1.5em rgb(0, 0, 0),
+              0 0 0 1px rgb(100, 100, 100);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.popup-inner textarea {
+/* Split container for two textareas */
+.split-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  box-sizing: border-box;
+}
+
+/* Graph textarea: takes ~70% space */
+.graph-textarea {
+  flex: 7;
+  font-size: 1.2rem;
   padding: 2em;
   margin: 0.625em 0;
   border: 1px solid #000;
@@ -53,29 +66,44 @@
   width: 100%;
   height: auto;
   min-height: 25em;
+  max-height: 30em;
   resize: none;
-  font-size: 1rem;
-  color: #333;
+  color: #555;
   background-color: rgba(23, 21, 20, 0.5);
   outline: none;
   box-sizing: border-box;
   white-space: pre-wrap;
-  flex: 0 0 auto;
 }
-.popup-inner textarea:focus {
-  border-color: rgb(0, 0, 0);
-  box-shadow:
-      0 0 0.3em rgba(0, 0, 0, 0.5),
-      inset 0 0 0.3em rgba(0, 0, 0, 0.5);
+
+/* Dict textarea: takes ~30% space */
+.dict-textarea {
+  flex: 3;
+  font-size: 1.2rem;
+  padding: 2em;
+  margin: 0.625em 0;
+  border: 1px solid #000;
+  border-radius: 0.3125em;
+  width: 100%;
+  height: auto;
+  min-height: 25em;
+  max-height: 30em;
+  resize: none;
+  color: #555;
+  background-color: rgba(23, 21, 20, 0.5);
+  outline: none;
+  box-sizing: border-box;
+  white-space: pre-wrap;
 }
 
 .popup-buttons {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex: 0 0 auto;
-  margin-top: auto;
-  margin-bottom: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.popup-inner textarea:focus {
+  border-color: rgb(0, 0, 0);
+  box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.5),
+              inset 0 0 0.3em rgba(0, 0, 0, 0.5);
 }
 
 .popup-inner button {
@@ -92,7 +120,6 @@ button.send {
   color: white;
   border: 1px solid white;
   background-color: rgb(0, 0, 0);
-  
 }
 button.send:hover {
   color: black;
@@ -102,8 +129,8 @@ button.send:hover {
 
 button.close {
   color: #333;
-  background-color: rgba(0, 0, 0, 0);
-  transition: color 100ms, ease;
+  background-color: transparent;
+  transition: color 100ms ease;
 }
 button.close:hover {
   color: white;
