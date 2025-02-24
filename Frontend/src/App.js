@@ -17,7 +17,7 @@ function App() {
         <SecondHeader />
       </div>
       <MatrixPopUp />
-      <img className="Junction" src="/junction.png" alt="Description" />
+      {/* <img className="Junction" src="/junction.png" alt="Description" /> */}
       <p id='text'>Cats, with their enigmatic personalities and graceful agility, have captivated human hearts for millennia. As one of the most popular pets in the world, they not only share our homes but also occupy a special place in our cultural landscape. The purpose of this essay is to delve deep into the world of cats: their history, biology, relationship with humans, and the many roles they play in society. Through this exploration, we aim to gain a better understanding of these fascinating creatures and the myriad ways in which they enrich our lives.
 The domestic cat, Felis catus, is believed to have first cozied up to humans around 9,000 years ago in the Near East, marking the beginning of a symbiotic relationship that has evolved over centuries. The ancient Egyptians famously revered cats, depicting them in their art and mythology as symbols of grace and protection. However, the feline story stretches far beyond the banks of the Nile; from the revered status of the Japanese Maneki-neko to the feared and misunderstood associations with witchcraft in medieval Europe, cats have experienced a varied reception across different cultures and eras.
 
