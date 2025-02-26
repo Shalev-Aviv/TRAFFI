@@ -16,8 +16,13 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 
 ## Installation & Usage🚀
 ### Prerequisites
-- Node.js and npm (for the frontend)
-- JDK 21 (for the backend, once implemented)
+- Node.js & npm (for the frontend)
+- JDK & Apache Maven (for the backend, once implemented)
+### I presonally have this versions
+- Node 20.12.0
+- npm 10.5.0
+- JDK 21
+- Apache Maven 3.9.9
 
 ### Running the Frontend
 ```sh
