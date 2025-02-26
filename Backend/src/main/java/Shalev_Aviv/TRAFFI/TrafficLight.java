@@ -28,6 +28,8 @@ class TrafficLight {
         this.color = (color == Color.RED) ? Color.GREEN : Color.RED;
     }
 
+    // Getters
     public Color getColor() { return this.color; }
-    public int getEmergencyWeight() { return this.emergencyWeight; }public int getRegularWeight() { return this.regularWeight; }
+    public int getEmergencyWeight() { return this.emergencyWeight; }
+    public int getRegularWeight() { return this.regularWeight; }
 }

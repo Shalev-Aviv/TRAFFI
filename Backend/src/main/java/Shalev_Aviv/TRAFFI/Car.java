@@ -1,4 +1,5 @@
 package Shalev_Aviv.TRAFFI;
+
 // Car class - representing a single vehicle in the simulation
 public class Car {
     public enum CarType { PRIVATE, MOTORCYCLE, POLICE, AMBULANCE }
@@ -24,6 +25,7 @@ public class Car {
         // Add default case to avoid compilation error
     }
 
+    // Getters
     public CarType getType() { return type; }
     public boolean getEmergency() { return emergency; }
 }
