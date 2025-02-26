@@ -1,3 +1,4 @@
+/* Start Button */
 .start-button {
   color: white;
   background-color: transparent;
@@ -16,6 +17,7 @@
   transition: filter 0.3s ease-in-out;
 }
 
+/* Popup background */
 .popup {
   position: fixed;
   top: 0;
@@ -28,6 +30,7 @@
   align-items: center;
 }
 
+/* Popup inner container */
 .popup-inner {
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(0.5em);
@@ -35,7 +38,7 @@
   border-radius: 0.3em;
   width: 70em;
   height: auto;
-  min-height: 25em;
+  min-height: 40em;  /* Increased minimum height */
   max-height: 55em;
   max-width: 150em;
   box-sizing: border-box;
@@ -46,73 +49,95 @@
   align-items: center;
 }
 
-/* Split container for two textareas */
+/* Split container: left (70%) and right (30%) */
 .split-container {
   width: 100%;
   display: flex;
   flex-direction: row;
   gap: 1em;
   box-sizing: border-box;
+  margin-bottom: 1em;
 }
 
-/* Graph textarea: takes ~70% space */
-.graph-textarea {
+/* Left container (Graph textareas): 70% width, split vertically */
+.left-container {
   flex: 7;
-  font-size: 1.2rem;
-  padding: 2em;
-  margin: 0.625em 0;
-  border: 1px solid #000;
-  border-radius: 0.3125em;
-  width: 100%;
-  height: auto;
-  min-height: 25em;
-  max-height: 30em;
-  resize: none;
-  color: #555;
-  background-color: rgba(23, 21, 20, 0.5);
-  outline: none;
-  box-sizing: border-box;
-  white-space: pre-wrap;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 
-/* Dict textarea: takes ~30% space */
-.dict-textarea {
+/* Right container (Dict textarea): 30% width */
+.right-container {
   flex: 3;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Graph textareas styling */
+.graph-textarea {
   font-size: 1.2rem;
-  padding: 2em;
-  margin: 0.625em 0;
+  padding: 1em;
+  margin: 0;
   border: 1px solid #000;
   border-radius: 0.3125em;
   width: 100%;
   height: auto;
-  min-height: 25em;
-  max-height: 30em;
+  min-height: 15em;
   resize: none;
   color: #555;
   background-color: rgba(23, 21, 20, 0.5);
   outline: none;
   box-sizing: border-box;
   white-space: pre-wrap;
+  flex: 1;
 }
 
-.popup-buttons {
+/* Dict textarea styling */
+.dict-textarea {
+  font-size: 1.2rem;
+  padding: 1em;
   margin: 0;
-  padding: 0;
+  border: 1px solid #000;
+  border-radius: 0.3125em;
+  width: 100%;
+  height: auto;
+  min-height: 31em; /* Set to roughly match combined graph areas */
+  resize: none;
+  color: #555;
+  background-color: rgba(23, 21, 20, 0.5);
+  outline: none;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  flex: 1;
 }
 
+/* Spacer: takes available extra space */
+.spacer {
+  flex: 1;
+  width: 100%;
+}
+
+/* Popup buttons container */
+.popup-buttons {
+  display: flex;
+  gap: 1em;
+}
+
+/* Focus styling for textareas */
 .popup-inner textarea:focus {
   border-color: rgb(0, 0, 0);
   box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.5),
               inset 0 0 0.3em rgba(0, 0, 0, 0.5);
 }
 
+/* Button styling */
 .popup-inner button {
   font-weight: 800;
   padding: 0.625em 0.9375em;
   border: none;
   border-radius: 0.3125em;
   cursor: pointer;
-  margin: 0.3125em;
   transition: transform 100ms ease;
 }
 

@@ -2,88 +2,90 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './MatrixPopUp.css';
 
-const trafficLightsGraph = `Graph = [
-  [0, 0, 1, 0, 2, 1, 1, 1, 1,],   # Node 1
-  [0, 0, 0, 1, 1, 1, 1, 1, 1,],   # Node 2
-  [1, 0, 0, 0, 1, 1, 1, 1, 1,],   # Node 3
-  [0, 1, 0, 0, 1, 1, 1, 1, 1,],   # Node 4
-  [1, 1, 1, 1, 0, 0, 1, 0, 0,],   # Node 5
-  [1, 1, 1, 1, 0, 0, 0, 0, 1,],   # Node 6
-  [1, 1, 2, 1, 1, 0, 0, 1, 0,],   # Node 7
-  [1, 1, 1, 1, 0, 0, 1, 0, 0,],   # Node 8
-  [1, 1, 1, 1, 0, 1, 0, 0, 0,]    # Node 9
-]`;
+const trafficLightsGraph = `Graph = {
+  "Node 1": [0, 0, 1, 0, 2, 1, 1, 1, 1],
+  "Node 2": [0, 0, 0, 1, 1, 1, 1, 1, 1],
+  "Node 3": [1, 0, 0, 0, 1, 1, 1, 1, 1],
+  "Node 4": [0, 1, 0, 0, 1, 1, 1, 1, 1],
+  "Node 5": [1, 1, 1, 1, 0, 0, 1, 0, 0],
+  "Node 6": [1, 1, 1, 1, 0, 0, 0, 0, 1],
+  "Node 7": [1, 1, 2, 1, 1, 0, 0, 1, 0],
+  "Node 8": [1, 1, 1, 1, 0, 0, 1, 0, 0],
+  "Node 9": [1, 1, 1, 1, 0, 1, 0, 0, 0]
+}`;
 
-const lanesDict = `Dict = [
-   1 : 12, 16,
-   2 : 11,
-   3 : null,
-   4 : null,
-   5 : 16, 4,
-   6 : 15,
-   7 : null,
-   8 : null,
-   9 : 4, 8,
-   10 : 3,
-   11 : 24,
-   12 : 29,
-   13 : 8, 12,
-   14 : 7,
-   15 : null,
-   16 : null,
-   17 : 29, 9,
-   18 : 28,
-   19 : null,
-   20 : null,
-   21 : 9, 20,
-   22 : 10,
-   23 : 28,
-   24 : null,
-   25 : null,
-   26 : 20, 25,
-   27 : 19,
-   28 : null,
-   29 : null
-]`;
+const lanesToLightsGraph = `Lights = {
+    "Light 1": [1, 2],
+    "Light 2": [5, 6],
+    "Light 3": [9, 10],
+    "Light 4": [13, 14],
+    "Light 5": [11, 12],
+    "Light 6": [17, 18],
+    "Light 7": [21, 22],
+    "Light 8": [23],
+    "Light 9": [26, 27]
+  }`;
+
+const lanesDict = `Dict = {
+  "1": [12, 16],
+  "2": [11],
+  "3": null,
+  "4": null,
+  "5": [16, 4],
+  "6": [15],
+  "7": null,
+  "8": null,
+  "9": [4, 8],
+  "10": [3],
+  "11": [24],
+  "12": [29],
+  "13": [8, 12],
+  "14": [7],
+  "15": null,
+  "16": null,
+  "17": [29, 9],
+  "18": [28],
+  "19": null,
+  "20": null,
+  "21": [9, 20],
+  "22": [10],
+  "23": [28],
+  "24": null,
+  "25": null,
+  "26": [20, 25],
+  "27": [19],
+  "28": null,
+  "29": null
+}`;
 
 const MatrixPopUp = () => {
     const [showPopup, setShowPopup] = useState(false);
-    const [graphText, setGraphText] = useState(trafficLightsGraph);
+    const [graphText1, setGraphText1] = useState(trafficLightsGraph);
+    const [graphText2, setGraphText2] = useState(lanesToLightsGraph);
     const [dictText, setDictText] = useState(lanesDict);
-    const graphRef = useRef(null);
+    const graphRef1 = useRef(null);
+    const graphRef2 = useRef(null);
     const dictRef = useRef(null);
 
     const togglePopup = () => {
         setShowPopup(!showPopup);
     };
 
-    const handleGraphChange = (e) => {
-        setGraphText(e.target.value);
+    // Prevent empty textarea by setting default if value is empty
+    const handleGraph1Change = (e) => {
+        setGraphText1(e.target.value || trafficLightsGraph);
     };
-
+    const handleGraph2Change = (e) => {
+        setGraphText2(e.target.value || lanesToLightsGraph);
+    };
     const handleDictChange = (e) => {
-        setDictText(e.target.value);
+        setDictText(e.target.value || lanesDict);
     };
-
-    // Auto-resize for graph textarea
-    useEffect(() => {
-        if (graphRef.current) {
-            graphRef.current.style.height = 'auto';
-            graphRef.current.style.height = graphRef.current.scrollHeight + 'px';
-        }
-    }, [graphText]);
-
-    // Auto-resize for dict textarea
-    useEffect(() => {
-        if (dictRef.current) {
-            dictRef.current.style.height = 'auto';
-            dictRef.current.style.height = dictRef.current.scrollHeight + 'px';
-        }
-    }, [dictText]);
 
     const handleSend = async () => {
         const jsonData = { 
-            trafficLightsGraph: graphText, 
+            trafficLightsGraph: graphText1, 
+            lanesToLightsGraph: graphText2,
             lanesDict: dictText 
         };
 
@@ -115,18 +117,14 @@ const MatrixPopUp = () => {
                     <div className="popup">
                         <div className="popup-inner">
                             <div className="split-container">
-                                <textarea 
-                                    className="graph-textarea" 
-                                    ref={graphRef} 
-                                    value={graphText} 
-                                    onChange={handleGraphChange} 
-                                />
-                                <textarea 
-                                    className="dict-textarea" 
-                                    ref={dictRef} 
-                                    value={dictText} 
-                                    onChange={handleDictChange} 
-                                />
+                                <div className="left-container">
+                                    <textarea className="graph-textarea" ref={graphRef1} value={graphText1} onChange={handleGraph1Change} />
+                                    <textarea className="graph-textarea" ref={graphRef2} value={graphText2} onChange={handleGraph2Change} />
+                                </div>
+                                <div className="right-container">
+                                    <textarea className="dict-textarea" ref={dictRef} value={dictText} onChange={handleDictChange} 
+                                    />
+                                </div>
                             </div>
                             <div className="popup-buttons">
                                 <button className="send" onClick={handleSend}>Send</button>
