@@ -19,6 +19,10 @@ html {
   }
 }
 
+:root {
+  --main-color: rgb(0, 140, 255);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

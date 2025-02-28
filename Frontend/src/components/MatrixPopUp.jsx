@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './MatrixPopUp.css';
 
 const trafficLightsMatrix = `{
-  "Graph": [
+  "Lights To Lights": [
     [0, 0, 1, 0, 2, 1, 1, 1, 1],
     [0, 0, 0, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1, 1, 1, 1, 1],
@@ -17,7 +17,7 @@ const trafficLightsMatrix = `{
 }`;
 
 const lightsToLanesMap = `{
-  "Lights": {
+  "Lights To Lanes": {
     "Light 1": [1, 2],
     "Light 2": [5, 6],
     "Light 3": [9, 10],
@@ -31,7 +31,7 @@ const lightsToLanesMap = `{
 }`;
 
 const lanesToLanesMap = `{
-  "Dict": {
+  "Lanes To Lanes": {
     "1": [12, 16],
     "2": [11],
     "3": null,

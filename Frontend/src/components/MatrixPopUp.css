@@ -13,7 +13,7 @@
   margin: 1.25em auto;
 }
 .start-button:hover {
-  filter: drop-shadow(0 0 0.2em rgb(0, 140, 255));
+  filter: drop-shadow(0 0 0.2em var(--main-color));
   transition: filter 0.3s ease-in-out;
 }
 
@@ -76,6 +76,7 @@
 
 /* Graph textareas styling */
 .graph-textarea {
+  color: var(--main-color);
   font-size: 1.2rem;
   padding: 1em;
   margin: 0;
@@ -85,7 +86,6 @@
   height: auto;
   min-height: 15em;
   resize: none;
-  color: #555;
   background-color: rgba(23, 21, 20, 0.5);
   outline: none;
   box-sizing: border-box;
@@ -95,6 +95,7 @@
 
 /* Dict textarea styling */
 .dict-textarea {
+  color: var(--main-color);
   font-size: 1.2rem;
   padding: 1em;
   margin: 0;
@@ -104,7 +105,6 @@
   height: auto;
   min-height: 31em; /* Set to roughly match combined graph areas */
   resize: none;
-  color: #555;
   background-color: rgba(23, 21, 20, 0.5);
   outline: none;
   box-sizing: border-box;

@@ -12,7 +12,7 @@ public class JsonConverter {
     public static int[][] convertJsonToMatrix(String json) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(json);
-        JsonNode graphNode = rootNode.get("Graph");
+        JsonNode graphNode = rootNode.get("Lights To Lights");
         
         return objectMapper.readValue(graphNode.toString(), int[][].class);
     }
@@ -20,7 +20,7 @@ public class JsonConverter {
     public static Map<Integer, int[]> convertLightsToLanesMap(String json) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(json);
-        JsonNode lightsNode = rootNode.get("Lights");
+        JsonNode lightsNode = rootNode.get("Lights To Lanes");
         
         Map<Integer, int[]> lightsToLanesMap = new HashMap<>();
         
@@ -45,7 +45,7 @@ public class JsonConverter {
     public static Map<Integer, int[]> convertlanesToLanesMap(String json) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(json);
-        JsonNode dictNode = rootNode.get("Dict");
+        JsonNode dictNode = rootNode.get("Lanes To Lanes");
         
         Map<Integer, int[]> lanesToDestinationsMap = new HashMap<>();
         

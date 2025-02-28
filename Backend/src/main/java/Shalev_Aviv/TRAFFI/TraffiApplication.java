@@ -27,19 +27,19 @@ public class TraffiApplication {
     @PostMapping("/api/json")
     public String postMethodName(@RequestBody Map<String, String> entity) {
         try {
-            String trafficLightsGraphJson = entity.get("trafficLightsGraph");
-            String lanesToLightsGraphJson = entity.get("lanesToLightsGraph");
-            String lanesDictJson = entity.get("lanesDict");
+            String trafficLightsMatrixJson = entity.get("trafficLightsMatrix");
+            String lanesToLightsMapJson = entity.get("lightsToLanesMap");
+            String lanesMapJson = entity.get("lanesToLanesMap");
             
             // Log the received JSON for debugging
-            System.out.println("Received trafficLightsGraph: " + trafficLightsGraphJson);
-            System.out.println("Received lanesToLightsGraph: " + lanesToLightsGraphJson);
-            System.out.println("Received lanesDict: " + lanesDictJson);
+            System.out.println("Received trafficLightsMatrix: " + trafficLightsMatrixJson);
+            System.out.println("Received lightsToLanesMap: " + lanesToLightsMapJson);
+            System.out.println("Received lanesToLanesMap: " + lanesMapJson);
             
             // Convert the JSON strings to Java objects
-            trafficLightsMatrix = JsonConverter.convertJsonToMatrix(trafficLightsGraphJson);
-            lightsToLanesMap = JsonConverter.convertLightsToLanesMap(lanesToLightsGraphJson);
-            lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesDictJson);
+            trafficLightsMatrix = JsonConverter.convertJsonToMatrix(trafficLightsMatrixJson);
+            lightsToLanesMap = JsonConverter.convertLightsToLanesMap(lanesToLightsMapJson);
+            lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesMapJson);
             
             // Log converted objects to verify
             System.out.println("Successfully converted trafficLightsMatrix");
