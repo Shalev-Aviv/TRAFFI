@@ -117,7 +117,9 @@ const MatrixPopUp = () => {
 
     return (
         <div>
-            <button className="start-button" onClick={togglePopup}>Start</button>
+            <div className='auter-stroke'>
+                <button className="start-button" onClick={togglePopup}>Start simulation</button>
+            </div>
             {showPopup &&
                 ReactDOM.createPortal(
                     <div className="popup">

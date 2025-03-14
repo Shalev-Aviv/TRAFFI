@@ -8,28 +8,33 @@ class TrafficLight {
     private Lane[] lanes;
     private int emergencyWeight;
     private int regularWeight;
+    private int id;
 	
-    public TrafficLight(Lane[] lanes) {
+    public TrafficLight(Lane[] lanes, int id) {
         this.color = Color.RED;
         this.lanes = lanes;
-        setWeight();
-    }
-    
-    public void setWeight() {
         this.emergencyWeight = 0;
         this.regularWeight = 0;
+        this.id = id;
+    }
+    
+
+
+    public void setWeight() {
         for (Lane lane : lanes) {
-            emergencyWeight += lane.getEmergencyCarsCounter();
-            regularWeight += lane.getRegularCarsCounter();
+            this.emergencyWeight += lane.getEmergencyCarsCounter();
+            this.regularWeight += lane.getRegularCarsCounter();
         }
     }
 
-    public void switchLight() {
-        this.color = (color == Color.RED) ? Color.GREEN : Color.RED;
-    }
+    public void turnOff() { this.color = Color.RED; }
+    public void turnOn() { this.color = Color.GREEN; }
+
 
     // Getters
     public Color getColor() { return this.color; }
+    public Lane[] getLanes() { return this.lanes; }
     public int getEmergencyWeight() { return this.emergencyWeight; }
     public int getRegularWeight() { return this.regularWeight; }
+    public int getId() { return this.id; }
 }

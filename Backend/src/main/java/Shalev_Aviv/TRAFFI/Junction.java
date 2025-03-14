@@ -1,43 +1,51 @@
 package Shalev_Aviv.TRAFFI;
 
-// Junction class - representing the entire junction (intersection)
+import java.util.Map;
+
+// Junction class - representing the entire junction
 class Junction {
-    private TrafficLight[] trafficLights; // Traffic lights at the intersection (junction)
+    private int[][] trafficLightGraph; // Graph representing the junction
+    private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
+    private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] exitLanes; // Lanes that exit the intersection
 
-    public Junction(TrafficLight[] trafficLights, Lane[] exitLanes) {
-        this.trafficLights = trafficLights;
+    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] exitLanes) {
+        this.trafficLightGraph = trafficLightGraph;
+        this.trafficLightsArray = trafficLightsArray;
+        this.lanesMap = lanesMap;
         this.exitLanes = exitLanes;
     }
 
-    // Create a graph out of the json object
-
-    // Create a dictionary of lanes
-
+    public void updateJunction() {
+        /*
+         * This function updates the junction by:
+         * 1. finding the traffic light with the maximun weight
+         * 2. turn off all the lights that can't work simultaneously with the light with the maximum weight
+         * 3. turn on the light with the maximum weight
+         * 4. find the largest clique of lights that can work simultaneously with the light with the maximum weight
+         * 5. turn on all the lights in the clique
+         * 6. dequeue cars from the lanes of the lights that are turned off and enqueue them to the langes they go to (according to the lanes map)
+         * 7. update the weights of the lights
+         */
+    }
 
     /**
      * @return the index of the traffic light with the largest weight
      */ 
-    public int FindMaxWeightLight() {
-        // [0] - weight, [1] - index
-        int[] maxWeight = MaximumEmergencyWeight();
+    public int MaxWeight() {
+        int maxEmergencyWeight = MaximumEmergencyWeight();
 
-        if(MultipleMaxWeights(maxWeight[0]) == 1) {
-            return maxWeight[1];
-        }
-
-        return MaximumRegularWeight(maxWeight[0]);
+        return MaximumRegularWeight(maxEmergencyWeight);
     }
 
     /**
      * @return an array of size 2, where the first element is the weight of the traffic light with the largest emergency weight, and the second element is the index of that light
      */
-    private int[] MaximumEmergencyWeight() {
-        int[] maxWeight = {0, 0};
-        for (int i = 0; i < trafficLights.length; i++) {
-            if (trafficLights[i].getEmergencyWeight() > maxWeight[0]) {
-                maxWeight[0] = trafficLights[i].getEmergencyWeight();
-                maxWeight[1] = i;
+    private int MaximumEmergencyWeight() {
+        int maxWeight = 0;
+        for (int i = 0; i < trafficLightsArray.length; i++) {
+            if (trafficLightsArray[i].getEmergencyWeight() > maxWeight) {
+                maxWeight = trafficLightsArray[i].getEmergencyWeight();
             }
         }
         return maxWeight;
@@ -48,32 +56,19 @@ class Junction {
     private int MaximumRegularWeight(int maxEmergencyWeight) {
         int maxWeight = 0;
         int index = 0;
-        for (int i = 0; i < trafficLights.length; i++) {
-            if(trafficLights[i].getEmergencyWeight() != maxEmergencyWeight) continue;
+        for (int i = 0; i < trafficLightsArray.length; i++) {
+            if(trafficLightsArray[i].getEmergencyWeight() != maxEmergencyWeight) continue;
 
             // this happens only if the current light has the same emergency weight as the max
-            if (trafficLights[i].getRegularWeight() > maxWeight) {
-                maxWeight = trafficLights[i].getRegularWeight();
+            if (trafficLightsArray[i].getRegularWeight() > maxWeight) {
+                maxWeight = trafficLightsArray[i].getRegularWeight();
                 index = i;
             }
         }
         return index;
     }
-    /**
-     * @param maxWeight
-     * @return the amount of traffic lights with the same maximum emergency weight
-     */
-    private int MultipleMaxWeights(int maxWeight) {
-        int counter = 0;
-        for (TrafficLight trafficLight : trafficLights) {
-            if (trafficLight.getEmergencyWeight() == maxWeight) {
-                counter++;
-            }
-        }
-        return counter;
-    }
 
     // Getters
-    public TrafficLight[] getTrafficLights() { return trafficLights; }
+    public TrafficLight[] getTrafficLightsArray() { return trafficLightsArray; }
     public Lane[] getExitLanes() { return exitLanes; }
 }
