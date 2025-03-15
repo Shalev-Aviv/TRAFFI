@@ -58,9 +58,10 @@ public class TraffiApplication {
                     Lane[] lightLanes = new Lane[length];
                     for (int j = 0; j < length; j++) {
                         int laneId = laneIds[j];
-                        if (laneId >= 1 && laneId < lanes.length) { // Assuming lanes array is 1-indexed up to size
-                            lightLanes[j] = lanes[laneId];
-                        } else {
+                        if (laneId >= 1 && laneId <= lanes.length) {
+                            lightLanes[j] = lanes[laneId - 1];
+                        }
+                        else {
                             System.err.println("Warning: Lane ID " + laneId + " out of bounds for lanes array for traffic light " + lightId);
                         }
                     }
@@ -72,8 +73,7 @@ public class TraffiApplication {
             }
 
             // Creating the junction
-            Junction junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap);
-            System.out.println("Lanes to Lanes Map after conversion: " + lanesToLanesMap);
+            Junction junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes);
             System.out.println(junction.toString());
 
 

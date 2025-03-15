@@ -8,11 +8,13 @@ class Junction {
     private int[][] trafficLightGraph; // Graph representing the junction
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
+    private Lane[] lanes; // Lanes at the junction
 
-    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap) {
+    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         this.trafficLightGraph = trafficLightGraph;
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
+        this.lanes = lanes;
     }
 
     /**
@@ -55,33 +57,47 @@ class Junction {
     public int[][] getTrafficLightGraph() { return trafficLightGraph; }
     public TrafficLight[] getTrafficLightsArray() { return trafficLightsArray; }
     public Map<Integer, Integer[]> getLanesMap() { return lanesMap; }
+    public Lane[] getLanes() { return lanes; }
 
     // ToString
     @Override
     public String toString() {
         String str = "";
+
         // Traffic light Matrix
+        str += "Traffic light matrix:\n";
         for (int i = 0; i < trafficLightGraph.length; i++) {
             for (int j = 0; j < trafficLightGraph[i].length; j++) {
                 str += trafficLightGraph[i][j] + " ";
             }
             str += "\n";
         }
+        str += "\n";
         // Traffic lights array
+        str += "Traffic lights array:\n";
         for (TrafficLight light : trafficLightsArray) {
-            str += "Traffic light " + light.getId() + " is " + light.getColor() + " with emergency weight " + light.getEmergencyWeight() + " and regular weight " + light.getRegularWeight() + "\n";
+            str += light.toString() + "\n";
         }
+        str += "\n";
         // Lanes map
+        str += "Lanes map:\n";
         for(Map.Entry<Integer, Integer[]> entry : lanesMap.entrySet()) {
             Integer[] value = entry.getValue();
             str += "Lane " + entry.getKey() + " : ";
             if (value == null) {
                 str += "null\n";
-            } else {
-                // Use Arrays.toString to get the content of the array
+            }
+            else {
                 str += Arrays.toString(value) + "\n";
             }
         }
+        str += "\n";
+        // Lanes array
+        str += "Lanes array:\n";
+        for (Lane lane : lanes) {
+            str += lane.toString() + "\n";
+        }
+
         return str;
     }
 }

@@ -34,4 +34,15 @@ class TrafficLight {
     public int getEmergencyWeight() { return this.emergencyWeight; }
     public int getRegularWeight() { return this.regularWeight; }
     public int getId() { return this.id; }
+
+    // ToString
+    @Override
+    public String toString() {
+        String str = "Traffic Light " + this.id + ": ";
+        for (Lane lane : lanes) {
+            str += lane.getId() + ", ";
+        }
+        str += this.color + " emergency weight: " + this.emergencyWeight + " regular weight: " + this.regularWeight;
+        return str;
+    }
 }

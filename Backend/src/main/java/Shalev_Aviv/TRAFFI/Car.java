@@ -28,4 +28,10 @@ public class Car {
     // Getters
     public CarType getType() { return type; }
     public boolean getEmergency() { return emergency; }
+
+    // ToString
+    @Override
+    public String toString() {
+        return "Car type: " + type + ", Emergency: " + emergency;
+    }
 }
