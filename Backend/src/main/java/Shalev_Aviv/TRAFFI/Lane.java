@@ -38,7 +38,7 @@ public class Lane {
      */
     public void removeCar() {
         if (cars.isEmpty()) return;
-        
+
         this.amount--;
         if(cars.remove().getEmergency()) {
             this.emergencyCarsCounter--;
@@ -47,9 +47,16 @@ public class Lane {
         }
     }
 
+    // Getters
     public Queue<Car> getCars() { return this.cars; }
     public int getAmount() { return this.amount; }
     public int getRegularCarsCounter() { return this.regularCarsCounter; }
     public int getEmergencyCarsCounter() { return this.emergencyCarsCounter; }
     public int getId() { return this.id; }
+
+    // ToString
+    @Override
+    public String toString() {
+        return "Lane " + this.id + ": " + this.amount + " cars";
+    }
 }

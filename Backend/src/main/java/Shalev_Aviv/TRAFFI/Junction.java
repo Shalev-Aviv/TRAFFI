@@ -1,43 +1,26 @@
 package Shalev_Aviv.TRAFFI;
-
+import java.util.Arrays;
 import java.util.Map;
+
 
 // Junction class - representing the entire junction
 class Junction {
     private int[][] trafficLightGraph; // Graph representing the junction
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
-    private Lane[] exitLanes; // Lanes that exit the intersection
 
-    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] exitLanes) {
+    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap) {
         this.trafficLightGraph = trafficLightGraph;
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
-        this.exitLanes = exitLanes;
-    }
-
-    public void updateJunction() {
-        /*
-         * This function updates the junction by:
-         * 1. finding the traffic light with the maximun weight
-         * 2. turn off all the lights that can't work simultaneously with the light with the maximum weight
-         * 3. turn on the light with the maximum weight
-         * 4. find the largest clique of lights that can work simultaneously with the light with the maximum weight
-         * 5. turn on all the lights in the clique
-         * 6. dequeue cars from the lanes of the lights that are turned off and enqueue them to the langes they go to (according to the lanes map)
-         * 7. update the weights of the lights
-         */
     }
 
     /**
      * @return the index of the traffic light with the largest weight
      */ 
     public int MaxWeight() {
-        int maxEmergencyWeight = MaximumEmergencyWeight();
-
-        return MaximumRegularWeight(maxEmergencyWeight);
+        return MaximumRegularWeight(MaximumEmergencyWeight());
     }
-
     /**
      * @return an array of size 2, where the first element is the weight of the traffic light with the largest emergency weight, and the second element is the index of that light
      */
@@ -69,6 +52,36 @@ class Junction {
     }
 
     // Getters
+    public int[][] getTrafficLightGraph() { return trafficLightGraph; }
     public TrafficLight[] getTrafficLightsArray() { return trafficLightsArray; }
-    public Lane[] getExitLanes() { return exitLanes; }
+    public Map<Integer, Integer[]> getLanesMap() { return lanesMap; }
+
+    // ToString
+    @Override
+    public String toString() {
+        String str = "";
+        // Traffic light Matrix
+        for (int i = 0; i < trafficLightGraph.length; i++) {
+            for (int j = 0; j < trafficLightGraph[i].length; j++) {
+                str += trafficLightGraph[i][j] + " ";
+            }
+            str += "\n";
+        }
+        // Traffic lights array
+        for (TrafficLight light : trafficLightsArray) {
+            str += "Traffic light " + light.getId() + " is " + light.getColor() + " with emergency weight " + light.getEmergencyWeight() + " and regular weight " + light.getRegularWeight() + "\n";
+        }
+        // Lanes map
+        for(Map.Entry<Integer, Integer[]> entry : lanesMap.entrySet()) {
+            Integer[] value = entry.getValue();
+            str += "Lane " + entry.getKey() + " : ";
+            if (value == null) {
+                str += "null\n";
+            } else {
+                // Use Arrays.toString to get the content of the array
+                str += Arrays.toString(value) + "\n";
+            }
+        }
+        return str;
+    }
 }

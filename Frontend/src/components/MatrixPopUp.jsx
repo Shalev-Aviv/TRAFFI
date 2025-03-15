@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './MatrixPopUp.css';
 
@@ -18,15 +18,15 @@ const trafficLightsMatrix = `{
 
 const lightsToLanesMap = `{
   "Lights To Lanes": {
-    "Light 1": [1, 2],
-    "Light 2": [5, 6],
-    "Light 3": [9, 10],
-    "Light 4": [13, 14],
-    "Light 5": [11, 12],
-    "Light 6": [17, 18],
-    "Light 7": [21, 22],
-    "Light 8": [23],
-    "Light 9": [26, 27]
+    "1": [1, 2],
+    "2": [5, 6],
+    "3": [9, 10],
+    "4": [13, 14],
+    "5": [11, 12],
+    "6": [17, 18],
+    "7": [21, 22],
+    "8": [23],
+    "9": [26, 27]
   }
 }`;
 
@@ -96,7 +96,7 @@ const MatrixPopUp = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/json', {
+            const response = await fetch('http://localhost:8080/parsing', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(jsonData),

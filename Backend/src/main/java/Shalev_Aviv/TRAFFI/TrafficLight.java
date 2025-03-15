@@ -18,8 +18,6 @@ class TrafficLight {
         this.id = id;
     }
     
-
-
     public void setWeight() {
         for (Lane lane : lanes) {
             this.emergencyWeight += lane.getEmergencyCarsCounter();
@@ -29,7 +27,6 @@ class TrafficLight {
 
     public void turnOff() { this.color = Color.RED; }
     public void turnOn() { this.color = Color.GREEN; }
-
 
     // Getters
     public Color getColor() { return this.color; }
