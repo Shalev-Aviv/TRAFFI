@@ -4,7 +4,7 @@ import java.util.Map;
 
 
 // Junction class - representing the entire junction
-class Junction {
+public class Junction {
     private int[][] trafficLightGraph; // Graph representing the junction
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
