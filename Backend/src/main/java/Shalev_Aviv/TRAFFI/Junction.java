@@ -1,31 +1,39 @@
 package Shalev_Aviv.TRAFFI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.HashMap;
 
 
 // Junction class - representing the entire junction
 public class Junction {
+    private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
+
     private int[][] trafficLightGraph; // Graph representing the junction
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction
 
+    // Constructor
     public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         this.trafficLightGraph = trafficLightGraph;
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
+
+        // Build reverse mapping of lanes to traffic lights
+        this.laneToTrafficLightMap = new HashMap<>();
+        for (TrafficLight light : trafficLightsArray) {
+            for (Lane lane : light.getLanes()) {
+                laneToTrafficLightMap.put(lane, light);
+            }
+        }
     }
 
-    /**
-     * @return the index of the traffic light with the largest weight
-     */ 
+    /** return the index of the traffic light with the largest weight*/ 
     public int MaxWeight() {
         return MaximumRegularWeight(MaximumEmergencyWeight());
     }
-    /**
-     * @return an array of size 2, where the first element is the weight of the traffic light with the largest emergency weight, and the second element is the index of that light
-     */
+    /** return an array of size 2, where the first element is the weight of the traffic light with the largest emergency weight, and the second element is the index of that light*/
     private int MaximumEmergencyWeight() {
         int maxWeight = 0;
         for (int i = 0; i < trafficLightsArray.length; i++) {
@@ -35,9 +43,7 @@ public class Junction {
         }
         return maxWeight;
     }
-    /**
-     * @return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight
-     */
+    /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight*/
     private int MaximumRegularWeight(int maxEmergencyWeight) {
         int maxWeight = 0;
         int index = 0;
@@ -54,6 +60,7 @@ public class Junction {
     }
 
     // Getters
+    public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return laneToTrafficLightMap; }
     public int[][] getTrafficLightGraph() { return trafficLightGraph; }
     public TrafficLight[] getTrafficLightsArray() { return trafficLightsArray; }
     public Map<Integer, Integer[]> getLanesMap() { return lanesMap; }

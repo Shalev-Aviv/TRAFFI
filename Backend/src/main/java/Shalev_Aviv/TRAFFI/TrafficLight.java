@@ -10,6 +10,7 @@ class TrafficLight {
     private int regularWeight;
     private int id;
 	
+    // Constructor
     public TrafficLight(Lane[] lanes, int id) {
         this.color = Color.RED;
         this.lanes = lanes;
@@ -18,14 +19,18 @@ class TrafficLight {
         this.id = id;
     }
     
-    public void setWeight() {
-        for (Lane lane : lanes) {
-            this.emergencyWeight += lane.getEmergencyCarsCounter();
-            this.regularWeight += lane.getRegularCarsCounter();
-        }
+    /** Increment the emergency weight of the traffic light*/
+    public void incrementEmergencyWeight(int delta) {
+        this.emergencyWeight += delta;
+    }
+    /** Increment the regular weight of the traffic light*/
+    public void incrementRegularWeight(int delta) {
+        this.regularWeight += delta;
     }
 
+    /**Turn the traffic light off (RED)*/
     public void turnOff() { this.color = Color.RED; }
+    /** Turn the traffic light on (GREEN)*/
     public void turnOn() { this.color = Color.GREEN; }
 
     // Getters

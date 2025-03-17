@@ -3,12 +3,15 @@ import java.util.*;
 
 // Lane class - representing a queue of cars in a specific lane
 public class Lane {
+    private TrafficLight parentTrafficLight; // Reference to the parent traffic light
+
     private Queue<Car> cars; // Queue of cars in the lane
     private int amount; // Amount of cars in the lane
     private int regularCarsCounter; // Amount of regular cars in the lane
     private int emergencyCarsCounter; // Amount of emergency cars in the lane
     private int id; // Lane id
 
+    // constructor
     public Lane(int id) {
         this.cars = new LinkedList<>();
         this.amount = 0;
@@ -17,37 +20,48 @@ public class Lane {
         this.id = id;
     }
 
-    /**
-     * Add a car to the lane
-     * @param car
-     * @return void
-     */
+    // Method to set the parent traffic light
+    public void setParentTrafficLight(TrafficLight light) {
+        this.parentTrafficLight = light;
+    }
+
+    /** Add a car to the lane and update the weights of the parent traffic light*/
     public void addCar(Car car) {
         cars.add(car);
         this.amount++;
         if(car.getEmergency()) {
             this.emergencyCarsCounter++;
+            if (parentTrafficLight != null) {
+                parentTrafficLight.incrementEmergencyWeight(1);
+            }
         } else {
             this.regularCarsCounter++;
+            if (parentTrafficLight != null) {
+                parentTrafficLight.incrementRegularWeight(1);
+            }
         }
     }
-
-    /**
-     * Remove the first car from the lane (if any)
-     * @return void
-     */
+    /** Remove the first car from the lane (if any) and update the weights of the parent traffic light*/
     public void removeCar() {
         if (cars.isEmpty()) return;
-
+        
         this.amount--;
-        if(cars.remove().getEmergency()) {
+        Car removedCar = cars.remove();
+        if(removedCar.getEmergency()) {
             this.emergencyCarsCounter--;
+            if (parentTrafficLight != null) {
+                parentTrafficLight.incrementEmergencyWeight(-1);
+            }
         } else {
             this.regularCarsCounter--;
+            if (parentTrafficLight != null) {
+                parentTrafficLight.incrementRegularWeight(-1);
+            }
         }
     }
 
     // Getters
+    public TrafficLight getParentTrafficLight() { return this.parentTrafficLight; }
     public Queue<Car> getCars() { return this.cars; }
     public int getAmount() { return this.amount; }
     public int getRegularCarsCounter() { return this.regularCarsCounter; }

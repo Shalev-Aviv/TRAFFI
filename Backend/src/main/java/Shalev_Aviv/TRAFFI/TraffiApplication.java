@@ -40,29 +40,29 @@ public class TraffiApplication {
     public ResponseEntity<Map<String, String>> postMethodName(@RequestBody Map<String, String> entity) {
         try {
             parseJsonData(entity);
-            Lane[] lanes = createLanes();
-            TrafficLight[] trafficLights = createTrafficLights(lanes);
+            Lane[] lanes = createLanes(); // Create lanes
+            TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
+            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
+            System.out.println(junction.toString()); // Print junction
 
-            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes);
+            trafficService.setJunction(junction); // Set junction in traffic service
+            trafficService.addCarsAsync(10, 1000); // Add cars to junction asynchronously
+
             System.out.println(junction.toString());
-
-            trafficService.setJunction(junction);
-            trafficService.addCarsAsync(10, 1000);
-
-            for (int i = 0; i < 10; i++) {
-                try {
-                    Thread.sleep(1000);
-                    System.out.println(i + " " + junction.toString());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    System.err.println("Error adding car: " + e.getMessage());
-                }
+            System.out.println(junction.MaxWeight());
+            try {
+                Thread.sleep(1000*15);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            System.out.println(junction.toString());
+            System.out.println(junction.MaxWeight()+1);
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "Received and processed JSON successfully!");
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Error processing JSON: " + e.getMessage());
@@ -80,6 +80,10 @@ public class TraffiApplication {
         lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesMapJson);
     }
 
+    /**
+     * Create lanes based on the lanes map
+     * @return Lane[]
+     */
     private Lane[] createLanes() {
         Lane[] lanes = new Lane[lanesToLanesMap.size()];
         for (int i = 0; i < lanesToLanesMap.size(); i++) {
@@ -88,6 +92,11 @@ public class TraffiApplication {
         return lanes;
     }
 
+    /**
+     * Create traffic lights based on the lanes they control
+     * @param lanes
+     * @return TrafficLight[]
+     */
     private TrafficLight[] createTrafficLights(Lane[] lanes) {
         TrafficLight[] trafficLights = new TrafficLight[lightsToLanesMap.size()];
         int lightIndex = 0;
@@ -105,7 +114,15 @@ public class TraffiApplication {
                         System.err.println("Warning: Lane ID " + laneId + " out of bounds for lanes array for traffic light " + lightId);
                     }
                 }
-                trafficLights[lightIndex++] = new TrafficLight(lightLanes, lightId);
+                TrafficLight trafficLight = new TrafficLight(lightLanes, lightId);
+                trafficLights[lightIndex++] = trafficLight;
+                
+                // Set parent traffic light for each lane
+                for (Lane lane : lightLanes) {
+                    if (lane != null) {
+                        lane.setParentTrafficLight(trafficLight);
+                    }
+                }
             } else {
                 System.err.println("Warning: No lanes found for traffic light " + lightId);
             }
