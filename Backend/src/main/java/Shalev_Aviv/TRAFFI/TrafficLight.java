@@ -28,10 +28,8 @@ class TrafficLight {
         this.regularWeight += delta;
     }
 
-    /**Turn the traffic light off (RED)*/
-    public void turnOff() { this.color = Color.RED; }
-    /** Turn the traffic light on (GREEN)*/
-    public void turnOn() { this.color = Color.GREEN; }
+    /** Create a function that turns the traffic light on or off*/
+    public void setOn(boolean on) { this.color = on ? Color.GREEN : Color.RED; }
 
     // Getters
     public Color getColor() { return this.color; }

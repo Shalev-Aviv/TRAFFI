@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import Shalev_Aviv.TRAFFI.service.JsonConverter;
-import Shalev_Aviv.TRAFFI.service.TrafficService;
 
 @SpringBootApplication
 @RestController
@@ -29,47 +27,11 @@ public class TraffiApplication {
     private Map<Integer, Integer[]> lanesToLanesMap;
     private Junction junction;
 
-    @Autowired
-    private TrafficService trafficService;
-
     public static void main(String[] args) {
         SpringApplication.run(TraffiApplication.class, args);
     }
 
-    @PostMapping("/parsing")
-    public ResponseEntity<Map<String, String>> postMethodName(@RequestBody Map<String, String> entity) {
-        try {
-            parseJsonData(entity);
-            Lane[] lanes = createLanes(); // Create lanes
-            TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
-            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
-            System.out.println(junction.toString()); // Print junction
-
-            trafficService.setJunction(junction); // Set junction in traffic service
-            trafficService.addCarsAsync(10, 1000); // Add cars to junction asynchronously
-
-            System.out.println(junction.toString());
-            System.out.println(junction.MaxWeight());
-            try {
-                Thread.sleep(1000*15);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(junction.toString());
-            System.out.println(junction.MaxWeight()+1);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Received and processed JSON successfully!");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Error processing JSON: " + e.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /** Parse JSON data from the frontend to Java DS*/
     private void parseJsonData(Map<String, String> entity) throws IOException {
         String trafficLightsMatrixJson = entity.get("trafficLightsMatrix");
         String lanesToLightsMapJson = entity.get("lightsToLanesMap");
@@ -80,10 +42,7 @@ public class TraffiApplication {
         lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesMapJson);
     }
 
-    /**
-     * Create lanes based on the lanes map
-     * @return Lane[]
-     */
+    /** Create lanes based on the lanes map*/
     private Lane[] createLanes() {
         Lane[] lanes = new Lane[lanesToLanesMap.size()];
         for (int i = 0; i < lanesToLanesMap.size(); i++) {
@@ -92,11 +51,7 @@ public class TraffiApplication {
         return lanes;
     }
 
-    /**
-     * Create traffic lights based on the lanes they control
-     * @param lanes
-     * @return TrafficLight[]
-     */
+    /** Create traffic lights based on the lanes they control*/
     private TrafficLight[] createTrafficLights(Lane[] lanes) {
         TrafficLight[] trafficLights = new TrafficLight[lightsToLanesMap.size()];
         int lightIndex = 0;
@@ -128,6 +83,48 @@ public class TraffiApplication {
             }
         }
         return trafficLights;
+    }
+
+    @PostMapping("/parsing")
+    public ResponseEntity<Map<String, String>> postMethodName(@RequestBody Map<String, String> entity) {
+        try {
+            parseJsonData(entity);
+            Lane[] lanes = createLanes(); // Create lanes
+            TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
+            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
+            
+            // Print junction
+            System.out.println(junction.toString());
+
+            // Start simulation
+            junction.addCarsAsync(10, 1000); // Add cars asynchronously to the junction
+            junction.manageTrafficLights(); // Controls the traffic lights
+
+            // Print traffic lights colors (DEBUG)
+            for(int i = 0; i < trafficLights.length; i++) {
+                System.out.println(trafficLights[i].getColor());
+            }
+
+            // Add delay to print junction (DEBUG)
+            try {
+                Thread.sleep(1000*15);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(junction.toString());
+            System.out.println(junction.maxWeightIndex()+1);
+
+            // Return response
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Received and processed JSON successfully!");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error processing JSON: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/lights-matrix")
