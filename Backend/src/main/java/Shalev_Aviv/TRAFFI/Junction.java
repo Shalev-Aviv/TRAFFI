@@ -1,4 +1,5 @@
 package Shalev_Aviv.TRAFFI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -7,6 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 // Junction class - representing the entire junction
 public class Junction {
@@ -35,10 +37,10 @@ public class Junction {
 
     /** return the index of the traffic light with the largest weight*/ 
     public int maxWeightIndex() {
-        return maximumRegularWeight(maximumEmergencyWeight());
+        return maxRegularWeight(maxEmergencyWeight());
     }
     /** return the maximum emergency weight among all traffic lights*/
-    private int maximumEmergencyWeight() {
+    private int maxEmergencyWeight() {
         int maxWeight = 0;
         for (int i = 0; i < trafficLightsArray.length; i++) {
             if (trafficLightsArray[i].getEmergencyWeight() > maxWeight) {
@@ -48,7 +50,7 @@ public class Junction {
         return maxWeight;
     }
     /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight*/
-    private int maximumRegularWeight(int maxEmergencyWeight) {
+    private int maxRegularWeight(int maxEmergencyWeight) {
         int maxWeight = 0;
         int index = 0;
         for (int i = 0; i < trafficLightsArray.length; i++) {
@@ -96,66 +98,89 @@ public class Junction {
     /** Async function that gets the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in*/
     @Async
     public void manageTrafficLights() {
-        Set<Integer> clique = new HashSet<>();
-        largestClique(maxWeightIndex(), clique);
+        int maxWeightIndex = maxWeightIndex();
+        Set<Integer> clique = findLargestClique(maxWeightIndex);
         
         // Print the clique
         System.out.println("Clique:\n");
         for (Integer i : clique) {
             System.out.print(i+1+", ");
-        }
+        } System.out.println("\n");
+
         changeLights(clique);
-        /**/System.out.println("Changed lights to clique");
     }
-    /** changes the lights of the traffic lights in the clique*/
-    private void changeLights(Set<Integer> clique) {
-        for (int i = 0; i < trafficLightsArray.length; i++) {
-            if (clique.contains(i)) {
-                trafficLightsArray[i].setOn(true);
-            }
-            else {
-                trafficLightsArray[i].setOn(false);
+    /** finds the traffic light with the maximum weight in the set*/
+    private int maxWeightIndexFromSet(Set<Integer> set) {
+        return maxRegularWeightIndexFromSet(set, maxEmergencyWeightFromSet(set));
+    }
+    /** finds the maximum emergency weight in the set*/
+    private int maxEmergencyWeightFromSet(Set<Integer> set) {
+        List<Integer> setList = new ArrayList<>(set);
+        int maxWeight = trafficLightsArray[setList.get(0)].getEmergencyWeight();
+        for (int i = 0; i < setList.size(); i++) {
+            if (trafficLightsArray[setList.get(i)].getEmergencyWeight() > maxWeight) {
+                maxWeight = trafficLightsArray[setList.get(i)].getEmergencyWeight();
             }
         }
+        return maxWeight;
+    }
+    /** finds the traffic light with the maximum regular weight in the set, given the maximum emergency weight*/
+    private int maxRegularWeightIndexFromSet(Set<Integer> set, int maxEmergencyWeight) {
+        List<Integer> setList = new ArrayList<>(set);
+        int maxWeight = trafficLightsArray[setList.get(0)].getRegularWeight();
+        int index = setList.get(0);
+        for (int i = 0; i < setList.size(); i++) {
+            int current = setList.get(i);
+            if (trafficLightsArray[current].getEmergencyWeight() != maxEmergencyWeight &&
+                trafficLightsArray[current].getRegularWeight() > maxWeight) {
+                maxWeight = trafficLightsArray[current].getRegularWeight();
+                index = current;
+            }
+        }
+        return index;
     }
     /** finds the largest clique in the graph that contains the maximum weighted traffic light*/
-    private void largestClique(int maxWeightIndex, Set<Integer> clique) {
+    private Set<Integer> findLargestClique(int maxWeightIndex) {
+        HashSet<Integer> clique = new HashSet<>();
         clique.add(maxWeightIndex);
-        findStrongConnection(clique, maxWeightIndex);
         while(canWeAdd(clique)) {
+            findStrongConnection(clique, maxWeightIndex);
+            HashSet<Integer> temp = new HashSet<>();
             for(int i = 0; i < trafficLightsArray.length; i++) {
                 if(clique.contains(i)) {
                     continue;
                 }
-                boolean flag = true;
-                for(Integer j : clique) {
-                    if(trafficLightGraph[i][j] == 0) {
-                        flag = false;
-                        break;
-                    }
-                }
-                if(flag) {
-                    clique.add(i);
-                    findStrongConnection(clique, i);
+                if(canWeAddThis(clique, i)) {
+                    temp.add(i);
                 }
             }
+            if(temp.isEmpty()) {
+                break;
+            }
+            else {
+                int candidate = maxWeightIndexFromSet(temp);
+                if(clique.contains(candidate)) {
+                    break;
+                }
+                clique.add(candidate);
+            }
         }
+        return clique;
     }
-    /** checks if we found the largest clique*/
+    /** return false if we found the largest clique, return true otherwise*/
     private boolean canWeAdd(Set<Integer> clique) {
         for(int i = 0; i < trafficLightsArray.length; i++) {
             if(clique.contains(i)) {
                 continue;
             }
-            boolean flag = canWeAdd(clique, i);
-            if(flag) {
+            if(canWeAddThis(clique, i)) {
                 return true;
             }
         }
         return false;
     }
-    /** checks if we can add a traffic light to the clique*/
-    private boolean canWeAdd(Set<Integer> clique, int index) {
+    /** return true if we can add a trafficLightsArray[index] to the clique*/
+    private boolean canWeAddThis(Set<Integer> clique, int index) {
         for(Integer i : clique) {
             if(trafficLightGraph[index][i] == 0) {
                 return false;
@@ -167,9 +192,20 @@ public class Junction {
     private void findStrongConnection(Set<Integer> clique, int index) {
         for(int i = 0; i < trafficLightGraph.length; i++) {
             if(trafficLightGraph[index][i] == 2) {
-                if(canWeAdd(clique, i)) {
+                if(canWeAddThis(clique, i)) {
                     clique.add(i);
                 }
+            }
+        }
+    }
+    /** changes the lights of the traffic lights in the clique*/
+    private void changeLights(Set<Integer> clique) {
+        for (int i = 0; i < trafficLightsArray.length; i++) {
+            if (clique.contains(i)) {
+                trafficLightsArray[i].setOn(true);
+            }
+            else {
+                trafficLightsArray[i].setOn(false);
             }
         }
     }

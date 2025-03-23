@@ -97,21 +97,21 @@ public class TraffiApplication {
             System.out.println(junction.toString());
 
             // Start simulation
-            junction.addCarsAsync(10, 1000); // Add cars asynchronously to the junction
+            junction.addCarsAsync(50, 1000); // Add cars asynchronously to the junction
+            
+            // Add delay to print junction (DEBUG)
+            try {
+                Thread.sleep(1000*50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
             junction.manageTrafficLights(); // Controls the traffic lights
-
+            
             // Print traffic lights colors (DEBUG)
             for(int i = 0; i < trafficLights.length; i++) {
                 System.out.println(trafficLights[i].getColor());
             }
-
-            // Add delay to print junction (DEBUG)
-            try {
-                Thread.sleep(1000*15);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(junction.toString());
             System.out.println(junction.maxWeightIndex()+1);
 
             // Return response
