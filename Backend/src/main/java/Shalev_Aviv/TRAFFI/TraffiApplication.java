@@ -98,13 +98,13 @@ public class TraffiApplication {
 
             // Start simulation
             junction.addCarsAsync(50, 1000); // Add cars asynchronously to the junction
-            
+            System.out.println("test");
             // Add delay to print junction (DEBUG)
-            try {
-                Thread.sleep(1000*50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            //try {
+            //    Thread.sleep(1000*50);
+            //} catch (InterruptedException e) {
+            //    e.printStackTrace();
+            //}
             
             junction.manageTrafficLights(); // Controls the traffic lights
             
