@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Async;
 
-
 // Junction class - representing the entire junction
 public class Junction {
     private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
@@ -129,23 +128,34 @@ public class Junction {
         }
     }
 
-    /** Async function that gets the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in<p>
-     * <STRONG>O(n^2 * m)</STRONG><p>
-     * n -> length of <CODE>trafficLightsArray</CODE>
+    /** Async function that finds the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in, and make it green<p>
+     * <STRONG>O(n^3)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE><p>
      * m -> size of clique
     */
     @Async
     public void manageTrafficLights() {
-        int maxWeightIndex = maxWeightIndex();
-        Set<Integer> clique = findLargestClique(maxWeightIndex);
-        
-        // Print the clique
-        System.out.println("Clique:\n");
-        for (Integer i : clique) {
-            System.out.print(i+1+", ");
-        } System.out.println("\n");
+        int test = 10; // delete once I figure how to make it asynchronously
+        while(test-- > 0) { // change to `while(true)` once I figure out how to make it asynchronously
+            int maxWeightIndex = maxWeightIndex();
+            Set<Integer> clique = findLargestClique(maxWeightIndex);
+            
+            // Print the clique
+            System.out.println("Clique:\n");
+            for (Integer i : clique) {
+                System.out.print(i+1+", ");
+            } System.out.println("\n");
 
-        changeLights(clique);
+            changeLights(clique);
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Error managing traffic lights: " + e.getMessage());
+                System.exit(1);
+            }
+        }
     }
     /** finds the traffic light with the maximum weight in the set and returns it<p>
      * <STRONG>O(n)</STRONG><p>
@@ -266,9 +276,11 @@ public class Junction {
         for (int i = 0; i < trafficLightsArray.length; i++) {
             if (clique.contains(i)) {
                 trafficLightsArray[i].setOn(true);
+                trafficLightsArray[i].startDequeue(lanesMap, lanes);
             }
             else {
                 trafficLightsArray[i].setOn(false);
+                trafficLightsArray[i].stopDequeue();
             }
         }
     }

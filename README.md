@@ -17,21 +17,24 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 ## Installation & Usage🚀
 ### Prerequisites
 - Node.js & npm (for the frontend)
-- JDK & Apache Maven (for the backend, once implemented)
+- JDK & Apache Maven (for the backend)
 ### Recommended Versions
-- Node 20.12.0
-- npm 10.5.0
-- JDK 21
-- Apache Maven 3.9.9
-
-### Running the Frontend
+- Node ^20.12.0
+- npm ^10.5.0
+- JDK ^21
+- Apache Maven ^3.9.9
+### First time running the Frontend
 ```sh
 cd Frontend
 npm install
 npm install locomotive-scroll
 npm start
 ```
-
+### Second time running the Frontend
+```sh
+cd Frontend
+npm start
+```
 ### Running the Backend
 ```sh
 cd Backend
@@ -45,13 +48,13 @@ mvn spring-boot:run
   - [x] Adding smooth scroll
   - [x] Develop the start button and its popup
 - [ ] Implement backend
-  - [x] Implement weight system to prioritize traffic lights
+  - [x] JSON parsing
   - [x] Car class
   - [x] Lane class
   - [x] TrafficLight class
-  - [ ] Junction class (⏳ 80% done)
-  - [x] JSON parsing
-  - [x] Graph-theory algorithm to find the best set of traffic lights to get green color
+  - [x] Implement weight system to prioritize traffic lights
+  - [ ] Junction class (⏳80% done)
+  - [x] Implement graph-theory algorithm(s) to find the best group of traffic lights to get green color
 - [ ] Implement Three.js visualization
 - [ ] Optimize traffic flow algorithms
 

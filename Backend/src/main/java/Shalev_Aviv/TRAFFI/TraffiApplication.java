@@ -23,9 +23,12 @@ import Shalev_Aviv.TRAFFI.service.JsonConverter;
 @CrossOrigin(origins = "http://localhost:3000")
 @EnableAsync
 public class TraffiApplication {
-    private int[][] trafficLightsMatrix;
-    private Map<Integer, Integer[]> lightsToLanesMap;
-    private Map<Integer, Integer[]> lanesToLanesMap;
+    private int[][] trafficLightsMatrix; // Traffic lights matrix
+    private Map<Integer, Integer[]> lightsToLanesMap; // Map of lights to lanes
+    private Map<Integer, Integer[]> lanesToLanesMap; // Map of lanes to lanes
+    private Junction junction; // junction
+
+    public Map<Integer, Integer[]> getLanesToLanesMap() { return this.lanesToLanesMap; }
 
     // @Autowired
     // private Junction junction; // Inject the Junction bean
@@ -92,14 +95,13 @@ public class TraffiApplication {
             parseJsonData(entity);
             Lane[] lanes = createLanes(); // Create lanes
             TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
-            Junction junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
+            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
             
             // Print junction
             System.out.println(junction.toString());
 
             // Start simulation
             junction.addCarsAsync(1000); // Add cars asynchronously to the junction
-            
             junction.manageTrafficLights(); // Controls the traffic lights
             
             // Print traffic lights colors (DEBUG)
