@@ -20,8 +20,8 @@ public class Junction {
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction
-    private Set<Integer> destinationLanes; // 
-    private List<Integer> enteringLanes; // 
+    private Set<Integer> destinationLanes; // Set of destination lanes
+    private List<Integer> enteringLanes; // List of entering lanes
 
     /** Constructor*/
     public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
@@ -130,7 +130,9 @@ public class Junction {
     }
 
     /** Async function that gets the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in<p>
-     * <STRONG>O(n^3)</STRONG><p>
+     * <STRONG>O(n^2 * m)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+     * m -> size of clique
     */
     @Async
     public void manageTrafficLights() {
@@ -186,7 +188,7 @@ public class Junction {
     }
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>
      * O(n^2 * m)<p>
-     * n -> size of the clique
+     * n -> size of the clique<p>
      * m -> length of the <CODE>trafficLightsArray</CODE>
     */
     private Set<Integer> findLargestClique(int maxWeightIndex) {

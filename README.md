@@ -49,9 +49,9 @@ mvn spring-boot:run
   - [x] Car class
   - [x] Lane class
   - [x] TrafficLight class
-  - [ ] Junction class (⏳ half-done)
+  - [ ] Junction class (⏳ 80% done)
   - [x] JSON parsing
-  - [ ] Graph-theory algorithm to find the best set of traffic lights to get green color
+  - [x] Graph-theory algorithm to find the best set of traffic lights to get green color
 - [ ] Implement Three.js visualization
 - [ ] Optimize traffic flow algorithms
 
