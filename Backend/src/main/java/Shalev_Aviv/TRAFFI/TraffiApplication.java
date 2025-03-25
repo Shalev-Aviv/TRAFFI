@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import Shalev_Aviv.TRAFFI.service.JsonConverter;
+//import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
 @RestController
@@ -25,7 +26,9 @@ public class TraffiApplication {
     private int[][] trafficLightsMatrix;
     private Map<Integer, Integer[]> lightsToLanesMap;
     private Map<Integer, Integer[]> lanesToLanesMap;
-    private Junction junction;
+
+    // @Autowired
+    // private Junction junction; // Inject the Junction bean
 
     public static void main(String[] args) {
         SpringApplication.run(TraffiApplication.class, args);
@@ -41,7 +44,6 @@ public class TraffiApplication {
         lightsToLanesMap = JsonConverter.convertLightsToLanesMap(lanesToLightsMapJson);
         lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesMapJson);
     }
-
     /** Create lanes based on the lanes map*/
     private Lane[] createLanes() {
         Lane[] lanes = new Lane[lanesToLanesMap.size()];
@@ -50,7 +52,6 @@ public class TraffiApplication {
         }
         return lanes;
     }
-
     /** Create traffic lights based on the lanes they control*/
     private TrafficLight[] createTrafficLights(Lane[] lanes) {
         TrafficLight[] trafficLights = new TrafficLight[lightsToLanesMap.size()];
@@ -91,20 +92,13 @@ public class TraffiApplication {
             parseJsonData(entity);
             Lane[] lanes = createLanes(); // Create lanes
             TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
-            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
+            Junction junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
             
             // Print junction
             System.out.println(junction.toString());
 
             // Start simulation
-            junction.addCarsAsync(50, 1000); // Add cars asynchronously to the junction
-            System.out.println("test");
-            // Add delay to print junction (DEBUG)
-            //try {
-            //    Thread.sleep(1000*50);
-            //} catch (InterruptedException e) {
-            //    e.printStackTrace();
-            //}
+            junction.addCarsAsync(1000); // Add cars asynchronously to the junction
             
             junction.manageTrafficLights(); // Controls the traffic lights
             

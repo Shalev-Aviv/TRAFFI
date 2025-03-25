@@ -1,14 +1,16 @@
 package Shalev_Aviv.TRAFFI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
-
-import org.springframework.scheduling.annotation.Async;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import org.springframework.scheduling.annotation.Async;
+
 
 // Junction class - representing the entire junction
 public class Junction {
@@ -18,6 +20,8 @@ public class Junction {
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction
+    private Set<Integer> destinationLanes; // 
+    private List<Integer> enteringLanes; // 
 
     /** Constructor*/
     public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
@@ -33,13 +37,34 @@ public class Junction {
                 laneToTrafficLightMap.put(lane, light);
             }
         }
+
+        // Build destination lanes
+        this.destinationLanes = new HashSet<>();
+        for (Integer[] targets : lanesMap.values()) {
+            if (targets != null) {
+                Collections.addAll(destinationLanes, targets);
+            }
+        }
+        // Build entering lanes
+        this.enteringLanes = new ArrayList<>();
+        for (Map.Entry<Integer, Integer[]> entry : lanesMap.entrySet()) {
+            if (entry.getValue() != null && !destinationLanes.contains(entry.getKey())) {
+                enteringLanes.add(entry.getKey());
+            }
+        }
     }
 
-    /** return the index of the traffic light with the largest weight<p>O(n)*/ 
+    /** return the index of the traffic light with the largest weight<p>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+     * */ 
     public int maxWeightIndex() {
         return maxRegularWeight(maxEmergencyWeight());
     }
-    /** return the maximum emergency weight among all traffic lights<p>O(n)*/
+    /** return the maximum emergency weight among all traffic lights<p>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+     * */
     private int maxEmergencyWeight() {
         int maxWeight = 0;
         for (int i = 0; i < trafficLightsArray.length; i++) {
@@ -49,7 +74,10 @@ public class Junction {
         }
         return maxWeight;
     }
-    /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight<p>O(n)*/
+    /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight<p>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+     * */
     private int maxRegularWeight(int maxEmergencyWeight) {
         int maxWeight = 0;
         int index = 0;
@@ -69,33 +97,36 @@ public class Junction {
 
     /** Async function that adds cars to the lanes
      * <STRONG>O(n)</STRONG><p>
-     * n -> <CODE>numberOfCars</CODE>
+     * n -> <CODE>while(true)</CODE>
     */
     @Async
-    public void addCarsAsync(int numberOfCars, int delay) {
-        System.out.println("Starting to add " + numberOfCars + " cars asynchronously");
-        for (int i = 0; i < numberOfCars; i++) {
-            Car.CarType[] carType = {
-                Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
-                Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
-                Car.CarType.POLICE, Car.CarType.POLICE,
-                Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
-            };
-            int random = (int) (Math.random() * 10);
-            Car newCar = new Car(carType[random]);
-            random = (int) (Math.random() * lanes.length);
-            lanes[random].addCar(newCar);
-            /**/System.out.println("Added car to lane " + random);
-            
-            // Add delay
+    public void addCarsAsync(int delay) {
+        System.out.println("Starting to add cars asynchronously");
+
+        Car.CarType[] carType = {
+            Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
+            Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
+            Car.CarType.POLICE, Car.CarType.POLICE,
+            Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
+        };
+        Random rand = new Random();
+        int test = 10; // delete once I figure how to make it asynchronously
+        while (test-- > 0) { // change to `while(true)` once I figure out how to make it asynchronously
+            int randomIndex = rand.nextInt(carType.length);
+            Car newCar = new Car(carType[randomIndex]);
+
+            int laneIndex = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
+            lanes[laneIndex].addCar(newCar);
+            System.out.println("Added car to lane " + laneIndex);
+
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Error adding cars: " + e.getMessage());
+                System.exit(1);
             }
         }
-        /**/System.out.println("Finished adding cars asynchronously.");
     }
 
     /** Async function that gets the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in<p>
@@ -241,11 +272,15 @@ public class Junction {
     }
 
     // Getters
-    public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return laneToTrafficLightMap; }
-    public int[][] getTrafficLightGraph() { return trafficLightGraph; }
-    public TrafficLight[] getTrafficLightsArray() { return trafficLightsArray; }
-    public Map<Integer, Integer[]> getLanesMap() { return lanesMap; }
-    public Lane[] getLanes() { return lanes; }
+    public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return this.laneToTrafficLightMap; }
+    public int[][] getTrafficLightGraph() { return this.trafficLightGraph; }
+    public TrafficLight[] getTrafficLightsArray() { return this.trafficLightsArray; }
+    public Map<Integer, Integer[]> getLanesMap() { return this.lanesMap; }
+    public Lane[] getLanes() { return this.lanes; }
+    public Set<Integer> getDestinationLanes() { return this.destinationLanes; }
+    public List<Integer> getEnteringLanes() { return this.enteringLanes; }
+
+    
 
     // ToString
     @Override
