@@ -109,8 +109,7 @@ public class Junction {
             Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
         };
         Random rand = new Random();
-        int test = 10; // delete once I figure how to make it asynchronously
-        while (test-- > 0) { // change to `while(true)` once I figure out how to make it asynchronously
+        while (true) {
             int randomIndex = rand.nextInt(carType.length);
             Car newCar = new Car(carType[randomIndex]);
 
@@ -135,8 +134,7 @@ public class Junction {
     */
     @Async
     public void manageTrafficLights() {
-        int test = 10; // delete once I figure how to make it asynchronously
-        while(test-- > 0) { // change to `while(true)` once I figure out how to make it asynchronously
+        while(true) {
             int maxWeightIndex = maxWeightIndex();
             Set<Integer> clique = findLargestClique(maxWeightIndex);
             

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import Shalev_Aviv.TRAFFI.service.JsonConverter;
-//import org.springframework.beans.factory.annotation.Autowired;
+import Shalev_Aviv.TRAFFI.service.JunctionService;
 
 @SpringBootApplication
 @RestController
@@ -30,8 +31,8 @@ public class TraffiApplication {
 
     public Map<Integer, Integer[]> getLanesToLanesMap() { return this.lanesToLanesMap; }
 
-    // @Autowired
-    // private Junction junction; // Inject the Junction bean
+    @Autowired
+    private JunctionService junctionService;
 
     public static void main(String[] args) {
         SpringApplication.run(TraffiApplication.class, args);
@@ -101,8 +102,9 @@ public class TraffiApplication {
             System.out.println(junction.toString());
 
             // Start simulation
-            junction.addCarsAsync(1000); // Add cars asynchronously to the junction
-            junction.manageTrafficLights(); // Controls the traffic lights
+            junctionService.setJunction(junction);
+            junctionService.addCarsAsync(1000); // Add cars asynchronously to the junction
+            junctionService.manageTrafficLights(); // Controls the traffic lights
             
             // Print traffic lights colors (DEBUG)
             for(int i = 0; i < trafficLights.length; i++) {
