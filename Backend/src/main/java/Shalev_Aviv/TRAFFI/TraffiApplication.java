@@ -98,19 +98,13 @@ public class TraffiApplication {
             TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
             junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
             
-            // Print junction
+            // Print junction (DEBUG)
             System.out.println(junction.toString());
 
             // Start simulation
             junctionService.setJunction(junction);
             junctionService.addCarsAsync(1000); // Add cars asynchronously to the junction
             junctionService.manageTrafficLights(); // Controls the traffic lights
-            
-            // Print traffic lights colors (DEBUG)
-            for(int i = 0; i < trafficLights.length; i++) {
-                System.out.println(trafficLights[i].getColor());
-            }
-            System.out.println(junction.maxWeightIndex()+1);
 
             // Return response
             Map<String, String> response = new HashMap<>();

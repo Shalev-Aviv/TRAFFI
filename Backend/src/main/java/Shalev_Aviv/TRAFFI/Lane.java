@@ -11,7 +11,7 @@ public class Lane {
     private int emergencyCarsCounter; // Amount of emergency cars in the lane
     private int id; // Lane id
 
-    // constructor
+    /** Constructor*/
     public Lane(int id) {
         this.cars = new LinkedList<>();
         this.amount = 0;
@@ -41,23 +41,28 @@ public class Lane {
             }
         }
     }
-    /** Remove the first car from the lane (if any) and update the weights of the parent traffic light*/
-    public void removeCar() {
-        if (cars.isEmpty()) return;
+    /** Remove and return the first car from the lane, or null if the lane is empty, and update the weights of the parent traffic light accordingly*/
+    public Car removeCar() {
+        if (cars.isEmpty()) return null;
         
         this.amount--;
-        Car removedCar = cars.remove();
+        Car removedCar = cars.poll();
+        if(removedCar == null) {
+            return null;
+        }
         if(removedCar.getEmergency()) {
             this.emergencyCarsCounter--;
             if (parentTrafficLight != null) {
                 parentTrafficLight.incrementEmergencyWeight(-1);
             }
-        } else {
+        }
+        else {
             this.regularCarsCounter--;
             if (parentTrafficLight != null) {
                 parentTrafficLight.incrementRegularWeight(-1);
             }
         }
+        return removedCar;
     }
 
     // Getters

@@ -115,11 +115,12 @@ public class Junction {
 
             int laneIndex = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
             lanes[laneIndex].addCar(newCar);
-            System.out.println("Added car to lane " + laneIndex);
+            System.out.println("Added car to lane " + laneIndex + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneIndex-1]).getId()));
 
             try {
                 Thread.sleep(delay);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Error adding cars: " + e.getMessage());
                 System.exit(1);
@@ -136,16 +137,19 @@ public class Junction {
     public void manageTrafficLights() {
         while(true) {
             int maxWeightIndex = maxWeightIndex();
+            System.out.println("Maximum-weighted-traffic-light: " + (maxWeightIndex + 1));
             Set<Integer> clique = findLargestClique(maxWeightIndex);
             
             // Print the clique
-            System.out.println("Clique:\n");
+            System.out.println("Clique:");
             for (Integer i : clique) {
                 System.out.print(i+1+", ");
             } System.out.println("\n");
 
             changeLights(clique);
+            System.out.println("Iteration complete\n");
 
+            // Delay before next iteration
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {

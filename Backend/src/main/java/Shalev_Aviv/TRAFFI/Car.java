@@ -7,11 +7,11 @@ public class Car {
     private CarType type;
     private boolean emergency;
 
-    // Default constructor
+    /** Default constructor*/
     public Car() {
         this(CarType.PRIVATE);
     }
-    // Constructor with type
+    /** Constructor with type*/
     public Car(CarType type) {
         this.type = type;
         setEmergency();
