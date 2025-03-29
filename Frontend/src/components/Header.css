@@ -1,29 +1,27 @@
 .Header {
-    position: relative;
-    font-family: 'Agdasima', sans-serif;
-    font-size: 22rem;
-    height: 48rem;
-    margin: 0;
-  }
+  position: relative;
+  font-family: 'Agdasima', sans-serif;
+  font-size: 22rem;
+  height: 48rem;
+  margin: 0;
+}
   
-  #Stroke {
-    user-select: none;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-text-stroke: 1px white;
-    mask-image: linear-gradient(to top, transparent 17%, white);
-    opacity: 0.8;
-  }
+.Text {
+  user-select: none;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#Stroke {
+  -webkit-text-stroke: 1px white;
+  mask-image: linear-gradient(to top, transparent 17%, white);
+  opacity: 0.8;
+}
   
-  #Fill {
-    user-select: none;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(to top, black 15%, #D9D9D9);
-    opacity: 0.04;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
+#Fill {
+  background: linear-gradient(to top, black 15%, #ffffff);
+  opacity: 0.075;
+  background-clip: text;
+  color: transparent;
+}

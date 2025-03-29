@@ -1,39 +1,39 @@
-.auter-container {
-    padding: .25rem;
-    position: relative;
-    background-color: black;
-    border-color: hsla(0, 0%, 100%, .3);
-    border-width: 1px;
-    border-radius: .75rem;
+.Start-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
 }
-
-.start-button {
+.Auter-stroke {
+  position: relative;
+  background-color: black;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  transition: 200ms ease-in-out;
+}
+.Auter-stroke:hover {
+  border-color: rgba(255, 255, 255, 1);
+  transition: 200ms ease-in-out;
+}
+.Start-button {
   color: Black;
   font-family: "Geist Mono", monospace;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 1rem;
   line-height: 1.3125rem;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   
-  box-shadow: 0 0 0 1px white;
+  display: block;
+  background-color: white;
   border: 1px solid white;
   border-radius: 0.5em;
+  padding: 1.125em 1em;
+
   cursor: pointer;
-  transition: background-color 0.8s ease;
-  display: block;
-  margin: 1.25em auto;
-  padding-top: 1.125rem;
-  padding-bottom: 1.125rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-.start-button:hover {
-  filter: drop-shadow(0 0 0.2em var(--main-color));
-  transition: filter 0.3s ease-in-out;
 }
 
-.popup {
+.Popup {
   position: fixed;
   top: 0;
   left: 0;
@@ -45,7 +45,7 @@
   align-items: center;
 }
 
-.popup-inner {
+.Popup-inner {
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(0.5em);
   padding: 1.25em;
@@ -64,7 +64,7 @@
 }
 
 /* Split container: left (70%) and right (30%) */
-.split-container {
+.Split-container {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -74,7 +74,7 @@
 }
 
 /* Left container (Graph textareas): 70% width, split vertically */
-.left-container {
+.Left-container {
   flex: 7;
   display: flex;
   flex-direction: column;
@@ -82,14 +82,14 @@
 }
 
 /* Right container (Dict textarea): 30% width */
-.right-container {
+.Right-container {
   flex: 3;
   display: flex;
   flex-direction: column;
 }
 
 /* Graph textareas styling */
-.graph-textarea {
+.Graph-textarea {
   color: var(--main-color);
   font-size: 1.2rem;
   padding: 1em;
@@ -108,7 +108,7 @@
 }
 
 /* Dict textarea styling */
-.dict-textarea {
+.Dict-textarea {
   color: var(--main-color);
   font-size: 1.2rem;
   padding: 1em;
@@ -127,23 +127,23 @@
 }
 
 /* Spacer: takes available extra space */
-.spacer {
+.Spacer {
   flex: 1;
   width: 100%;
 }
 
-.popup-buttons {
+.Popup-buttons {
   display: flex;
   gap: 1em;
 }
 
-.popup-inner textarea:focus {
+.Popup-inner textarea:focus {
   border-color: rgb(0, 0, 0);
   box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.5),
               inset 0 0 0.3em rgba(0, 0, 0, 0.5);
 }
 
-.popup-inner button {
+.Popup-inner button {
   font-weight: 800;
   padding: 0.625em 0.9375em;
   border: none;
@@ -152,23 +152,23 @@
   transition: transform 100ms ease;
 }
 
-button.send {
+button.Send {
   color: white;
   border: 1px solid white;
   background-color: rgb(0, 0, 0);
 }
-button.send:hover {
+button.Send:hover {
   color: black;
   border: 1px solid black;
   background-color: rgba(255, 255, 255);
 }
 
-button.close {
+button.Close {
   color: #333;
   background-color: transparent;
   transition: color 100ms ease;
 }
-button.close:hover {
+button.Close:hover {
   color: white;
   transform: scale(1.1);
   transform-origin: center center;

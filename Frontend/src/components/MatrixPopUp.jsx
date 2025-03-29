@@ -110,33 +110,36 @@ const MatrixPopUp = () => {
             const responseData = await response.json();
             console.log('Success:', responseData);
             setShowPopup(false);
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error sending JSON:', error);
         }
     };
 
     return (
         <div>
-            <div className='auter-stroke'>
-                <button className="start-button" onClick={togglePopup}>Start simulation</button>
+            <div className='Start-container'>
+                <div className='Auter-stroke'>
+                    <button className="Start-button" onClick={togglePopup}>Start simulation</button>
+                </div>
             </div>
             {showPopup &&
                 ReactDOM.createPortal(
-                    <div className="popup">
-                        <div className="popup-inner">
-                            <div className="split-container">
-                                <div className="left-container">
-                                    <textarea className="graph-textarea" ref={graphRef1} value={graphText1} onChange={handleGraph1Change} />
-                                    <textarea className="graph-textarea" ref={graphRef2} value={graphText2} onChange={handleGraph2Change} />
+                    <div className="Popup">
+                        <div className="Popup-inner">
+                            <div className="Split-container">
+                                <div className="Left-container">
+                                    <textarea className="Graph-textarea" ref={graphRef1} value={graphText1} onChange={handleGraph1Change} />
+                                    <textarea className="Graph-textarea" ref={graphRef2} value={graphText2} onChange={handleGraph2Change} />
                                 </div>
-                                <div className="right-container">
-                                    <textarea className="dict-textarea" ref={dictRef} value={dictText} onChange={handleDictChange} 
+                                <div className="Right-container">
+                                    <textarea className="Dict-textarea" ref={dictRef} value={dictText} onChange={handleDictChange} 
                                     />
                                 </div>
                             </div>
-                            <div className="popup-buttons">
-                                <button className="send" onClick={handleSend}>Send</button>
-                                <button className="close" onClick={togglePopup}>Close</button>
+                            <div className="Popup-buttons">
+                                <button className="Send" onClick={handleSend}>Send</button>
+                                <button className="Close" onClick={togglePopup}>Close</button>
                             </div>
                         </div>
                     </div>,

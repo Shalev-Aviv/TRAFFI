@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
 
 [data-scroll-container] {
-  overflow: hidden; /* Required for Locomotive Scroll to work */
+  overflow: hidden; /*Required for Locomotive Scroll to work*/
 }
 
 .App {

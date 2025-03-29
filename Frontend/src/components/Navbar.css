@@ -1,56 +1,56 @@
 .Master {
-    z-index: 999;
-    position: fixed;
-    margin: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 2vh;
-    height: 4rem;
-    width: 22rem;
-    aspect-ratio: 4/22;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
-    backdrop-filter: blur(8px);
-    border-top-right-radius: 17% 100%;
-    border-bottom-right-radius: 17% 100%;
-    border-top-left-radius: 17% 100%;
-    border-bottom-left-radius: 17% 100%;
-    box-shadow: 0 0 0 1px white;
-  }
-  
-  .IconsContainer {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 100%;
-    padding: 0 0.5rem;
-  }
-  .Icons {
-    color: white;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    padding: 0;
-    margin: 0;
-    box-sizing: 0 0 24 24;
-    stroke-width: 2;
-  }
-  .Icons:hover {
-    filter: drop-shadow(0px 0px 5px rgb(0, 140, 255));
-    transition: filter 0.3s ease-in-out;
-  }
-  
-  #Controller {
-    transform: scale(1.2);
-    stroke-width: 1.7;
-  }
-  
-  .Line {
-    position: absolute;
-    left: 26%;
-    top: 50%;
-    bottom: 10%;
-    transform: translateY(-50%);
-    height: 55px;
-    width: 2px;
-    background-color: white;
-  }
+  z-index: 999;
+  position: fixed;
+  margin: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 2vh;
+  height: 4rem;
+  width: 22rem;
+  aspect-ratio: 4/22;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(8px);
+  border-top-right-radius: 17% 100%;
+  border-bottom-right-radius: 17% 100%;
+  border-top-left-radius: 17% 100%;
+  border-bottom-left-radius: 17% 100%;
+  box-shadow: 0 0 0 1px white;
+}
+
+.IconsContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  padding: 0 0.5rem;
+}
+.Icons {
+  color: white;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  box-sizing: 0 0 24 24;
+  stroke-width: 2;
+}
+.Icons:hover {
+  filter: drop-shadow(0px 0px 5px rgb(0, 140, 255));
+  transition: filter 0.3s ease-in-out;
+}
+
+#Controller {
+  transform: scale(1.2);
+  stroke-width: 1.7;
+}
+
+.Line {
+  position: absolute;
+  left: 26%;
+  top: 50%;
+  bottom: 10%;
+  transform: translateY(-50%);
+  height: 55px;
+  width: 2px;
+  background-color: white;
+}

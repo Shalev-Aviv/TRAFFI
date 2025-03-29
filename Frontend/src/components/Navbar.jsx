@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import { Github, House, Gamepad2, FileSpreadsheet } from "lucide-react";
 
+
 const Master = () => {
   const scrollRef = useRef(null);
   // Flag to indicate if the scroll-to-top animation is active
