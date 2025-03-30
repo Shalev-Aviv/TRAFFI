@@ -8,6 +8,10 @@
 .App {
   height: 100%;
 }
+::selection {
+  background-color: white !important;
+  color: black !important;
+}
 
 .Hero {
   position: relative; 
