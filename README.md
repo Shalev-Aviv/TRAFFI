@@ -28,6 +28,7 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 cd Frontend
 npm install
 npm install locomotive-scroll
+npm install three
 npm start
 ```
 ### Second time running the Frontend
