@@ -1,4 +1,4 @@
-package Shalev_Aviv.TRAFFI.service;
+package Shalev_Aviv.TRAFFI.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

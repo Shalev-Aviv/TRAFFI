@@ -9,7 +9,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+
+import Shalev_Aviv.TRAFFI.WebSocket.CarWebSocketHandler;
 
 // Junction class - representing the entire junction
 public class Junction {
@@ -56,7 +59,7 @@ public class Junction {
     /** return the index of the traffic light with the largest weight<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
-     * */ 
+     * */
     public int maxWeightIndex() {
         return maxRegularWeight(maxEmergencyWeight());
     }
@@ -94,6 +97,12 @@ public class Junction {
         return index;
     }
 
+    @Autowired
+    private CarWebSocketHandler webSocketHandler;
+    // Setter for manual injection
+    public void setWebSocketHandler(CarWebSocketHandler webSocketHandler) {
+        this.webSocketHandler = webSocketHandler;
+    }
     /** Async function that adds cars to the lanes
      * <STRONG>O(n)</STRONG><p>
      * n -> <CODE>while(true)</CODE>
@@ -116,6 +125,8 @@ public class Junction {
             int laneIndex = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
             lanes[laneIndex].addCar(newCar);
             System.out.println("Added car to lane " + laneIndex + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneIndex-1]).getId()));
+
+            webSocketHandler.sendCarUpdate(laneIndex, newCar.getType().toString());
 
             try {
                 Thread.sleep(delay);
@@ -295,8 +306,6 @@ public class Junction {
     public Lane[] getLanes() { return this.lanes; }
     public Set<Integer> getDestinationLanes() { return this.destinationLanes; }
     public List<Integer> getEnteringLanes() { return this.enteringLanes; }
-
-    
 
     // ToString
     @Override

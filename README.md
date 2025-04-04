@@ -23,23 +23,21 @@ TRAFFI is a dynamic traffic light control simulation aimed at optimizing traffic
 - npm ^=10.5.0
 - JDK ^=21
 - Apache Maven ^=3.9.9
+### Running the Backend
+```sh
+cd Backend
+mvn spring-boot:run
+```
 ### First time running the Frontend
 ```sh
 cd Frontend
 npm install
-npm install locomotive-scroll
-npm install three
 npm start
 ```
 ### Second time running the Frontend
 ```sh
 cd Frontend
 npm start
-```
-### Running the Backend
-```sh
-cd Backend
-mvn spring-boot:run
 ```
 
 ## Roadmap🗺️

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import Shalev_Aviv.TRAFFI.service.JsonConverter;
-import Shalev_Aviv.TRAFFI.service.JunctionService;
+import Shalev_Aviv.TRAFFI.Service.JsonConverter;
+import Shalev_Aviv.TRAFFI.Service.JunctionService;
 
 @SpringBootApplication
 @RestController

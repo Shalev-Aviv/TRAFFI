@@ -1,6 +1,7 @@
 .ThreeJS {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    margin: 1em auto;
+    border-radius: 1em;
+    width: var(--canvas-width);
+    height: var(--canvas-height);
 }
