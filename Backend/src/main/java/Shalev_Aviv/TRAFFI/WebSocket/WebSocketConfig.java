@@ -11,13 +11,16 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final CarWebSocketHandler carWebSocketHandler;
+    private final TrafficLightWebSocketHandler trafficLightWebSocketHandler;
 
-    public WebSocketConfig(CarWebSocketHandler carWebSocketHandler) {
+    public WebSocketConfig(CarWebSocketHandler carWebSocketHandler, TrafficLightWebSocketHandler trafficLightWebSocketHandler) {
         this.carWebSocketHandler = carWebSocketHandler;
+        this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
         registry.addHandler(carWebSocketHandler, "/cars").setAllowedOrigins("*");
+        registry.addHandler(trafficLightWebSocketHandler, "/traffic").setAllowedOrigins("*");
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
 import Shalev_Aviv.TRAFFI.WebSocket.CarWebSocketHandler;
+import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 
 // Junction class - representing the entire junction
 public class Junction {
@@ -100,7 +101,7 @@ public class Junction {
     @Autowired
     private CarWebSocketHandler webSocketHandler;
     // Setter for manual injection
-    public void setWebSocketHandler(CarWebSocketHandler webSocketHandler) {
+    public void setCarsWebSocketHandler(CarWebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
     }
     /** Async function that adds cars to the lanes
@@ -281,6 +282,13 @@ public class Junction {
             }
         }
     }
+    
+    @Autowired
+    private TrafficLightWebSocketHandler trafficLightWebSocketHandler;
+    // Setter for manual injection if needed
+    public void setTrafficLightWebSocketHandler(TrafficLightWebSocketHandler trafficLightWebSocketHandler) {
+        this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
+    }
     /** changes the lights of the traffic lights in the clique<p>
      * O(n)
      * n -> the amount of traffic lights in the junction
@@ -289,10 +297,12 @@ public class Junction {
         for (int i = 0; i < trafficLightsArray.length; i++) {
             if (clique.contains(i)) {
                 trafficLightsArray[i].setOn(true);
+                trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, true);
                 trafficLightsArray[i].startDequeue(lanesMap, lanes);
             }
             else {
                 trafficLightsArray[i].setOn(false);
+                trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, false);
                 trafficLightsArray[i].stopDequeue();
             }
         }
