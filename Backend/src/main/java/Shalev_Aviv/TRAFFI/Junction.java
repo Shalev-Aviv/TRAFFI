@@ -198,17 +198,26 @@ public class Junction {
      * n -> size of set
     */
     private int maxRegularWeightIndexFromSet(Set<Integer> set, int maxEmergencyWeight) {
-        List<Integer> setList = new ArrayList<>(set);
-        int maxWeight = trafficLightsArray[setList.get(0)].getRegularWeight();
-        int index = setList.get(0);
-        for (int i = 0; i < setList.size(); i++) {
-            int current = setList.get(i);
-            if (trafficLightsArray[current].getEmergencyWeight() == maxEmergencyWeight && trafficLightsArray[current].getRegularWeight() > maxWeight) {
-                maxWeight = trafficLightsArray[current].getRegularWeight();
-                index = current;
+        List<Integer> candidates = new ArrayList<>();
+        int maxRegularWeight = 0;
+    
+        for (Integer index : set) {
+            TrafficLight light = trafficLightsArray[index];
+            if (light.getEmergencyWeight() == maxEmergencyWeight) {
+                if (light.getRegularWeight() > maxRegularWeight) {
+                    maxRegularWeight = light.getRegularWeight();
+                    candidates.clear();
+                    candidates.add(index);
+                }
+                else if (light.getRegularWeight() == maxRegularWeight) {
+                    candidates.add(index);
+                }
             }
         }
-        return index;
+    
+        // Randomize selection among candidates with the same weight
+        Random rand = new Random();
+        return candidates.get(rand.nextInt(candidates.size()));
     }
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>
      * O(n^2 * m)<p>
@@ -275,7 +284,7 @@ public class Junction {
      * */
     private void findStrongConnection(Set<Integer> clique, int index) {
         for(int i = 0; i < trafficLightGraph.length; i++) {
-            if(trafficLightGraph[index][i] == 2) {
+            if(trafficLightGraph[index][i] == 2 && !clique.contains(i)) {
                 if(canWeAddThis(clique, i)) {
                     clique.add(i);
                 }
@@ -285,7 +294,7 @@ public class Junction {
     
     @Autowired
     private TrafficLightWebSocketHandler trafficLightWebSocketHandler;
-    // Setter for manual injection if needed
+    // Setter for manual injection
     public void setTrafficLightWebSocketHandler(TrafficLightWebSocketHandler trafficLightWebSocketHandler) {
         this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
     }
@@ -295,6 +304,7 @@ public class Junction {
      * */
     private void changeLights(Set<Integer> clique) {
         for (int i = 0; i < trafficLightsArray.length; i++) {
+            System.out.println("Traffic light " + (i+1) + " weights: " + trafficLightsArray[i].getEmergencyWeight() + ", " + trafficLightsArray[i].getRegularWeight());
             if (clique.contains(i)) {
                 trafficLightsArray[i].setOn(true);
                 trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, true);

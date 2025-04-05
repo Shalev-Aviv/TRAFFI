@@ -1,6 +1,7 @@
 package Shalev_Aviv.TRAFFI;
 
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.scheduling.annotation.Async;
 
@@ -27,10 +28,12 @@ class TrafficLight {
     /** Increment the emergency weight of the traffic light*/
     public void incrementEmergencyWeight(int delta) {
         this.emergencyWeight += delta;
+        if(this.emergencyWeight < 0) this.emergencyWeight = 0; // Prevent negative weights
     }
     /** Increment the regular weight of the traffic light*/
     public void incrementRegularWeight(int delta) {
         this.regularWeight += delta;
+        if(this.regularWeight < 0) this.regularWeight = 0; // Prevent negative weights
     }
 
     /** Start dequeuing cars from every lane in the lanes array<p>
@@ -39,37 +42,39 @@ class TrafficLight {
      */
     @Async
     public void startDequeue(Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
-        System.out.println("Dequeuing cars from traffic light " + this.id);
-        if (isDequeuing) {
-            return; // Prevent starting multiple dequeue processes
+        if (isDequeuing || this.color != Color.GREEN) {
+            return; // Prevent starting multiple dequeue processes or dequeuing when the light is red
         }
         isDequeuing = true;
-        
+    
         new Thread(() -> {
             while (isDequeuing) {
+                Random rand = new Random();
                 for (Lane lane : lanes) {
+                    if (this.color != Color.GREEN) {
+                        break; // Stop dequeuing if the light turns red
+                    }
+    
                     Car car = lane.removeCar();
                     if (car == null) {
                         continue;
                     }
-                    
+    
                     Integer[] destIds = lanesMap.get(lane.getId());
-                    // Skip lanes without destinations (for test purposes only, remove this condition if necessary)
-                    if(destIds == null || destIds.length == 0) {
+                    if (destIds == null || destIds.length == 0) {
                         continue;
                     }
-                    // Choose the first destination lane for test purposes
-                    int destId = destIds[0];
+    
+                    int destId = rand.nextInt(destIds.length);
                     if (destId > 0 && destId <= lanes.length) {
-                        lanes[destId - 1].getCars().add(car);
+                        lanes[destId - 1].addCar(car);
                     }
                 }
-                // Add a small delay to avoid busy-waiting (optional but recommended)
                 try {
                     Thread.sleep(1000); // Adjust the delay as needed
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    isDequeuing = false; // Stop if the thread is interrupted
+                    isDequeuing = false;
                     return;
                 }
             }
@@ -80,7 +85,7 @@ class TrafficLight {
      * <STRONG>O(1)</STRONG
      */
     public void stopDequeue() {
-        System.out.println("stop dequeuing cars asynchronously from traffic light " + this.id);
+        //System.out.println("stop dequeuing cars asynchronously from traffic light " + this.id);
         isDequeuing = false;
     }
 

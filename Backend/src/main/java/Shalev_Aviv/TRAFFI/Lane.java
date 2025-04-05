@@ -45,20 +45,21 @@ public class Lane {
     public Car removeCar() {
         if (cars.isEmpty()) return null;
         
-        this.amount--;
         Car removedCar = cars.poll();
         if(removedCar == null) {
             return null;
         }
-        if(removedCar.getEmergency()) {
-            this.emergencyCarsCounter--;
-            if (parentTrafficLight != null) {
+        this.amount--;
+        if (this.amount < 0) this.amount = 0; // Ensure amount doesn't go negative
+
+        if (parentTrafficLight != null) {
+            if (removedCar.getEmergency()) {
+                this.emergencyCarsCounter--;
+                if (this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0; // Prevent negative counters
                 parentTrafficLight.incrementEmergencyWeight(-1);
-            }
-        }
-        else {
-            this.regularCarsCounter--;
-            if (parentTrafficLight != null) {
+            } else {
+                this.regularCarsCounter--;
+                if (this.regularCarsCounter < 0) this.regularCarsCounter = 0; // Prevent negative counters
                 parentTrafficLight.incrementRegularWeight(-1);
             }
         }
@@ -76,6 +77,6 @@ public class Lane {
     // ToString
     @Override
     public String toString() {
-        return "Lane " + this.id + ": " + this.amount + " cars";
+        return "Lane " + this.id + ": " + this.amount + " cars" + " regular cars: " + this.regularCarsCounter + " emergency cars: " + this.emergencyCarsCounter;
     }
 }
