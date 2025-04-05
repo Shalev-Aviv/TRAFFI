@@ -6,12 +6,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 function Simulation () {
     const canvasRef = useRef(null);
     const sceneRef = useRef(new THREE.Scene());
-    const carObjects = useRef([]);
+    // Instead of an array, use a Map to track car meshes by a unique id
+    const carMeshes = useRef(new Map());
     const trafficLights = useRef({});
-    const trafficLightStatuses = useRef({}); // Added to track traffic light status
+    const trafficLightStatuses = useRef({});
 
     let socketCars = null;
-    let socketTraffic = null; // Declare socketTraffic
+    let socketTraffic = null;
 
     let camera, renderer;
 
@@ -23,7 +24,39 @@ function Simulation () {
         return type === "POLICE" || type === "AMBULANCE" ? 0x0000ff : 0xff0000; // Blue for emergency vehicles, red for others
     };
 
-    // Add a mapping for lane starting positions
+    // Mapping from lane to traffic light ID.
+    const laneToTrafficLightMapping = {
+        1: 1,
+        2: 1,
+        3: null,
+        4: null,
+        5: 2,
+        6: 2,
+        7: null,
+        8: null,
+        9: 3,
+        10: 3,
+        11: 5,
+        12: 5,
+        13: 4,
+        14: 4,
+        15: null,
+        16: null,
+        17: 6,
+        18: 6,
+        19: null,
+        20: null,
+        21: 7,
+        22: 7,
+        23: 8,
+        24: null,
+        25: null,
+        26: 9,
+        27: 9,
+        28: null,
+        29: null
+    };
+    // Mapping for lane starting positions (actual values already replaced)
     const laneStartPositions = {
         1: { x: -85, y: 2, z: 6.5 },
         2: { x: -85, y: 2, z: 2 },
@@ -55,66 +88,65 @@ function Simulation () {
         28: { x: 25, y: 2, z: 9.5 },
         29: { x: 20.5, y: 2, z: 9.5 },
     };
-    // Mapping for lane directions. Replace with actual directions for each lane.
+
+    // Mapping for lane movement directions (actual values replaced)
     const laneDirections = {
-        1: { x: 1, y: 0, z: 0 },  // Move along +X
-        2: { x: 1, y: 0, z: 0 },  // Move along +X
-        3: { x: -1, y: 0, z: 0 }, // Move along -X
-        4: { x: -1, y: 0, z: 0 }, // Move along -X
-        5: { x: 0, y: 0, z: 1 }, // Move along +Z
-        6: { x: 0, y: 0, z: 1 }, // Move along +Z
-        7: { x: 0, y: 0, z: -1 },  // Move along -Z
-        8: { x: 0, y: 0, z: -1 },  // Move along -Z
-        9: { x: -1, y: 0, z: 0 }, // Move along -X
-        10: { x: -1, y: 0, z: 0 }, // Move along -X
-        11: { x: 1, y: 0, z: 0 }, // Move along +X
-        12: { x: 1, y: 0, z: 0 }, // Move along +X
-        13: { x: 0, y: 0, z: -1 }, // Move along -Z
-        14: { x: 0, y: 0, z: -1 }, // Move along -Z
-        15: { x: 0, y: 0, z: 1 }, // Move along +Z
-        16: { x: 0, y: 0, z: 1 }, // Move along +Z
-        17: { x: 0, y: 0, z: 1 }, // Move along +Z
-        18: { x: 0, y: 0, z: 1 }, // Move along +Z
-        19: { x: 0, y: 0, z: -1 }, // Move along -Z
-        20: { x: -1, y: 0, z: -1 }, // Move along -Z
-        21: { x: -1, y: 0, z: 0 }, // Move along -X
-        22: { x: -1, y: 0, z: 0 }, // Move along -X
-        23: { x: -1, y: 0, z: 0 }, // Move along -X
-        24: { x: 1, y: 0, z: 0 }, // Move along +X
-        25: { x: 1, y: 0, z: 0 }, // Move along +X
-        26: { x: 0, y: 0, z: -1 }, // Move along -Z
-        27: { x: -1, y: 0, z: -1 }, // Move along -Z
-        28: { x: 0, y: 0, z: 1 }, // Move along +Z
-        29: { x: 0, y: 0, z: 1 }, // Move along +Z
+        1: { x: 1, y: 0, z: 0 },
+        2: { x: 1, y: 0, z: 0 },
+        3: { x: -1, y: 0, z: 0 },
+        4: { x: -1, y: 0, z: 0 },
+        5: { x: 0, y: 0, z: 1 },
+        6: { x: 0, y: 0, z: 1 },
+        7: { x: 0, y: 0, z: -1 },
+        8: { x: 0, y: 0, z: -1 },
+        9: { x: -1, y: 0, z: 0 },
+        10: { x: -1, y: 0, z: 0 },
+        11: { x: 1, y: 0, z: 0 },
+        12: { x: 1, y: 0, z: 0 },
+        13: { x: 0, y: 0, z: -1 },
+        14: { x: 0, y: 0, z: -1 },
+        15: { x: 0, y: 0, z: 1 },
+        16: { x: 0, y: 0, z: 1 },
+        17: { x: 0, y: 0, z: 1 },
+        18: { x: 0, y: 0, z: 1 },
+        19: { x: 0, y: 0, z: -1 },
+        20: { x: -1, y: 0, z: -1 },
+        21: { x: -1, y: 0, z: 0 },
+        22: { x: -1, y: 0, z: 0 },
+        23: { x: -1, y: 0, z: 0 },
+        24: { x: 1, y: 0, z: 0 },
+        25: { x: 1, y: 0, z: 0 },
+        26: { x: 0, y: 0, z: -1 },
+        27: { x: -1, y: 0, z: -1 },
+        28: { x: 0, y: 0, z: 1 },
+        29: { x: 0, y: 0, z: 1 },
     };
-    // Create a car mesh and place it based on its lane number.
-    const addCarToScene = (lane, type) => {
+
+    // Create a car mesh; if new then add it and if it already exists, update its lane & starting position.
+    const upsertCarMesh = (carId, lane, type) => {
         const scene = sceneRef.current;
-        const geometry = new THREE.CircleGeometry(0.5, 16);
-        const material = new THREE.MeshBasicMaterial({
-            color: carColorByType(type)
-        });
-        const carMesh = new THREE.Mesh(geometry, material);
-        carMesh.rotation.x = -Math.PI / 2;
-        // Default position if lane not found.
+        let mesh = carMeshes.current.get(carId);
+        if (!mesh) {
+            const geometry = new THREE.CircleGeometry(0.5, 16);
+            const material = new THREE.MeshBasicMaterial({ color: carColorByType(type) });
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.x = -Math.PI / 2;
+            carMeshes.current.set(carId, mesh);
+            scene.add(mesh);
+        }
+        mesh.userData = { carId, lane, type };
         const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
-        carMesh.position.set(startPos.x, startPos.y, startPos.z);
-    
-        // Save the lane and type in the mesh's userData.
-        carMesh.userData = { lane, type };
-        
-        scene.add(carMesh);
-        carObjects.current.push(carMesh);
+        mesh.position.set(startPos.x, startPos.y, startPos.z);
     };
 
     useEffect(() => {
         // Materials for traffic lights
-        const greenMaterial = new THREE.MeshStandardMaterial({ 
+        const greenMaterial = new THREE.MeshStandardMaterial({
             color: 0x00ff00,
             emissive: 0x00ff00,
             emissiveIntensity: 0.5
         });
-        const redMaterial = new THREE.MeshStandardMaterial({ 
+        const redMaterial = new THREE.MeshStandardMaterial({
             color: 0xff0000,
             emissive: 0xff0000,
             emissiveIntensity: 0.5
@@ -154,7 +186,7 @@ function Simulation () {
                         if (object.material) {
                             object.material = redMaterial.clone();
                         }
-                        // Initialize status to red
+                        // Initialize status to red.
                         trafficLightStatuses.current[i] = false;
                     }
                 });
@@ -180,17 +212,36 @@ function Simulation () {
         directionalLight.position.set(0, 10, 0);
         scene.add(directionalLight);
 
-        // Animation loop: update car positions if their controlling light is green.
+        // Animation loop: update car positions based on their current lane’s direction.
+        // In your animation loop, always move cars if there is no mapping.
+        // Also remove cars that have exited the visible area (using a removal threshold).
+        const moveSpeed = 0.1;
+        const removalThreshold = 200; // Example value; adjust as needed
+            
         const animate = () => {
-            carObjects.current.forEach(car => {
-                const lane = car.userData.lane;
-                const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 }; // Default to no movement if lane not found
-        
-                // Move the car only if the traffic light for its lane is green
-                if (trafficLightStatuses.current[lane]) {
-                    car.position.x += direction.x * 0.1; // Adjust speed as needed
-                    car.position.y += direction.y * 0.1;
-                    car.position.z += direction.z * 0.1;
+            carMeshes.current.forEach((mesh, carId) => {
+                const { lane } = mesh.userData;
+                const controllingLightId = laneToTrafficLightMapping[lane];
+                const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
+                
+                // If no traffic light controls this lane, always move.
+                if (controllingLightId === null || controllingLightId === undefined) {
+                    mesh.position.x += direction.x * moveSpeed;
+                    mesh.position.y += direction.y * moveSpeed;
+                    mesh.position.z += direction.z * moveSpeed;
+                }
+                // Otherwise, only move if the mapped traffic light is green.
+                else if (trafficLightStatuses.current[controllingLightId]) {
+                    mesh.position.x += direction.x * moveSpeed;
+                    mesh.position.y += direction.y * moveSpeed;
+                    mesh.position.z += direction.z * moveSpeed;
+                }
+            
+                // Remove the car if it moves too far from the camera.
+                // You could use distanceTo() from the camera position.
+                if (mesh.position.distanceTo(camera.position) > removalThreshold) {
+                    scene.remove(mesh);
+                    carMeshes.current.delete(carId);
                 }
             });
             renderer.render(scene, camera);
@@ -206,12 +257,29 @@ function Simulation () {
             updateTrafficLight(data.lightId, data.status);
         };
 
-        // Setup WebSocket connection for cars.
+        /* 
+          Setup WebSocket connection for car data.
+          Expecting the message to include at least:
+          {
+             "carId": "unique identifier",
+             "lane": <new lane>,
+             "type": "PRIVATE" | "MOTORCYCLE" | "POLICE" | "AMBULANCE"
+          }
+          If the car already exists, update its lane (and reset its position so that its movement direction changes).
+        */
         socketCars = new WebSocket("ws://localhost:8080/cars");
         socketCars.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received car update:", data);
-            addCarToScene(data.lane, data.type);
+            // Upsert the car mesh based on its unique ID.
+            upsertCarMesh(data.carId, data.lane, data.type);
+
+            /* 
+              NOTE: If you find that the connection between lanes and traffic lights isn't
+              correct (for example, if lane 2 is not controlled by traffic light 1), verify your
+              backend logic. You may need to adjust either the mapping in the backend or in the
+              frontend so that each car’s lane properly determines which traffic light controls it.
+            */
         };
 
         return () => {

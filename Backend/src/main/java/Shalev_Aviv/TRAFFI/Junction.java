@@ -82,20 +82,31 @@ public class Junction {
      * n -> length of <CODE>trafficLightsArray</CODE>
      * */
     private int maxRegularWeight(int maxEmergencyWeight) {
+        List<Integer> candidates = new ArrayList<>();
         int maxWeight = 0;
-        int index = 0;
+        
+        // First find all traffic lights with the maximum emergency weight
         for (int i = 0; i < trafficLightsArray.length; i++) {
-            if(trafficLightsArray[i].getEmergencyWeight() != maxEmergencyWeight) {
-                continue;
-            }
-
-            // this happens only if the current light has the same emergency weight as the max
-            if (trafficLightsArray[i].getRegularWeight() > maxWeight) {
-                maxWeight = trafficLightsArray[i].getRegularWeight();
-                index = i;
+            if (trafficLightsArray[i].getEmergencyWeight() == maxEmergencyWeight) {
+                if (trafficLightsArray[i].getRegularWeight() > maxWeight) {
+                    maxWeight = trafficLightsArray[i].getRegularWeight();
+                    candidates.clear();
+                    candidates.add(i);
+                }
+                else if (trafficLightsArray[i].getRegularWeight() == maxWeight) {
+                    candidates.add(i);
+                }
             }
         }
-        return index;
+    
+        // If no candidates found (shouldn't happen), return 0
+        if (candidates.isEmpty()) {
+            return 0;
+        }
+    
+        // Randomly select from candidates with equal weights
+        Random rand = new Random();
+        return candidates.get(rand.nextInt(candidates.size()));
     }
 
     @Autowired
@@ -122,13 +133,17 @@ public class Junction {
         while (true) {
             int randomIndex = rand.nextInt(carType.length);
             Car newCar = new Car(carType[randomIndex]);
-
-            int laneIndex = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
-            lanes[laneIndex].addCar(newCar);
-            System.out.println("Added car to lane " + laneIndex + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneIndex-1]).getId()));
-
-            webSocketHandler.sendCarUpdate(laneIndex, newCar.getType().toString());
-
+        
+            // Get a 1-indexed lane ID from enteringLanes
+            int laneId = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
+            // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
+            lanes[laneId - 1].addCar(newCar);
+            System.out.println("Added car to lane " + laneId + ", traffic light " +
+                (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
+        
+            // Send the update with the correct laneId
+            webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
+        
             try {
                 Thread.sleep(delay);
             }

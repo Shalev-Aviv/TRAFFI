@@ -10,6 +10,8 @@ class TrafficLight {
     private volatile boolean isDequeuing = false;
     public enum Color{ RED, GREEN }
 
+    private final Object weightLock = new Object();
+
     private Color color;
     private Lane[] lanes;
     private int emergencyWeight;
@@ -27,13 +29,17 @@ class TrafficLight {
     
     /** Increment the emergency weight of the traffic light*/
     public void incrementEmergencyWeight(int delta) {
-        this.emergencyWeight += delta;
-        if(this.emergencyWeight < 0) this.emergencyWeight = 0; // Prevent negative weights
+        synchronized(weightLock) {
+            this.emergencyWeight += delta;
+            if(this.emergencyWeight < 0) this.emergencyWeight = 0;
+        }
     }
     /** Increment the regular weight of the traffic light*/
     public void incrementRegularWeight(int delta) {
-        this.regularWeight += delta;
-        if(this.regularWeight < 0) this.regularWeight = 0; // Prevent negative weights
+        synchronized(weightLock) {
+            this.regularWeight += delta;
+            if(this.regularWeight < 0) this.regularWeight = 0;
+        }
     }
 
     /** Start dequeuing cars from every lane in the lanes array<p>
@@ -43,19 +49,20 @@ class TrafficLight {
     @Async
     public void startDequeue(Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         if (isDequeuing || this.color != Color.GREEN) {
-            return; // Prevent starting multiple dequeue processes or dequeuing when the light is red
+            return;
         }
         isDequeuing = true;
     
         new Thread(() -> {
             while (isDequeuing) {
                 Random rand = new Random();
-                for (Lane lane : lanes) {
+                // Only dequeue from this traffic light's lanes, not all lanes
+                for (Lane lane : this.lanes) {  // Changed from 'lanes' to 'this.lanes'
                     if (this.color != Color.GREEN) {
-                        break; // Stop dequeuing if the light turns red
+                        break;
                     }
     
-                    Car car = lane.removeCar();
+                    Car car = lane.removeCar(); // This decrements the weight
                     if (car == null) {
                         continue;
                     }
@@ -65,13 +72,13 @@ class TrafficLight {
                         continue;
                     }
     
-                    int destId = rand.nextInt(destIds.length);
+                    int destId = destIds[rand.nextInt(destIds.length)];
                     if (destId > 0 && destId <= lanes.length) {
-                        lanes[destId - 1].addCar(car);
+                        lanes[destId - 1].addCar(car); // This increments the weight in the new lane
                     }
                 }
                 try {
-                    Thread.sleep(1000); // Adjust the delay as needed
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     isDequeuing = false;
@@ -95,8 +102,16 @@ class TrafficLight {
     // Getters
     public Color getColor() { return this.color; }
     public Lane[] getLanes() { return this.lanes; }
-    public int getEmergencyWeight() { return this.emergencyWeight; }
-    public int getRegularWeight() { return this.regularWeight; }
+    public int getEmergencyWeight() {
+        synchronized(weightLock) {
+            return this.emergencyWeight;
+        }
+    }
+    public int getRegularWeight() {
+        synchronized(weightLock) {
+            return this.regularWeight;
+        }
+    }
     public int getId() { return this.id; }
 
     // ToString

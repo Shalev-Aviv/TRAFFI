@@ -1,8 +1,12 @@
 package Shalev_Aviv.TRAFFI;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // Car class - representing a single vehicle in the simulation
 public class Car {
     public enum CarType { PRIVATE, MOTORCYCLE, POLICE, AMBULANCE }
+
+    private static final AtomicInteger idCounter = new AtomicInteger(0);
+    private final int id; // Unique ID for each car
 
     private CarType type;
     private boolean emergency;
@@ -13,25 +17,27 @@ public class Car {
     }
     /** Constructor with type*/
     public Car(CarType type) {
+        this.id = idCounter.incrementAndGet(); // Assign unique id
         this.type = type;
         setEmergency();
     }
 
     private void setEmergency() {
-        emergency = switch (type) {
+        this.emergency = switch (type) {
             case POLICE, AMBULANCE -> true;
             case PRIVATE, MOTORCYCLE -> false;
+            default -> false; // Default case for safety
         };
-        // Add default case to avoid compilation error
     }
 
     // Getters
-    public CarType getType() { return type; }
-    public boolean getEmergency() { return emergency; }
+    public int getId() { return this.id; }
+    public CarType getType() { return this.type; }
+    public boolean getEmergency() { return this.emergency; }
 
     // ToString
     @Override
     public String toString() {
-        return "Car type: " + type + ", Emergency: " + emergency;
+        return "Car id: " + id + ", type: " + type + ", emergency: " + emergency;
     }
 }
