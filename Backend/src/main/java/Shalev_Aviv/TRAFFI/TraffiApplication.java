@@ -103,7 +103,7 @@ public class TraffiApplication {
 
             // Start simulation
             junctionService.setJunction(junction);
-            junctionService.addCarsAsync(100); // Add cars asynchronously to the junction
+            junctionService.addCarsAsync(1000); // Add cars asynchronously to the junction
             junctionService.manageTrafficLights(); // Controls the traffic lights
 
             // Return response
