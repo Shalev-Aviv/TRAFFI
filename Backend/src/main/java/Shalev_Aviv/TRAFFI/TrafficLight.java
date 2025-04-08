@@ -48,44 +48,34 @@ class TrafficLight {
      */
     @Async
     public void startDequeue(Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
-        if (isDequeuing || this.color != Color.GREEN) {
-            return;
+        if(!isDequeuing && this.color == Color.GREEN) {
+            isDequeuing = true;
+            new Thread(() -> {
+                while(isDequeuing) {
+                    Random rand = new Random();
+                    for(Lane lane : this.lanes) {
+                        if(this.color == Color.GREEN) {
+                            Car car = lane.removeCar();
+                            if(car != null) {
+                                Integer[] destIds = lanesMap.get(lane.getId());
+                                if(destIds != null && destIds.length > 0) {
+                                    int destId = destIds[rand.nextInt(destIds.length)];
+                                    if(destId > 0 && destId <= lanes.length) {
+                                        lanes[destId - 1].addCar(car);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        isDequeuing = false;
+                    }
+                }
+            }).start();
         }
-        isDequeuing = true;
-    
-        new Thread(() -> {
-            while (isDequeuing) {
-                Random rand = new Random();
-                // Only dequeue from this traffic light's lanes, not all lanes
-                for (Lane lane : this.lanes) {  // Changed from 'lanes' to 'this.lanes'
-                    if (this.color != Color.GREEN) {
-                        break;
-                    }
-    
-                    Car car = lane.removeCar(); // This decrements the weight
-                    if (car == null) {
-                        continue;
-                    }
-    
-                    Integer[] destIds = lanesMap.get(lane.getId());
-                    if (destIds == null || destIds.length == 0) {
-                        continue;
-                    }
-    
-                    int destId = destIds[rand.nextInt(destIds.length)];
-                    if (destId > 0 && destId <= lanes.length) {
-                        lanes[destId - 1].addCar(car); // This increments the weight in the new lane
-                    }
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    isDequeuing = false;
-                    return;
-                }
-            }
-        }).start();
     }
 
     /** stop dequeuing cars from every lane in the lanes array<p>

@@ -84,7 +84,6 @@ public class Junction {
     private int maxRegularWeight(int maxEmergencyWeight) {
         List<Integer> candidates = new ArrayList<>();
         int maxWeight = 0;
-        
         // First find all traffic lights with the maximum emergency weight
         for (int i = 0; i < trafficLightsArray.length; i++) {
             if (trafficLightsArray[i].getEmergencyWeight() == maxEmergencyWeight) {
@@ -99,12 +98,6 @@ public class Junction {
             }
         }
     
-        // If no candidates found (shouldn't happen), return 0
-        if (candidates.isEmpty()) {
-            return 0;
-        }
-    
-        // Randomly select from candidates with equal weights
         Random rand = new Random();
         return candidates.get(rand.nextInt(candidates.size()));
     }
@@ -133,14 +126,11 @@ public class Junction {
         while (true) {
             int randomIndex = rand.nextInt(carType.length);
             Car newCar = new Car(carType[randomIndex]);
-        
-            // Get a 1-indexed lane ID from enteringLanes
+            // Pick a random lane from the entering lanes (1-indexed)
             int laneId = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
             // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
             lanes[laneId - 1].addCar(newCar);
-            System.out.println("Added car to lane " + laneId + ", traffic light " +
-                (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
-        
+            System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
             // Send the update with the correct laneId
             webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
         
@@ -229,7 +219,6 @@ public class Junction {
                 }
             }
         }
-    
         // Randomize selection among candidates with the same weight
         Random rand = new Random();
         return candidates.get(rand.nextInt(candidates.size()));
@@ -242,55 +231,59 @@ public class Junction {
     private Set<Integer> findLargestClique(int maxWeightIndex) {
         HashSet<Integer> clique = new HashSet<>();
         clique.add(maxWeightIndex);
-        while(canWeAdd(clique)) {
-            findStrongConnection(clique, maxWeightIndex);
-            HashSet<Integer> temp = new HashSet<>();
-            for(int i = 0; i < trafficLightsArray.length; i++) {
-                if(clique.contains(i)) {
-                    continue;
-                }
-                if(canWeAddThis(clique, i)) {
-                    temp.add(i);
+        boolean stop = false;
+        do {
+           findStrongConnection(clique, maxWeightIndex);
+           // Add all possible traffic lights to temp set
+           HashSet<Integer> temp = new HashSet<>();
+           for(int i = 0; i < trafficLightsArray.length; i++) {
+                if(!clique.contains(i)) {
+                    if(canWeAddThis(clique, i)) {
+                        temp.add(i);
+                    }    
                 }
             }
+            // Find the traffic light with the maximum weight in the temp set and add it to the clique
             if(temp.isEmpty()) {
-                break;
+                stop = true;
             }
             else {
                 int candidate = maxWeightIndexFromSet(temp);
                 if(clique.contains(candidate)) {
-                    break;
+                    stop = true;
                 }
-                clique.add(candidate);
+                else {
+                    clique.add(candidate);
+                }
             }
-        }
+        } while(canWeAdd(clique) && !stop);
+
         return clique;
     }
     /** return false if we found the largest clique, return true otherwise<p>
      * O(n^2)<p>
      * n -> the size of the clique*/
     private boolean canWeAdd(Set<Integer> clique) {
-        for(int i = 0; i < trafficLightsArray.length; i++) {
-            if(clique.contains(i)) {
-                continue;
-            }
-            if(canWeAddThis(clique, i)) {
-                return true;
+        boolean canWeAdd = false;
+        for(int i = 0; i < trafficLightsArray.length && !canWeAdd; i++) {
+            if(!clique.contains(i)) {
+                if(canWeAddThis(clique, i)) {
+                    canWeAdd = true;
+                }
             }
         }
-        return false;
+        return canWeAdd;
     }
     /** return true if we can add a trafficLightsArray[index] to the clique<p>
      * O(n)<p>
      * n -> the size of the clique
      * */
     private boolean canWeAddThis(Set<Integer> clique, int index) {
+        boolean canAdd = true;
         for(Integer i : clique) {
-            if(trafficLightGraph[index][i] == 0) {
-                return false;
-            }
+            canAdd = canAdd && (trafficLightGraph[index][i] != 0);
         }
-        return true;
+        return canAdd;
     }
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
      * <STRONG>O(n*m)</STRONG><p>
