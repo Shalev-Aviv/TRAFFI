@@ -19,7 +19,7 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 public class Junction {
     private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
 
-    private int[][] trafficLightGraph; // Graph representing the junction
+    private int[][] trafficLightGraph; // Matrix representing the connections between traffic lights
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction

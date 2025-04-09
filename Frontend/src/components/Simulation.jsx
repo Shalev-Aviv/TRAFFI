@@ -24,7 +24,7 @@ function Simulation () {
         return type === "POLICE" || type === "AMBULANCE" ? 0x0000ff : 0xff0000; // Blue for emergency vehicles, red for others
     };
 
-    // Mapping from lane to traffic light ID.
+    // Mapping from lane to traffic light ID (null = exiting lane).
     const laneToTrafficLightMapping = {
         1: 1,
         2: 1,
@@ -56,40 +56,40 @@ function Simulation () {
         28: null,
         29: null
     };
-    // Mapping for lane starting positions (actual values already replaced)
+    // Mapping for lane starting positions
     const laneStartPositions = {
         1: { x: -85, y: 2, z: 6.5 },
         2: { x: -85, y: 2, z: 2 },
         3: { x: -36.5, y: 2, z: -2 },
         4: { x: -36.5, y: 2, z: -6 },
-        5: { x: -33, y: 2, z: -38.5 },
-        6: { x: -29.5, y: 2, z: -38.5 },
+        5: { x: -35, y: 2, z: -38.5 },
+        6: { x: -30, y: 2, z: -38.5 },
         7: { x: -25.5, y: 2, z: -10 },
         8: { x: -20, y: 2, z: -10 },
         9: { x: 17.5, y: 2, z: -6.5 },
         10: { x: 17.5, y: 2, z: -2 },
         11: { x: -17, y: 2, z: 2 },
-        12: { x: -17, y: 2, z: 6.5 },
-        13: { x: -20, y: 2, z: 39 },
-        14: { x: -25, y: 2, z: 39 },
+        12: { x: -17, y: 2, z: 8 },
+        13: { x: -21, y: 2, z: 39 },
+        14: { x: -26, y: 2, z: 39 },
         15: { x: -28.5, y: 2, z: 10 },
         16: { x: -33.5, y: 2, z: 10 },
         17: { x: 20, y: 2, z: -39 },
         18: { x: 25, y: 2, z: -39 },
         19: { x: 28.5, y: 2, z: -10 },
         20: { x: 33, y: 2, z: -10 },
-        21: { x: 85, y: 2, z: -6.5 },
-        22: { x: 85, y: 2, z: -2 },
-        23: { x: 85, y: 2, z: 0 },
+        21: { x: 85, y: 2, z: -7.5 },
+        22: { x: 85, y: 2, z: -3 },
+        23: { x: 85, y: 2, z: 0.5 },
         24: { x: 36.5, y: 2, z: 2 },
         25: { x: 36.5, y: 2, z: 6.5 },
-        26: { x: 33.5, y: 2, z: 39 },
-        27: { x: 29, y: 2, z: 39 },
-        28: { x: 25, y: 2, z: 9.5 },
-        29: { x: 20.5, y: 2, z: 9.5 },
+        26: { x: 35, y: 2, z: 39 },
+        27: { x: 30, y: 2, z: 39 },
+        28: { x: 26, y: 2, z: 9.5 },
+        29: { x: 21, y: 2, z: 9.5 },
     };
 
-    // Mapping for lane movement directions (actual values replaced)
+    // Mapping for lane movement directions
     const laneDirections = {
         1: { x: 1, y: 0, z: 0 },
         2: { x: 1, y: 0, z: 0 },
@@ -121,26 +121,43 @@ function Simulation () {
         28: { x: 0, y: 0, z: 1 },
         29: { x: 0, y: 0, z: 1 },
     };
+    const trafficLightPositions = {
+        1: { x: -36, y: 6, z: 4.7 },
+        2: { x: -32, y: 6, z: -10 },
+        3: { x: -18, y: 6, z: -5 },
+        4: { x: -23.5, y: 6, z: 10 },
+        5: { x: 18, y: 6, z: 5 },
+        6: { x: 23.5, y: 6, z: -10 },
+        7: { x: 38, y: 6, z: -5 },
+        8: { x: 38, y: 6, z: 0.5 },
+        9: { x: 32.5, y: 6, z: 10 }
+    };
 
     // Create a car mesh; if new then add it and if it already exists, update its lane & starting position.
     const upsertCarMesh = (carId, lane, type) => {
         const scene = sceneRef.current;
         let mesh = carMeshes.current.get(carId);
         if (!mesh) {
-            const geometry = new THREE.CircleGeometry(0.5, 16);
+            const geometry = new THREE.CircleGeometry(0.75, 16);
             const material = new THREE.MeshBasicMaterial({ color: carColorByType(type) });
             mesh = new THREE.Mesh(geometry, material);
             mesh.rotation.x = -Math.PI / 2;
             carMeshes.current.set(carId, mesh);
             scene.add(mesh);
         }
-        mesh.userData = { carId, lane, type };
+        mesh.userData = {
+            carId,
+            lane,
+            type,
+            stopped: false,
+            queuePosition: 0 // Position in queue (0 = first car)
+        };
         const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
         mesh.position.set(startPos.x, startPos.y, startPos.z);
     };
 
     useEffect(() => {
-        // Materials for traffic lights
+        // Materials for the traffic lights
         const greenMaterial = new THREE.MeshStandardMaterial({
             color: 0x00ff00,
             emissive: 0x00ff00,
@@ -219,31 +236,83 @@ function Simulation () {
         const removalThreshold = 200; // Example value; adjust as needed
             
         const animate = () => {
+            const STOP_DISTANCE = 3; // Increased distance to stop before traffic light
+            const CAR_LENGTH = 3;    // Space between cars in queue
+            
+            // First, group cars by lane for queue management
+            const laneQueues = new Map();
+            carMeshes.current.forEach((mesh) => {
+                const lane = mesh.userData.lane;
+                if (!laneQueues.has(lane)) {
+                    laneQueues.set(lane, []);
+                }
+                laneQueues.get(lane).push(mesh);
+            });
+        
+            // Sort cars in each queue by distance to traffic light
+            laneQueues.forEach((queue, lane) => {
+                const lightId = laneToTrafficLightMapping[lane];
+                if (lightId) {
+                    const lightPos = trafficLightPositions[lightId];
+                    queue.sort((a, b) => {
+                        const distA = Math.abs(a.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z)));
+                        const distB = Math.abs(b.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z)));
+                        return distA - distB;
+                    });
+                    
+                    // Update queue positions
+                    queue.forEach((mesh, index) => {
+                        mesh.userData.queuePosition = index;
+                    });
+                }
+            });
+        
+            // Move cars
             carMeshes.current.forEach((mesh, carId) => {
                 const { lane } = mesh.userData;
                 const controllingLightId = laneToTrafficLightMapping[lane];
                 const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
                 
-                // If no traffic light controls this lane, always move.
-                if (controllingLightId === null || controllingLightId === undefined) {
+                // Default to moving
+                let shouldMove = true;
+                
+                if (controllingLightId) {
+                    const lightPos = trafficLightPositions[controllingLightId];
+                    // Calculate distance to light using x and z coordinates only (ignore y)
+                    const distanceToLight = Math.abs(
+                        mesh.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z))
+                    );
+        
+                    // Calculate where this car should stop based on its queue position
+                    const stopDistance = STOP_DISTANCE + (mesh.userData.queuePosition * CAR_LENGTH);
+                    
+                    // Determine if car should stop
+                    if (distanceToLight <= stopDistance) {
+                        const isRedLight = !trafficLightStatuses.current[controllingLightId];
+                        const hasCarInFront = mesh.userData.queuePosition > 0;
+                        
+                        if (isRedLight || hasCarInFront) {
+                            shouldMove = false;
+                            mesh.userData.stopped = true;
+                        }
+                    }
+                }
+        
+                // Apply movement if allowed
+                if (shouldMove) {
+                    mesh.userData.stopped = false;
                     mesh.position.x += direction.x * moveSpeed;
                     mesh.position.y += direction.y * moveSpeed;
                     mesh.position.z += direction.z * moveSpeed;
                 }
-                // Otherwise, only move if the mapped traffic light is green.
-                else if (trafficLightStatuses.current[controllingLightId]) {
-                    mesh.position.x += direction.x * moveSpeed;
-                    mesh.position.y += direction.y * moveSpeed;
-                    mesh.position.z += direction.z * moveSpeed;
-                }
-            
-                // Remove the car if it moves too far from the camera.
-                // You could use distanceTo() from the camera position.
+        
+                // Remove cars that are outisde the viewport, for efficiency
                 if (mesh.position.distanceTo(camera.position) > removalThreshold) {
                     scene.remove(mesh);
                     carMeshes.current.delete(carId);
                 }
             });
+        
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         };

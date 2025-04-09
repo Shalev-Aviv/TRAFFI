@@ -7,8 +7,6 @@ import MatrixPopUp from './components/MatrixPopUp.jsx';
 
 import Simulation from './components/Simulation.jsx';
 
-<script src="https://unpkg.com/react-scan/dist/auto.global.js"></script> // React Scan plugin
-
 function App() {
   return (
     <div className="App">
