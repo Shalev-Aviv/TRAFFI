@@ -25,6 +25,7 @@ public class Junction {
     private Lane[] lanes; // Lanes at the junction
     private Set<Integer> destinationLanes; // Set of destination lanes
     private List<Integer> enteringLanes; // List of entering lanes
+    // Implement a priority queue with dictionary that stores the locations
 
     /** Constructor*/
     public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
@@ -60,19 +61,19 @@ public class Junction {
     /** return the index of the traffic light with the largest weight<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
-     * */
+    */
     public int maxWeightIndex() {
         return maxRegularWeight(maxEmergencyWeight());
     }
     /** return the maximum emergency weight among all traffic lights<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
-     * */
+    */
     private int maxEmergencyWeight() {
         int maxWeight = 0;
-        for (int i = 0; i < trafficLightsArray.length; i++) {
-            if (trafficLightsArray[i].getEmergencyWeight() > maxWeight) {
-                maxWeight = trafficLightsArray[i].getEmergencyWeight();
+        for(TrafficLight light : trafficLightsArray) {
+            if(light.getEmergencyWeight() > maxWeight) {
+                maxWeight = light.getEmergencyWeight();
             }
         }
         return maxWeight;
@@ -80,7 +81,7 @@ public class Junction {
     /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
-     * */
+    */
     private int maxRegularWeight(int maxEmergencyWeight) {
         List<Integer> candidates = new ArrayList<>();
         int maxWeight = 0;
@@ -148,7 +149,7 @@ public class Junction {
     /** Async function that finds the maximum-weighted-traffic-light (MWTL) and finds the largest clique (based on weight) that the MWTL appears in, and make it green<p>
      * <STRONG>O(n^3)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE><p>
-     * m -> size of clique
+     * m -> size of <CODE>clique</CODE>
     */
     @Async
     public void manageTrafficLights() {
@@ -178,14 +179,14 @@ public class Junction {
     }
     /** finds the traffic light with the maximum weight in the set and returns it<p>
      * <STRONG>O(n)</STRONG><p>
-     * n -> size of set
+     * n -> size of the given set
     */
     private int maxWeightIndexFromSet(Set<Integer> set) {
         return maxRegularWeightIndexFromSet(set, maxEmergencyWeightFromSet(set));
     }
     /** finds the maximum emergency weight in the set<p>
      * <STRONG>O(n)</STRONG><p>
-     * n -> size of set
+     * n -> size of the given set
     */
     private int maxEmergencyWeightFromSet(Set<Integer> set) {
         List<Integer> setList = new ArrayList<>(set);
@@ -200,7 +201,7 @@ public class Junction {
     }
     /** finds the traffic light with the maximum regular weight in the set, given the maximum emergency weight<p>
      * <STRONG>O(n)</STRONG><p>
-     * n -> size of set
+     * n -> size of the given set
     */
     private int maxRegularWeightIndexFromSet(Set<Integer> set, int maxEmergencyWeight) {
         List<Integer> candidates = new ArrayList<>();
@@ -224,8 +225,8 @@ public class Junction {
         return candidates.get(rand.nextInt(candidates.size()));
     }
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>
-     * O(n^2 * m)<p>
-     * n -> size of the clique<p>
+     * <STRONG>O(n^2 * m)</STRONG><p>
+     * n -> size of the <CODE>clique</CODE><p>
      * m -> length of the <CODE>trafficLightsArray</CODE>
     */
     private Set<Integer> findLargestClique(int maxWeightIndex) {
@@ -235,14 +236,8 @@ public class Junction {
         do {
            findStrongConnection(clique, maxWeightIndex);
            // Add all possible traffic lights to temp set
-           HashSet<Integer> temp = new HashSet<>();
-           for(int i = 0; i < trafficLightsArray.length; i++) {
-                if(!clique.contains(i)) {
-                    if(canWeAddThis(clique, i)) {
-                        temp.add(i);
-                    }    
-                }
-            }
+           HashSet<Integer> temp = AddToTempSet(clique);
+
             // Find the traffic light with the maximum weight in the temp set and add it to the clique
             if(temp.isEmpty()) {
                 stop = true;
@@ -256,13 +251,31 @@ public class Junction {
                     clique.add(candidate);
                 }
             }
-        } while(canWeAdd(clique) && !stop);
+        } while(!stop && canWeAdd(clique));
 
         return clique;
     }
+    /** Returns a set contains all the traffic light that can be added to the clique<p>
+     * <STRONG>O(n*m)</STRONG><p>
+     * n -> size of <CODE>trafficLightArray<p></CODE>
+     * m -> size of <CODE>clique</CODE>
+    */
+    private HashSet<Integer> AddToTempSet(Set<Integer> clique) {
+        HashSet<Integer> temp = new HashSet<>();
+        for(int i = 0; i < trafficLightsArray.length; i++) {
+            if(!clique.contains(i)) {
+                if(canWeAddThis(clique, i)) {
+                    temp.add(i);
+                }    
+            }
+        }
+        return temp;
+    }
     /** return false if we found the largest clique, return true otherwise<p>
-     * O(n^2)<p>
-     * n -> the size of the clique*/
+     * <STRONG>O(n*m)</STRONG><p>
+     * n -> the size of the <CODE>clique</CODE><p>
+     * m -> the sie of the <CODE>trafficLightArray</CODE>
+    */
     private boolean canWeAdd(Set<Integer> clique) {
         boolean canWeAdd = false;
         for(int i = 0; i < trafficLightsArray.length && !canWeAdd; i++) {
@@ -275,21 +288,23 @@ public class Junction {
         return canWeAdd;
     }
     /** return true if we can add a trafficLightsArray[index] to the clique<p>
-     * O(n)<p>
-     * n -> the size of the clique
-     * */
+     * <STRONG>O(n)</STRONG><p>
+     * n -> size of <CODE>trafficLightsArray</CODE>
+    */
     private boolean canWeAddThis(Set<Integer> clique, int index) {
         boolean canAdd = true;
-        for(Integer i : clique) {
-            canAdd = canAdd && (trafficLightGraph[index][i] != 0);
+        for(int i = 0; i < trafficLightsArray.length && canAdd; i++) {
+            if(clique.contains(i)) {
+                canAdd = canAdd && trafficLightGraph[index][i] != 0;
+            }
         }
         return canAdd;
     }
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
      * <STRONG>O(n*m)</STRONG><p>
-     * n -> length of the matrix<p>
-     * m -> size of the clique
-     * */
+     * n -> length of <CODE>trafficLightGraph</CODE><p>
+     * m -> size of the <CODE>clique</CODE>
+    */
     private void findStrongConnection(Set<Integer> clique, int index) {
         for(int i = 0; i < trafficLightGraph.length; i++) {
             if(trafficLightGraph[index][i] == 2 && !clique.contains(i)) {
@@ -307,19 +322,19 @@ public class Junction {
         this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
     }
     /** changes the lights of the traffic lights in the clique<p>
-     * O(n)
-     * n -> the amount of traffic lights in the junction
-     * */
+     * <STRONG>O(n)</STRONG><p>
+     * n -> <CODE>trafficLightArray</CODE>
+    */
     private void changeLights(Set<Integer> clique) {
         for (int i = 0; i < trafficLightsArray.length; i++) {
             System.out.println("Traffic light " + (i+1) + " weights: " + trafficLightsArray[i].getEmergencyWeight() + ", " + trafficLightsArray[i].getRegularWeight());
             if (clique.contains(i)) {
-                trafficLightsArray[i].setOn(true);
+                trafficLightsArray[i].setColor(true);
                 trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, true);
                 trafficLightsArray[i].startDequeue(lanesMap, lanes);
             }
             else {
-                trafficLightsArray[i].setOn(false);
+                trafficLightsArray[i].setColor(false);
                 trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, false);
                 trafficLightsArray[i].stopDequeue();
             }

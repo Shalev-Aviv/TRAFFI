@@ -6,15 +6,13 @@ public class Lane {
     private TrafficLight parentTrafficLight; // Reference to the parent traffic light
 
     private Queue<Car> cars; // Queue of cars in the lane
-    private int amount; // Amount of cars in the lane
     private int regularCarsCounter; // Amount of regular cars in the lane
     private int emergencyCarsCounter; // Amount of emergency cars in the lane
-    private int id; // Lane id
+    private int id; // Lane's id
 
     /** Constructor*/
     public Lane(int id) {
         this.cars = new LinkedList<>();
-        this.amount = 0;
         this.regularCarsCounter = 0;
         this.emergencyCarsCounter = 0;
         this.id = id;
@@ -28,7 +26,6 @@ public class Lane {
     /** Add a car to the lane and update the weights of the parent traffic light*/
     public void addCar(Car car) {
         cars.add(car);
-        this.amount++;
         if(car.getEmergency()) {
             this.emergencyCarsCounter++;
             if (parentTrafficLight != null) {
@@ -49,18 +46,28 @@ public class Lane {
         if(removedCar == null) {
             return null;
         }
-        this.amount--;
-        if (this.amount < 0) this.amount = 0; // Ensure amount doesn't go negative
+        
+        if(removedCar.getEmergency()) {
+            this.emergencyCarsCounter--;
+            if(this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0;
+        }
+        else {
+            this.regularCarsCounter--;
+            if(this.regularCarsCounter < 0) this.regularCarsCounter = 0;
+        }
 
         if (parentTrafficLight != null) {
             if (removedCar.getEmergency()) {
                 this.emergencyCarsCounter--;
-                if (this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0; // Prevent negative counters
+                if (this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0;
                 parentTrafficLight.incrementEmergencyWeight(-1);
-            } else {
+                if(parentTrafficLight.getEmergencyWeight() < 0) parentTrafficLight.setEmergencyWeight(0);
+            }
+            else {
                 this.regularCarsCounter--;
-                if (this.regularCarsCounter < 0) this.regularCarsCounter = 0; // Prevent negative counters
+                if (this.regularCarsCounter < 0) this.regularCarsCounter = 0;
                 parentTrafficLight.incrementRegularWeight(-1);
+                if(parentTrafficLight.getRegularWeight() < 0) parentTrafficLight.setRegularWeight(0);
             }
         }
         return removedCar;
@@ -69,7 +76,6 @@ public class Lane {
     // Getters
     public TrafficLight getParentTrafficLight() { return this.parentTrafficLight; }
     public Queue<Car> getCars() { return this.cars; }
-    public int getAmount() { return this.amount; }
     public int getRegularCarsCounter() { return this.regularCarsCounter; }
     public int getEmergencyCarsCounter() { return this.emergencyCarsCounter; }
     public int getId() { return this.id; }
@@ -77,6 +83,8 @@ public class Lane {
     // ToString
     @Override
     public String toString() {
-        return "Lane " + this.id + ": " + this.amount + " cars" + " regular cars: " + this.regularCarsCounter + " emergency cars: " + this.emergencyCarsCounter;
+        return "Lane " + this.id + ": " + 
+        " regular cars: " + this.regularCarsCounter + 
+        " emergency cars: " + this.emergencyCarsCounter;
     }
 }

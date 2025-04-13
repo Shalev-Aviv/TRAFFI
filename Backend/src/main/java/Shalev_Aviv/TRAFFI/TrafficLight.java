@@ -7,16 +7,16 @@ import org.springframework.scheduling.annotation.Async;
 
 // TrafficLight class - representing a specific traffic light at a junction
 class TrafficLight {
-    private volatile boolean isDequeuing = false;
     public enum Color{ RED, GREEN }
-
+    
+    private volatile boolean isDequeuing = false;
     private final Object weightLock = new Object();
 
-    private Color color;
-    private Lane[] lanes;
-    private int emergencyWeight;
-    private int regularWeight;
-    private int id;
+    private Color color; // The color of the light (RED, GREEN)
+    private Lane[] lanes; // Array of lanes that are controlled by this traffic light
+    private int emergencyWeight; // Represents the emergency weight of this light
+    private int regularWeight; // Represents the regular weight of this light
+    private int id; // light's id
 	
     /** Constructor*/
     public TrafficLight(Lane[] lanes, int id) {
@@ -44,8 +44,8 @@ class TrafficLight {
 
     /** Start dequeuing cars from every lane in the lanes array<p>
      * <STRONG>O(n)</STRONG<p>
-     * n -> <CODE>lanes.length</CODE><p>
-     */
+     * n -> length of <CODE>lanes</CODE><p>
+    */
     @Async
     public void startDequeue(Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         if(!isDequeuing && this.color == Color.GREEN) {
@@ -80,15 +80,15 @@ class TrafficLight {
 
     /** stop dequeuing cars from every lane in the lanes array<p>
      * <STRONG>O(1)</STRONG
-     */
+    */
     public void stopDequeue() {
-        //System.out.println("stop dequeuing cars asynchronously from traffic light " + this.id);
         isDequeuing = false;
     }
 
-    /** Create a function that turns the traffic light on or off*/
-    public void setOn(boolean on) { this.color = on ? Color.GREEN : Color.RED; }
-
+    /** Turns the traffic light on (true) or off (false)*/
+    public void setColor(boolean set) { this.color = set ? Color.GREEN : Color.RED; }
+    public void setRegularWeight(int weight) { this.regularWeight = weight; }
+    public void setEmergencyWeight(int weight) { this.emergencyWeight = weight; }
     // Getters
     public Color getColor() { return this.color; }
     public Lane[] getLanes() { return this.lanes; }
