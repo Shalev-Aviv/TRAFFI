@@ -18,7 +18,7 @@ function Simulation() {
   const CANVAS_HEIGHT_EM = 33.33;
 
   const carColorByType = (type) => {
-    return type === "POLICE" || type === "AMBULANCE" ? 0x0000ff : 0xff0000;
+    return type === "POLICE" || type === "AMBULANCE" ? 0x00ff00 : 0xff0000;
   };
 
   // Mapping from lane to controlling traffic light (null = exiting lane)
@@ -63,9 +63,9 @@ function Simulation() {
     6: { x: -30, y: 2, z: -41.5 },
     7: { x: -26, y: 2, z: -9 }, 
     8: { x: -21, y: 2, z: -9 },
-    9: { x: 18.9, y: 2, z: -7.4 }, 
-    10: { x: 18.9, y: 2, z: -2.5 },
-    11: { x: -19, y: 2, z: 2.3 },
+    9: { x: 19, y: 2, z: -7.4 }, 
+    10: { x: 19, y: 2, z: -2.5 },
+    11: { x: -19, y: 2, z: 2.4 },
     12: { x: -19, y: 2, z: 7.3 },
     13: { x: -21, y: 2, z: 41 },
     14: { x: -26, y: 2, z: 41 },

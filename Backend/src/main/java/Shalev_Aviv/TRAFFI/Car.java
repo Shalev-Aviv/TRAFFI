@@ -23,11 +23,7 @@ public class Car {
     }
 
     private void setEmergency() {
-        this.emergency = switch (type) {
-            case POLICE, AMBULANCE -> true;
-            case PRIVATE, MOTORCYCLE -> false;
-            default -> false; // Default case for safety
-        };
+        this.emergency = this.type == CarType.AMBULANCE || this.type == CarType.POLICE ? true : false;
     }
 
     // Getters

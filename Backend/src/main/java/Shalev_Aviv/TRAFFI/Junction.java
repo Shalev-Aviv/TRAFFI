@@ -257,14 +257,15 @@ public class Junction {
         return clique;
     }
     /** Returns a set contains all the traffic light that can be added to the clique<p>
-     * <STRONG>O(n * k)</STRONG> k < n<p>
-     * n -> size of <CODE>trafficLightArray</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O((n-k) * k)</STRONG> k < n<p>
+     * n -> number of bits in <CODE>clique</CODE><p>
+     * k -> number of set bits in <CODE>clique</CODE><p>
+     * n-k -> number of clear bits in <CODE>clique</CODE>
     */
     private BitSet AddToTempSet(BitSet clique) {
         BitSet temp = new BitSet(trafficLightsArray.length);
-        for(int i = 0; i < trafficLightsArray.length; i++) {
-            if(!clique.get(i) && canWeAddThis(clique, i)) {
+        for(int i = clique.nextClearBit(0); i >= 0; i = clique.nextClearBit(i+1)) {
+            if(canWeAddThis(clique, i)) {
                 temp.set(i);
             }
         }
@@ -286,16 +287,17 @@ public class Junction {
     }
     /** return true if we can add a trafficLightsArray[index] to the clique<p>
      * <STRONG>O(k)</STRONG> k < n<p>
+     * n -> number of bits in <CODE>clique</CODE><p>
      * k -> number of set bits in <CODE>clique</CODE>
     */
     private boolean canWeAddThis(BitSet clique, int index) {
-        boolean canAdd = true;
-        for(int i = clique.nextSetBit(0); i >= 0 && canAdd; i = clique.nextSetBit(i+1)) {
+        boolean canWeAdd = true;
+        for(int i = clique.nextSetBit(0); i >= 0 && canWeAdd; i = clique.nextSetBit(i+1)) {
             if(trafficLightGraph[index][i] == 0) {
-                canAdd = false;
+                canWeAdd = false;
             }
         }
-        return canAdd;
+        return canWeAdd;
     }
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
      * <STRONG>O(n * k)</STRONG> k < n<p>
