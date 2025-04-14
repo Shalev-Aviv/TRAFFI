@@ -19,8 +19,10 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 // Junction class - representing the entire junction
 public class Junction {
     private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
-
     private int[][] trafficLightGraph; // Matrix representing the connections between traffic lights
+
+    private BitSet[] trafficLightsConnections;
+    private BitSet[] trafficLightsStrongConnections;
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction
@@ -31,6 +33,7 @@ public class Junction {
     /** Constructor*/
     public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         this.trafficLightGraph = trafficLightGraph;
+        initializeGraphBitSets(trafficLightGraph);
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
@@ -58,6 +61,26 @@ public class Junction {
             }
         }
     }
+    private void initializeGraphBitSets(int[][] trafficLightGraph) {
+        if(trafficLightGraph == null) {
+            throw new IllegalArgumentException("Invalid traffic light graph: null");
+        }
+        int n = trafficLightGraph.length;
+        this.trafficLightsConnections = new BitSet[n];
+        this.trafficLightsStrongConnections = new BitSet[n];
+        for (int i = 0; i < n; i++) {
+            trafficLightsConnections[i] = new BitSet(n);
+            trafficLightsStrongConnections[i] = new BitSet(n);
+            for (int j = 0; j < n; j++) {
+                if (trafficLightGraph[i][j] != 0) { 
+                    trafficLightsConnections[i].set(j); 
+                }
+                if (trafficLightGraph[i][j] == 2) { 
+                    trafficLightsStrongConnections[i].set(j); 
+                }
+            }
+        }
+    }    
 
     /** return the index of the traffic light with the largest weight<p>
      * <STRONG>O(n)</STRONG><p>
@@ -263,8 +286,9 @@ public class Junction {
      * n-k -> number of clear bits in <CODE>clique</CODE>
     */
     private BitSet AddToTempSet(BitSet clique) {
-        BitSet temp = new BitSet(trafficLightsArray.length);
-        for(int i = clique.nextClearBit(0); i >= 0; i = clique.nextClearBit(i+1)) {
+        int n = trafficLightsArray.length;
+        BitSet temp = new BitSet(n);
+        for(int i = clique.nextClearBit(0); i >= 0 && i < n; i = clique.nextClearBit(i+1)) {
             if(canWeAddThis(clique, i)) {
                 temp.set(i);
             }
@@ -293,23 +317,21 @@ public class Junction {
     private boolean canWeAddThis(BitSet clique, int index) {
         boolean canWeAdd = true;
         for(int i = clique.nextSetBit(0); i >= 0 && canWeAdd; i = clique.nextSetBit(i+1)) {
-            if(trafficLightGraph[index][i] == 0) {
+            if(!trafficLightsConnections[index].get(i)) {
                 canWeAdd = false;
             }
         }
         return canWeAdd;
     }
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
-     * <STRONG>O(n * k)</STRONG> k < n<p>
-     * n -> rows of <CODE>trafficLightGraph</CODE><p>
+     * <STRONG>O(k)</STRONG> k < n<p>
+     * n -> number of bits in <CODE>clique</CODE><p>
      * k -> number of set bits in <CODE>clique</CODE>
     */
     private void findStrongConnection(BitSet clique, int index) {
-        for(int i = 0; i < trafficLightGraph.length; i++) {
-            if(trafficLightGraph[index][i] == 2 && !clique.get(i)) {
-                if(canWeAddThis(clique, i)) {
-                    clique.set(i);
-                }
+        for(int i = trafficLightsStrongConnections[index].nextSetBit(0); i >= 0; i = trafficLightsStrongConnections[index].nextSetBit(i+1)) {
+            if(!clique.get(i) && canWeAddThis(clique, i)) {
+                clique.set(i);
             }
         }
     }
@@ -343,6 +365,8 @@ public class Junction {
     // Getters
     public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return this.laneToTrafficLightMap; }
     public int[][] getTrafficLightGraph() { return this.trafficLightGraph; }
+    public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}
+    public BitSet[] getTrafficLightsStrongConnections() { return this.trafficLightsStrongConnections; }
     public TrafficLight[] getTrafficLightsArray() { return this.trafficLightsArray; }
     public Map<Integer, Integer[]> getLanesMap() { return this.lanesMap; }
     public Lane[] getLanes() { return this.lanes; }
