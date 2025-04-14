@@ -1,4 +1,5 @@
 .ThreeJS {
+    position: relative;
     display: flex;
     margin: 1em auto;
     border-radius: 1em;

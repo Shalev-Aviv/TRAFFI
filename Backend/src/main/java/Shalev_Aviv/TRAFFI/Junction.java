@@ -359,14 +359,14 @@ public class Junction {
                 str += trafficLightGraph[i][j] + " ";
             }
             str += "\n";
-        }
-        str += "\n";
+        } str += "\n";
+
         // Traffic lights array
         str += "Traffic lights array:\n";
         for (TrafficLight light : trafficLightsArray) {
             str += light.toString() + "\n";
-        }
-        str += "\n";
+        } str += "\n";
+        
         // Lanes map
         str += "Lanes map:\n";
         for(Map.Entry<Integer, Integer[]> entry : lanesMap.entrySet()) {
@@ -378,8 +378,8 @@ public class Junction {
             else {
                 str += Arrays.toString(value) + "\n";
             }
-        }
-        str += "\n";
+        } str += "\n";
+        
         // Lanes array
         str += "Lanes array:\n";
         for (Lane lane : lanes) {

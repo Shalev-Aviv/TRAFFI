@@ -110,7 +110,7 @@ function Simulation () {
         17: { x: 0, y: 0, z: 1 },
         18: { x: 0, y: 0, z: 1 },
         19: { x: 0, y: 0, z: -1 },
-        20: { x: -1, y: 0, z: -1 },
+        20: { x: 0, y: 0, z: -1 },
         21: { x: -1, y: 0, z: 0 },
         22: { x: -1, y: 0, z: 0 },
         23: { x: -1, y: 0, z: 0 },
@@ -122,15 +122,138 @@ function Simulation () {
         29: { x: 0, y: 0, z: 1 },
     };
     const trafficLightPositions = {
-        1: { x: -36, y: 6, z: 4.7 },
-        2: { x: -32, y: 6, z: -10 },
+        1: { x: -38, y: 6, z: 4.7 },
+        2: { x: -32.5, y: 6, z: -10 },
         3: { x: -18, y: 6, z: -5 },
         4: { x: -23.5, y: 6, z: 10 },
-        5: { x: 18, y: 6, z: 5 },
-        6: { x: 23.5, y: 6, z: -10 },
-        7: { x: 38, y: 6, z: -5 },
-        8: { x: 38, y: 6, z: 0.5 },
-        9: { x: 32.5, y: 6, z: 10 }
+        5: { x: 18, y: 6, z: 4.5 },
+        6: { x: 23.5, y: 6, z: -10.5 },
+        7: { x: 38.2, y: 6, z: -5.3 },
+        8: { x: 38.2, y: 6, z:  0.6 },
+        9: { x: 32.6, y: 6, z: 10.2 }
+    };
+
+    // NEW: Junction routing map to define next lane after passing a traffic light
+    // Format: [currentLane]: { nextLane, turnType }
+    // turnType can be: "straight", "left", "right"
+    const junctionRoutes = {
+        1: [
+            { nextLane: 12, turnType: "straight" },
+            { nextLane: 16, turnType: "right" }
+        ],
+        2: [
+            { nextLane: 11, turnType: "straight" }      
+        ],
+        3: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        4: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        5: [
+            { nextLane: 16, turnType: "straight" },
+            { nextLane: 4, turnType: "right" }
+        ],
+        6: [
+            { nextLane: 15, turnType: "straight" }
+        ],
+        7: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        8: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        9: [
+            { nextLane: 4, turnType: "straight" },
+            { nextLane: 8, turnType: "right" }
+        ],
+        10: [
+            { nextLane: 3, turnType: "straight" }
+        ],
+        11: [
+            { nextLane: 24, turnType: "straight" }
+        ],
+        12: [
+            { nextLane: 29, turnType: "right" },
+            { nextLane: 25, turnType: "straight" }
+        ],
+        13: [
+            { nextLane: 8, turnType: "straight" },
+            { nextLane: 12, turnType: "right" }
+        ],
+        14: [
+            { nextLane: 7, turnType: "straight" }
+        ],
+        15: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        16: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        17: [
+            { nextLane: 29, turnType: "straight" },
+            { nextLane: 9, turnType: "right" }
+        ],
+        18: [
+            { nextLane: 28, turnType: "straight" }
+        ],
+        19: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        20: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        21: [
+            { nextLane: 9, turnType: "straight" },
+            { nextLane: 20, turnType: "right" }
+        ],
+        22: [
+            { nextLane: 10, turnType: "straight" }
+        ],
+        23: [
+            { nextLane: 28, turnType: "right" }
+        ],
+        24: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        25: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        26: [
+            { nextLane: 20, turnType: "straight" },
+            { nextLane: 25, turnType: "right" }
+        ],
+        27: [
+            { nextLane: 19, turnType: "straight" }
+        ],
+        28: [
+            { nextLane: null, turnType: "straight" }
+        ],
+        29: [
+            { nextLane: null, turnType: "straight" }
+        ]
+    };
+
+    // Move smoothTransitionCarLane here, before it's used in changeCarLane
+    const smoothTransitionCarLane = (carMesh, newLane, duration = 1000, onComplete) => {
+        const startPos = carMesh.position.clone();
+        const targetPosData = laneStartPositions[newLane] || { x: 0, y: 0, z: 0 };
+        const targetPos = new THREE.Vector3(targetPosData.x, targetPosData.y, targetPosData.z);
+        
+        let startTime = null;
+
+        const animateTransition = (time) => {
+            if (!startTime) startTime = time;
+            const elapsed = time - startTime;
+            const t = Math.min(elapsed / duration, 1); // normalized time [0,1]
+            carMesh.position.lerpVectors(startPos, targetPos, t);
+            if (t < 1) {
+                requestAnimationFrame(animateTransition);
+            } else {
+                if (onComplete) onComplete();
+            }
+        };
+        requestAnimationFrame(animateTransition);
     };
 
     // Create a car mesh; if new then add it and if it already exists, update its lane & starting position.
@@ -142,18 +265,75 @@ function Simulation () {
             const material = new THREE.MeshBasicMaterial({ color: carColorByType(type) });
             mesh = new THREE.Mesh(geometry, material);
             mesh.rotation.x = -Math.PI / 2;
+            // Set the starting position based on the lane.
+            const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
+            mesh.position.set(startPos.x, startPos.y, startPos.z);
+            // Initialize userData only once for new cars.
+            mesh.userData = {
+                carId,
+                lane,
+                type,
+                stopped: false,
+                queuePosition: 0,       
+                hasCrossedLight: false,
+                progressAlongLane: 0, // Add progress tracking for cars
+            };
             carMeshes.current.set(carId, mesh);
             scene.add(mesh);
+        } else {
+            // Update properties only if they actually change.
+            if (mesh.userData.lane !== lane) {
+                mesh.userData.lane = lane;
+                mesh.userData.hasCrossedLight = false;
+                mesh.userData.progressAlongLane = 0; // Reset progress when changing lanes
+                // Optionally reposition the car using smoothTransitionCarLane or directly:
+                const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
+                mesh.position.set(startPos.x, startPos.y, startPos.z);
+            }
+            if (mesh.userData.type !== type) {
+                mesh.userData.type = type;
+                mesh.material.color.setHex(carColorByType(type));
+            }
         }
-        mesh.userData = {
-            carId,
-            lane,
-            type,
-            stopped: false,
-            queuePosition: 0 // Position in queue (0 = first car)
-        };
-        const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
-        mesh.position.set(startPos.x, startPos.y, startPos.z);
+        return mesh;
+    };
+
+    // NEW: Function to change a car's lane after passing a traffic light
+    const changeCarLane = (carMesh) => {
+        const currentLane = carMesh.userData.lane;
+        if (!junctionRoutes[currentLane] || junctionRoutes[currentLane].length === 0) {
+            return false;
+        }
+        const routeOption = junctionRoutes[currentLane][0];
+        const newLane = routeOption.nextLane;
+        
+        if (!newLane) return false; // If no next lane specified, do nothing.
+
+        console.log(`Car ${carMesh.userData.carId} changed from lane ${currentLane} to ${newLane} (${routeOption.turnType})`);
+
+        // Update the car's lane assignment and reset flags.
+        carMesh.userData.lane = newLane;
+        carMesh.userData.hasCrossedLight = false; 
+        carMesh.userData.queuePosition = 0;
+        carMesh.userData.progressAlongLane = 0; // Reset progress
+        // Update the traffic light based on the new lane mapping.
+        carMesh.userData.currentTrafficLight = laneToTrafficLightMapping[newLane];
+        // Mark the car as transitioning so animate loop will skip auto movement.
+        carMesh.userData.isTransitioning = true;
+        
+        // Smoothly transition the car mesh and clear the transitioning flag on completion.
+        smoothTransitionCarLane(carMesh, newLane, 1000, () => {
+            carMesh.userData.isTransitioning = false;
+        });
+
+        return true;
+    };
+
+    // Calculate the progress of a car along its lane
+    const calculateProgressAlongLane = (carPosition, laneNumber) => {
+        const direction = laneDirections[laneNumber] || { x: 0, y: 0, z: 0 };
+        const laneStart = laneStartPositions[laneNumber] || { x: 0, y: 0, z: 0 };
+        return ((carPosition.x - laneStart.x) * direction.x) + ((carPosition.z - laneStart.z) * direction.z);
     };
 
     useEffect(() => {
@@ -229,17 +409,49 @@ function Simulation () {
         directionalLight.position.set(0, 10, 0);
         scene.add(directionalLight);
 
-        // Animation loop: update car positions based on their current lane’s direction.
+        // Animation loop: update car positions based on their current lane's direction.
         // In your animation loop, always move cars if there is no mapping.
         // Also remove cars that have exited the visible area (using a removal threshold).
         const moveSpeed = 0.1;
         const removalThreshold = 200; // Example value; adjust as needed
-            
+
+        const getDistanceToLight = (carPos, lightPos, direction) => {
+            // For lanes moving in Z direction
+            if (direction.z !== 0) {
+                // If moving in positive Z (north), light is ahead when car's Z is less than light's Z
+                if (direction.z > 0) {
+                    return lightPos.z - carPos.z;
+                }
+                // If moving in negative Z (south), light is ahead when car's Z is greater than light's Z
+                return carPos.z - lightPos.z;
+            }
+            // For lanes moving in X direction
+            if (direction.x !== 0) {
+                // If moving in positive X (east), light is ahead when car's X is less than light's X
+                if (direction.x > 0) {
+                    return lightPos.x - carPos.x;
+                }
+                // If moving in negative X (west), light is ahead when car's X is greater than light's X
+                return carPos.x - lightPos.x;
+            }
+            return 0;
+        };
+          
         const animate = () => {
             const STOP_DISTANCE = 3; // Increased distance to stop before traffic light
             const CAR_LENGTH = 3;    // Space between cars in queue
+            const CAR_MIN_DISTANCE = 2; // Minimum distance between cars to prevent overlap
+            const PAST_LIGHT_DISTANCE = 1; // Distance to consider a car has passed the traffic light
             
-            // First, group cars by lane for queue management
+            // First, calculate progress for all cars
+            carMeshes.current.forEach((mesh) => {
+                if (!mesh.userData.isTransitioning) {
+                    const lane = mesh.userData.lane;
+                    mesh.userData.progressAlongLane = calculateProgressAlongLane(mesh.position, lane);
+                }
+            });
+            
+            // Group cars by lane for queue management
             const laneQueues = new Map();
             carMeshes.current.forEach((mesh) => {
                 const lane = mesh.userData.lane;
@@ -249,64 +461,88 @@ function Simulation () {
                 laneQueues.get(lane).push(mesh);
             });
         
-            // Sort cars in each queue by distance to traffic light
+            // Sort cars in each queue by progress along lane (front-to-back order)
             laneQueues.forEach((queue, lane) => {
-                const lightId = laneToTrafficLightMapping[lane];
-                if (lightId) {
-                    const lightPos = trafficLightPositions[lightId];
-                    queue.sort((a, b) => {
-                        const distA = Math.abs(a.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z)));
-                        const distB = Math.abs(b.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z)));
-                        return distA - distB;
-                    });
-                    
-                    // Update queue positions
-                    queue.forEach((mesh, index) => {
-                        mesh.userData.queuePosition = index;
-                    });
-                }
+                queue.sort((a, b) => {
+                    return b.userData.progressAlongLane - a.userData.progressAlongLane;
+                });
+                
+                // Update queue positions
+                queue.forEach((mesh, index) => {
+                    mesh.userData.queuePosition = index;
+                });
             });
         
             // Move cars
             carMeshes.current.forEach((mesh, carId) => {
+                // Skip the car if it is currently transitioning between lanes.
+                if (mesh.userData.isTransitioning) return;
+
                 const { lane } = mesh.userData;
-                const controllingLightId = laneToTrafficLightMapping[lane];
+                const controllingLightId = mesh.userData.currentTrafficLight || laneToTrafficLightMapping[lane];
                 const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
                 
-                // Default to moving
                 let shouldMove = true;
                 
+                // Traffic light handling
                 if (controllingLightId) {
                     const lightPos = trafficLightPositions[controllingLightId];
-                    // Calculate distance to light using x and z coordinates only (ignore y)
-                    const distanceToLight = Math.abs(
-                        mesh.position.distanceTo(new THREE.Vector3(lightPos.x, 2, lightPos.z))
+                    const distanceToLight = getDistanceToLight(
+                        mesh.position,
+                        lightPos,
+                        direction
                     );
         
-                    // Calculate where this car should stop based on its queue position
                     const stopDistance = STOP_DISTANCE + (mesh.userData.queuePosition * CAR_LENGTH);
                     
-                    // Determine if car should stop
+                    // Check if car has passed the current traffic light
+                    if (!mesh.userData.hasCrossedLight && distanceToLight <= PAST_LIGHT_DISTANCE) {
+                        if (trafficLightStatuses.current[controllingLightId]) {
+                            mesh.userData.hasCrossedLight = true;
+                            console.log(`Car ${carId} passed traffic light ${controllingLightId}`);
+                        }
+                    }
+        
+                    // Handle lane change after passing traffic light
+                    if (mesh.userData.hasCrossedLight && distanceToLight > PAST_LIGHT_DISTANCE && trafficLightStatuses.current[controllingLightId]) {
+                        changeCarLane(mesh);
+                    }
+        
+                    // Determine if car should stop at red light
                     if (distanceToLight <= stopDistance) {
                         const isRedLight = !trafficLightStatuses.current[controllingLightId];
-                        const hasCarInFront = mesh.userData.queuePosition > 0;
                         
-                        if (isRedLight || hasCarInFront) {
+                        if (isRedLight && !mesh.userData.hasCrossedLight) {
                             shouldMove = false;
                             mesh.userData.stopped = true;
                         }
                     }
                 }
-        
-                // Apply movement if allowed
+                
+                // Check for cars in front to prevent collisions
+                if (shouldMove && mesh.userData.queuePosition > 0) {
+                    const laneQueue = laneQueues.get(lane);
+                    const carInFront = laneQueue[mesh.userData.queuePosition - 1];
+                    if (carInFront) {
+                        const distanceToCar = mesh.position.distanceTo(carInFront.position);
+                        if (distanceToCar < CAR_MIN_DISTANCE) {
+                            shouldMove = false;
+                            mesh.userData.stopped = true;
+                        }
+                    }
+                }
+                
                 if (shouldMove) {
                     mesh.userData.stopped = false;
                     mesh.position.x += direction.x * moveSpeed;
                     mesh.position.y += direction.y * moveSpeed;
                     mesh.position.z += direction.z * moveSpeed;
+                    
+                    // Update progress after moving
+                    mesh.userData.progressAlongLane = calculateProgressAlongLane(mesh.position, lane);
                 }
-        
-                // Remove cars that are outisde the viewport, for efficiency
+                
+                // Remove cars that are far from the camera
                 if (mesh.position.distanceTo(camera.position) > removalThreshold) {
                     scene.remove(mesh);
                     carMeshes.current.delete(carId);
@@ -342,13 +578,6 @@ function Simulation () {
             console.log("Received car update:", data);
             // Upsert the car mesh based on its unique ID.
             upsertCarMesh(data.carId, data.lane, data.type);
-
-            /* 
-              NOTE: If you find that the connection between lanes and traffic lights isn't
-              correct (for example, if lane 2 is not controlled by traffic light 1), verify your
-              backend logic. You may need to adjust either the mapping in the backend or in the
-              frontend so that each car’s lane properly determines which traffic light controls it.
-            */
         };
 
         return () => {

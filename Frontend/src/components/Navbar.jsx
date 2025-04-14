@@ -3,12 +3,9 @@ import React, { useEffect, useRef } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import { Github, House, Gamepad2, FileSpreadsheet } from "lucide-react";
 
-
-const Master = () => {
+const Navbar = () => {
   const scrollRef = useRef(null);
-  // Flag to indicate if the scroll-to-top animation is active
   const animatingRef = useRef(false);
-  // Reference to the manual-interruption handler (so we can remove it later)
   const interruptionHandlerRef = useRef(null);
 
   useEffect(() => {
@@ -31,38 +28,62 @@ const Master = () => {
   const scrollToTop = () => {
     if (scrollRef.current) {
       const container = document.querySelector("[data-scroll-container]");
-      // Set the flag indicating an animated scroll is active
       animatingRef.current = true;
       
-      // Define an interruption handler that cancels the animation if user scrolls manually
       const handleUserScroll = (e) => {
         if (animatingRef.current && scrollRef.current) {
-          // Cancel the current animation if user intervenes
           scrollRef.current.stop();
           animatingRef.current = false;
-          // Remove this handler once we cancel the animation
           container.removeEventListener("wheel", handleUserScroll, { passive: true });
         }
       };
 
-      // Store the handler reference so we can remove it if needed
       interruptionHandlerRef.current = handleUserScroll;
-      // Listen for manual scroll events (non-blocking)
       container.addEventListener("wheel", handleUserScroll, { passive: true });
 
-      // Stop any current scroll animations and start scrolling to the top
       scrollRef.current.stop();
       scrollRef.current.scrollTo(0, {
         duration: 1000,
         easing: [0.25, 0.0, 0.25, 0.5],
         callback: () => {
-          // Once the animation is finished, clear the flag and remove the temporary event listener
           animatingRef.current = false;
           container.removeEventListener("wheel", handleUserScroll, { passive: true });
-          // Restart locomotive scroll so that future scrollTo calls animate smoothly
           scrollRef.current.start();
         },
       });
+    }
+  };
+
+  const scrollToSimulation = () => {
+    if (scrollRef.current) {
+      const startButton = document.querySelector('.Start-container');
+      if (startButton) {
+        const container = document.querySelector("[data-scroll-container]");
+        animatingRef.current = true;
+        
+        const handleUserScroll = (e) => {
+          if (animatingRef.current && scrollRef.current) {
+            scrollRef.current.stop();
+            animatingRef.current = false;
+            container.removeEventListener("wheel", handleUserScroll, { passive: true });
+          }
+        };
+
+        interruptionHandlerRef.current = handleUserScroll;
+        container.addEventListener("wheel", handleUserScroll, { passive: true });
+
+        scrollRef.current.stop();
+        scrollRef.current.scrollTo(startButton, {
+          duration: 1000,
+          easing: [0.25, 0.0, 0.25, 0.5],
+          offset: -100, // Scroll to 100px above the button
+          callback: () => {
+            animatingRef.current = false;
+            container.removeEventListener("wheel", handleUserScroll, { passive: true });
+            scrollRef.current.start();
+          },
+        });
+      }
     }
   };
 
@@ -72,13 +93,13 @@ const Master = () => {
         <a href="https://github.com/Shalev-Aviv/TRAFFI" target="_blank" rel="noopener noreferrer">
           <Github className="Icons" id="Github" />
         </a>
-        <a onClick={scrollToTop} style={{ cursor: "pointer" }}>
+        <a onClick={scrollToTop} style={{ cursor: "pointer" }} href="#">
           <House className="Icons" id="House" />
         </a>
-        <a>
+        <a onClick={scrollToSimulation} style={{ cursor: "pointer" }} href="#">
           <Gamepad2 className="Icons" id="Controller" />
         </a>
-        <a>
+        <a style={{ cursor: "pointer"}} href='#'>
           <FileSpreadsheet className="Icons" id="Read" />
         </a>
       </div>
@@ -87,4 +108,4 @@ const Master = () => {
   );
 };
 
-export default Master;
+export default Navbar;

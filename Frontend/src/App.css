@@ -7,6 +7,7 @@
 
 .App {
   height: 100%;
+  position: relative;
 }
 ::selection {
   background-color: white !important;
@@ -21,12 +22,4 @@
   display: block;
   margin: 0 auto;
   scale: 0.75;
-}
-
-#text {
-  color: white;
-  max-width: 50%;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
 }
