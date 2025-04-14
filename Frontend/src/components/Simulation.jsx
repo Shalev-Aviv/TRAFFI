@@ -234,6 +234,20 @@ function Simulation () {
         ]
     };
 
+    // NEW: Define next traffic light for each current traffic light
+    // This maps a car's current traffic light to the next traffic light it will encounter
+    const nextTrafficLightMapping = {
+        1: { nextLight: 5, transitionPoint: { x: -25, y: 2, z: 5 } },
+        2: { nextLight: 4, transitionPoint: { x: -30, y: 2, z: 0 } },
+        3: { nextLight: null, transitionPoint: null },
+        4: { nextLight: null, transitionPoint: null },
+        5: { nextLight: 9, transitionPoint: { x: 25, y: 2, z: 5 } },
+        6: { nextLight: 8, transitionPoint: { x: 30, y: 2, z: -5 } },
+        7: { nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } },
+        8: { nextLight: 5, transitionPoint: { x: 25, y: 2, z: 2 } },
+        9: { nextLight: 6, transitionPoint: { x: 30, y: 2, z: 0 } }
+    };
+
     // Move smoothTransitionCarLane here, before it's used in changeCarLane
     const smoothTransitionCarLane = (carMesh, newLane, duration = 1000, onComplete) => {
         const startPos = carMesh.position.clone();
@@ -277,6 +291,8 @@ function Simulation () {
                 queuePosition: 0,       
                 hasCrossedLight: false,
                 progressAlongLane: 0, // Add progress tracking for cars
+                controllingTrafficLight: laneToTrafficLightMapping[lane], // Store current controlling light
+                nextTrafficLightChecked: false, // Track if we've checked for the next light
             };
             carMeshes.current.set(carId, mesh);
             scene.add(mesh);
@@ -286,6 +302,8 @@ function Simulation () {
                 mesh.userData.lane = lane;
                 mesh.userData.hasCrossedLight = false;
                 mesh.userData.progressAlongLane = 0; // Reset progress when changing lanes
+                mesh.userData.controllingTrafficLight = laneToTrafficLightMapping[lane]; // Update controlling light
+                mesh.userData.nextTrafficLightChecked = false; // Reset next light check
                 // Optionally reposition the car using smoothTransitionCarLane or directly:
                 const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
                 mesh.position.set(startPos.x, startPos.y, startPos.z);
@@ -317,7 +335,8 @@ function Simulation () {
         carMesh.userData.queuePosition = 0;
         carMesh.userData.progressAlongLane = 0; // Reset progress
         // Update the traffic light based on the new lane mapping.
-        carMesh.userData.currentTrafficLight = laneToTrafficLightMapping[newLane];
+        carMesh.userData.controllingTrafficLight = laneToTrafficLightMapping[newLane];
+        carMesh.userData.nextTrafficLightChecked = false; // Reset next light check
         // Mark the car as transitioning so animate loop will skip auto movement.
         carMesh.userData.isTransitioning = true;
         
@@ -334,6 +353,44 @@ function Simulation () {
         const direction = laneDirections[laneNumber] || { x: 0, y: 0, z: 0 };
         const laneStart = laneStartPositions[laneNumber] || { x: 0, y: 0, z: 0 };
         return ((carPosition.x - laneStart.x) * direction.x) + ((carPosition.z - laneStart.z) * direction.z);
+    };
+
+    // NEW: Function to check if car should update its controlling traffic light
+    const checkAndUpdateTrafficLight = (carMesh) => {
+        // Only process cars that have already passed their initial traffic light
+        if (!carMesh.userData.hasCrossedLight || carMesh.userData.nextTrafficLightChecked) {
+            return;
+        }
+
+        const currentLightId = carMesh.userData.controllingTrafficLight;
+        
+        // If no current light or mapping exists, nothing to do
+        if (!currentLightId || !nextTrafficLightMapping[currentLightId]) {
+            carMesh.userData.nextTrafficLightChecked = true; // Mark as checked to avoid repeated checks
+            return;
+        }
+
+        const { nextLight, transitionPoint } = nextTrafficLightMapping[currentLightId];
+        
+        // If no next light or transition point defined, nothing to do
+        if (!nextLight || !transitionPoint) {
+            carMesh.userData.nextTrafficLightChecked = true;
+            return;
+        }
+
+        // Calculate distance to transition point
+        const distanceToTransition = Math.sqrt(
+            Math.pow(carMesh.position.x - transitionPoint.x, 2) + 
+            Math.pow(carMesh.position.z - transitionPoint.z, 2)
+        );
+
+        // If car is close enough to transition point, update controlling traffic light
+        if (distanceToTransition < 2) { // 2 units threshold
+            console.log(`Car ${carMesh.userData.carId} changing control from light ${currentLightId} to light ${nextLight}`);
+            carMesh.userData.controllingTrafficLight = nextLight;
+            carMesh.userData.hasCrossedLight = false; // Reset crossed flag for new light
+            carMesh.userData.nextTrafficLightChecked = true; // Mark as processed
+        }
     };
 
     useEffect(() => {
@@ -448,6 +505,9 @@ function Simulation () {
                 if (!mesh.userData.isTransitioning) {
                     const lane = mesh.userData.lane;
                     mesh.userData.progressAlongLane = calculateProgressAlongLane(mesh.position, lane);
+                    
+                    // Check if car should update its controlling traffic light
+                    checkAndUpdateTrafficLight(mesh);
                 }
             });
             
@@ -479,7 +539,7 @@ function Simulation () {
                 if (mesh.userData.isTransitioning) return;
 
                 const { lane } = mesh.userData;
-                const controllingLightId = mesh.userData.currentTrafficLight || laneToTrafficLightMapping[lane];
+                const controllingLightId = mesh.userData.controllingTrafficLight;
                 const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
                 
                 let shouldMove = true;
@@ -487,34 +547,40 @@ function Simulation () {
                 // Traffic light handling
                 if (controllingLightId) {
                     const lightPos = trafficLightPositions[controllingLightId];
-                    const distanceToLight = getDistanceToLight(
-                        mesh.position,
-                        lightPos,
-                        direction
-                    );
-        
-                    const stopDistance = STOP_DISTANCE + (mesh.userData.queuePosition * CAR_LENGTH);
-                    
-                    // Check if car has passed the current traffic light
-                    if (!mesh.userData.hasCrossedLight && distanceToLight <= PAST_LIGHT_DISTANCE) {
-                        if (trafficLightStatuses.current[controllingLightId]) {
-                            mesh.userData.hasCrossedLight = true;
-                            console.log(`Car ${carId} passed traffic light ${controllingLightId}`);
-                        }
-                    }
-        
-                    // Handle lane change after passing traffic light
-                    if (mesh.userData.hasCrossedLight && distanceToLight > PAST_LIGHT_DISTANCE && trafficLightStatuses.current[controllingLightId]) {
-                        changeCarLane(mesh);
-                    }
-        
-                    // Determine if car should stop at red light
-                    if (distanceToLight <= stopDistance) {
-                        const isRedLight = !trafficLightStatuses.current[controllingLightId];
+                    if (lightPos) { // Only process if we have position data for this light
+                        const distanceToLight = getDistanceToLight(
+                            mesh.position,
+                            lightPos,
+                            direction
+                        );
+            
+                        const stopDistance = STOP_DISTANCE + (mesh.userData.queuePosition * CAR_LENGTH);
                         
-                        if (isRedLight && !mesh.userData.hasCrossedLight) {
-                            shouldMove = false;
-                            mesh.userData.stopped = true;
+                        // Check if car has passed the current traffic light
+                        if (!mesh.userData.hasCrossedLight && distanceToLight <= PAST_LIGHT_DISTANCE) {
+                            if (trafficLightStatuses.current[controllingLightId]) {
+                                mesh.userData.hasCrossedLight = true;
+                                console.log(`Car ${carId} passed traffic light ${controllingLightId}`);
+                            }
+                        }
+            
+                        // Handle lane change after passing traffic light
+                        if (mesh.userData.hasCrossedLight && distanceToLight < -PAST_LIGHT_DISTANCE && trafficLightStatuses.current[controllingLightId]) {
+                            // Only change lanes if this is a lane connected to the initial traffic light
+                            // (not a secondary traffic light assignment from the next traffic light mapping)
+                            if (laneToTrafficLightMapping[lane] === controllingLightId) {
+                                changeCarLane(mesh);
+                            }
+                        }
+            
+                        // Determine if car should stop at red light
+                        if (distanceToLight <= stopDistance) {
+                            const isRedLight = !trafficLightStatuses.current[controllingLightId];
+                            
+                            if (isRedLight && !mesh.userData.hasCrossedLight) {
+                                shouldMove = false;
+                                mesh.userData.stopped = true;
+                            }
                         }
                     }
                 }
