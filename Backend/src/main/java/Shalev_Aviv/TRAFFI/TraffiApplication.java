@@ -2,6 +2,7 @@ package Shalev_Aviv.TRAFFI;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.BitSet;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,13 +91,43 @@ public class TraffiApplication {
         return trafficLights;
     }
 
+    private void initializeGraphBitSets(int[][] trafficLightMatrix, BitSet[] trafficLightsConnections, BitSet[] trafficLightsStrongConnections) {
+        if (trafficLightMatrix == null) {
+            throw new IllegalArgumentException("Invalid traffic light graph: null");
+        }
+        int n = trafficLightMatrix.length;
+
+        if (trafficLightsConnections == null || trafficLightsConnections.length != n ||
+            trafficLightsStrongConnections == null || trafficLightsStrongConnections.length != n) {
+             throw new IllegalArgumentException("Provided BitSet arrays have incorrect size or are null.");
+        }
+        
+        for (int i = 0; i < n; i++) {
+            trafficLightsConnections[i] = new BitSet(n);
+            trafficLightsStrongConnections[i] = new BitSet(n);
+
+            // Populate the BitSets based on the matrix
+            for (int j = 0; j < n; j++) {
+                if (trafficLightMatrix[i][j] != 0) {
+                    trafficLightsConnections[i].set(j);
+                }
+                if (trafficLightMatrix[i][j] == 2) {
+                    trafficLightsStrongConnections[i].set(j);
+                }
+            }
+        }
+    }
+
     @PostMapping("/parsing")
     public ResponseEntity<Map<String, String>> postMethodName(@RequestBody Map<String, String> entity) {
         try {
             parseJsonData(entity);
             Lane[] lanes = createLanes(); // Create lanes
             TrafficLight[] trafficLights = createTrafficLights(lanes); // Create traffic lights
-            junction = new Junction(trafficLightsMatrix, trafficLights, lanesToLanesMap, lanes); // Create junction
+            BitSet[] trafficLightsConnections = new BitSet[trafficLightsMatrix.length];
+            BitSet[] trafficLightsStrongConnections = new BitSet[trafficLightsMatrix.length];
+            initializeGraphBitSets(trafficLightsMatrix, trafficLightsConnections, trafficLightsStrongConnections); // Changing from matrix to BitSet(s)
+            junction = new Junction(trafficLightsConnections, trafficLightsStrongConnections, trafficLights, lanesToLanesMap, lanes); // Create junction
             
             // Print junction (DEBUG)
             System.out.println(junction.toString());

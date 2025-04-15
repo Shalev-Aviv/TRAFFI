@@ -19,7 +19,6 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 // Junction class - representing the entire junction
 public class Junction {
     private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
-    private int[][] trafficLightGraph; // Matrix representing the connections between traffic lights
 
     private BitSet[] trafficLightsConnections;
     private BitSet[] trafficLightsStrongConnections;
@@ -28,12 +27,12 @@ public class Junction {
     private Lane[] lanes; // Lanes at the junction
     private Set<Integer> destinationLanes; // Set of destination lanes
     private List<Integer> enteringLanes; // List of entering lanes
-    // Implement a priority queue with dictionary that stores the locations
+    // Implement a priority queue with dictionary that stores the locations for O(1) max weight
 
     /** Constructor*/
-    public Junction(int[][] trafficLightGraph, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
-        this.trafficLightGraph = trafficLightGraph;
-        initializeGraphBitSets(trafficLightGraph);
+    public Junction(BitSet[] trafficLightsConnections, BitSet[] trafficLightsStrongConnections, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
+        this.trafficLightsConnections = trafficLightsConnections;
+        this.trafficLightsStrongConnections = trafficLightsStrongConnections;
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
@@ -61,26 +60,6 @@ public class Junction {
             }
         }
     }
-    private void initializeGraphBitSets(int[][] trafficLightGraph) {
-        if(trafficLightGraph == null) {
-            throw new IllegalArgumentException("Invalid traffic light graph: null");
-        }
-        int n = trafficLightGraph.length;
-        this.trafficLightsConnections = new BitSet[n];
-        this.trafficLightsStrongConnections = new BitSet[n];
-        for (int i = 0; i < n; i++) {
-            trafficLightsConnections[i] = new BitSet(n);
-            trafficLightsStrongConnections[i] = new BitSet(n);
-            for (int j = 0; j < n; j++) {
-                if (trafficLightGraph[i][j] != 0) { 
-                    trafficLightsConnections[i].set(j); 
-                }
-                if (trafficLightGraph[i][j] == 2) { 
-                    trafficLightsStrongConnections[i].set(j); 
-                }
-            }
-        }
-    }    
 
     /** return the index of the traffic light with the largest weight<p>
      * <STRONG>O(n)</STRONG><p>
@@ -142,10 +121,14 @@ public class Junction {
         System.out.println("Starting to add cars asynchronously");
 
         Car.CarType[] carType = {
-            Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
-            Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
-            Car.CarType.POLICE, Car.CarType.POLICE,
-            Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
+            // Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
+            // Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
+            // Car.CarType.POLICE, Car.CarType.POLICE,
+            // Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
+            Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
+            Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
+            Car.CarType.POLICE,
+            Car.CarType.AMBULANCE
         };
         Random rand = new Random();
         while (true) {
@@ -364,7 +347,6 @@ public class Junction {
 
     // Getters
     public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return this.laneToTrafficLightMap; }
-    public int[][] getTrafficLightGraph() { return this.trafficLightGraph; }
     public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}
     public BitSet[] getTrafficLightsStrongConnections() { return this.trafficLightsStrongConnections; }
     public TrafficLight[] getTrafficLightsArray() { return this.trafficLightsArray; }
@@ -378,14 +360,8 @@ public class Junction {
     public String toString() {
         String str = "";
 
-        // Traffic light Matrix
+        // Traffic light Matrxi
         str += "Traffic light matrix:\n";
-        for (int i = 0; i < trafficLightGraph.length; i++) {
-            for (int j = 0; j < trafficLightGraph[i].length; j++) {
-                str += trafficLightGraph[i][j] + " ";
-            }
-            str += "\n";
-        } str += "\n";
 
         // Traffic lights array
         str += "Traffic lights array:\n";
