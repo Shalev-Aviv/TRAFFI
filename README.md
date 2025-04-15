@@ -46,15 +46,17 @@ npm start
   - [x] Create the navigation area
   - [x] Adding smooth scroll
   - [x] Develop the start button and its popup
+  - [ ] Provide statistics after the simulation's finished
+  - [ ] Implement `stop simulation` & `keep simulation` button
 - [x] Implement backend
   - [x] JSON parsing
   - [x] Car class
   - [x] Lane class
   - [x] TrafficLight class
-  - [x] Implement weight system to prioritize traffic lights
+  - [x] Choose weight system to prioritize traffic lights
   - [x] Junction class
-  - [x] Implement graph-theory algorithm(s) to find the best group of traffic lights to get green color
-- [ ] Implement Three.js visualization
+  - [x] Implement graph-theory algorithm(s) to find the best group of traffic lights to set green color
+- [x] Implement Three.js visualization
 - [ ] Optimize traffic flow algorithms
 
 ## Contribution🤝
