@@ -1,7 +1,6 @@
 package Shalev_Aviv.TRAFFI;
 
 import java.util.Map;
-import java.util.Random;
 
 import org.springframework.scheduling.annotation.Async;
 
@@ -52,14 +51,13 @@ class TrafficLight {
             isDequeuing = true;
             new Thread(() -> {
                 while(isDequeuing) {
-                    Random rand = new Random();
                     for(Lane lane : this.lanes) {
                         if(this.color == Color.GREEN) {
                             Car car = lane.removeCar();
                             if(car != null) {
                                 Integer[] destIds = lanesMap.get(lane.getId());
                                 if(destIds != null && destIds.length > 0) {
-                                    int destId = destIds[rand.nextInt(destIds.length)];
+                                    int destId = destIds[TraffiApplication.rand.nextInt(destIds.length)];
                                     if(destId > 0 && destId <= lanes.length) {
                                         lanes[destId - 1].addCar(car);
                                     }
@@ -89,6 +87,7 @@ class TrafficLight {
     public void setColor(boolean set) { this.color = set ? Color.GREEN : Color.RED; }
     public void setRegularWeight(int weight) { this.regularWeight = weight; }
     public void setEmergencyWeight(int weight) { this.emergencyWeight = weight; }
+    
     // Getters
     public Color getColor() { return this.color; }
     public Lane[] getLanes() { return this.lanes; }

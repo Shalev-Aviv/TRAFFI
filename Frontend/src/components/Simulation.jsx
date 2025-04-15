@@ -27,49 +27,111 @@ function Simulation() {
 
   // Mapping from lane to controlling traffic light (null = exiting lane)
   const laneToTrafficLightMapping = {
-    1: 1, 2: 1, 3: null, 4: null, 5: 2, 6: 2, 7: null, 8: null,
-    9: 3, 10: 3, 11: 5, 12: 5, 13: 4, 14: 4, 15: null, 16: null,
-    17: 6, 18: 6, 19: null, 20: null, 21: 7, 22: 7, 23: 8, 24: null,
-    25: null, 26: 9, 27: 9, 28: null, 29: null
+    1: 1,
+    2: 1,
+    3: null,
+    4: null,
+    5: 2,
+    6: 2,
+    7: null,
+    8: null,
+    9: 3,
+    10: 3,
+    11: 5,
+    12: 5,
+    13: 4,
+    14: 4,
+    15: null,
+    16: null,
+    17: 6,
+    18: 6,
+    19: null,
+    20: null,
+    21: 7,
+    22: 7,
+    23: 8,
+    24: null,
+    25: null,
+    26: 9,
+    27: 9,
+    28: null,
+    29: null
   };
 
   const laneStartPositions = {
-    1: { x: -90, y: 2, z: 7.3 },  2: { x: -90, y: 2, z: 2.4 },
-    3: { x: -37, y: 2, z: -2.5 }, 4: { x: -37, y: 2, z: -7.4 },
-    5: { x: -35, y: 2, z: -41.5 },6: { x: -30, y: 2, z: -41.5 },
-    7: { x: -26, y: 2, z: -9 },   8: { x: -21, y: 2, z: -9 },
-    9: { x: 19, y: 2, z: -7.4 },  10: { x: 19, y: 2, z: -2.5 },
-    11: { x: -19, y: 2, z: 2.4 }, 12: { x: -19, y: 2, z: 7.3 },
-    13: { x: -21, y: 2, z: 41 },  14: { x: -26, y: 2, z: 41 },
-    15: { x: -30, y: 2, z: 9 },   16: { x: -35, y: 2, z: 9 },
-    17: { x: 21, y: 2, z: -41 },  18: { x: 26, y: 2, z: -41 },
-    19: { x: 30, y: 2, z: -9 },   20: { x: 35, y: 2, z: -9 },
-    21: { x: 90, y: 2, z: -7.4 }, 22: { x: 90, y: 2, z: -3 },
-    23: { x: 90, y: 2, z: 0.7 },  24: { x: 37, y: 2, z: 4.2 },
-    25: { x: 37, y: 2, z: 7.6 },  26: { x: 35, y: 2, z: 41 },
-    27: { x: 30, y: 2, z: 41 },   28: { x: 25.7, y: 2, z: 9 },
+    1: { x: -90, y: 2, z: 7.3 },
+    2: { x: -90, y: 2, z: 2.4 },
+    3: { x: -37, y: 2, z: -2.5 },
+    4: { x: -37, y: 2, z: -7.4 },
+    5: { x: -35, y: 2, z: -41.5 },
+    6: { x: -30, y: 2, z: -41.5 },
+    7: { x: -25.9, y: 2, z: -9 },
+    8: { x: -21, y: 2, z: -9 },
+    9: { x: 19, y: 2, z: -7.4 },
+    10: { x: 19, y: 2, z: -2.5 },
+    11: { x: -19, y: 2, z: 2.4 },
+    12: { x: -19, y: 2, z: 7.3 },
+    13: { x: -21, y: 2, z: 41 },
+    14: { x: -25.9, y: 2, z: 41 },
+    15: { x: -30, y: 2, z: 9 },
+    16: { x: -35, y: 2, z: 9 },
+    17: { x: 21, y: 2, z: -41 },
+    18: { x: 26, y: 2, z: -41 },
+    19: { x: 30, y: 2, z: -9 },
+    20: { x: 35, y: 2, z: -9 },
+    21: { x: 90, y: 2, z: -7.4 },
+    22: { x: 90, y: 2, z: -3 },
+    23: { x: 90, y: 2, z: 0.7 },
+    24: { x: 37, y: 2, z: 4.2 },
+    25: { x: 37, y: 2, z: 7.6 },
+    26: { x: 35, y: 2, z: 41 },
+    27: { x: 30, y: 2, z: 41 },
+    28: { x: 25.7, y: 2, z: 9 },
     29: { x: 21, y: 2, z: 11 }
   };
 
   const laneDirections = {
-    1: { x: 1, y: 0, z: 0 },  2: { x: 1, y: 0, z: 0 },  3: { x: -1, y: 0, z: 0 },
-    4: { x: -1, y: 0, z: 0 }, 5: { x: 0, y: 0, z: 1 },  6: { x: 0, y: 0, z: 1 },
-    7: { x: 0, y: 0, z: -1 }, 8: { x: 0, y: 0, z: -1 }, 9: { x: -1, y: 0, z: 0 },
-    10: { x: -1, y: 0, z: 0 },11: { x: 1, y: 0, z: 0 }, 12: { x: 1, y: 0, z: 0 },
-    13: { x: 0, y: 0, z: -1 },14: { x: 0, y: 0, z: -1 },15: { x: 0, y: 0, z: 1 },
-    16: { x: 0, y: 0, z: 1 }, 17: { x: 0, y: 0, z: 1 }, 18: { x: 0, y: 0, z: 1 },
-    19: { x: 0, y: 0, z: -1 },20: { x: 0, y: 0, z: -1 },21: { x: -1, y: 0, z: 0 },
-    22: { x: -1, y: 0, z: 0 },23: { x: -1, y: 0, z: 0 },24: { x: 1, y: 0, z: 0 },
-    25: { x: 1, y: 0, z: 0 }, 26: { x: 0, y: 0, z: -1 },27: { x: 0, y: 0, z: -1 },
-    28: { x: 0, y: 0, z: 1 }, 29: { x: 0, y: 0, z: 1 }
+    1: { x: 1, y: 0, z: 0 },
+    2: { x: 1, y: 0, z: 0 },
+    3: { x: -1, y: 0, z: 0 },
+    4: { x: -1, y: 0, z: 0 },
+    5: { x: 0, y: 0, z: 1 },
+    6: { x: 0, y: 0, z: 1 },
+    7: { x: 0, y: 0, z: -1 },
+    8: { x: 0, y: 0, z: -1 },
+    9: { x: -1, y: 0, z: 0 },
+    10: { x: -1, y: 0, z: 0 },
+    11: { x: 1, y: 0, z: 0 },
+    12: { x: 1, y: 0, z: 0 },
+    13: { x: 0, y: 0, z: -1 },
+    14: { x: 0, y: 0, z: -1 },
+    15: { x: 0, y: 0, z: 1 },
+    16: { x: 0, y: 0, z: 1 },
+    17: { x: 0, y: 0, z: 1 },
+    18: { x: 0, y: 0, z: 1 },
+    19: { x: 0, y: 0, z: -1 },
+    20: { x: 0, y: 0, z: -1 },
+    21: { x: -1, y: 0, z: 0 },
+    22: { x: -1, y: 0, z: 0 },
+    23: { x: -1, y: 0, z: 0 },
+    24: { x: 1, y: 0, z: 0 },
+    25: { x: 1, y: 0, z: 0 },
+    26: { x: 0, y: 0, z: -1 },
+    27: { x: 0, y: 0, z: -1 },
+    28: { x: 0, y: 0, z: 1 },
+    29: { x: 0, y: 0, z: 1 }
   };
 
   // Original traffic light positions
   const trafficLightPositions = {
-    1: { x: -38, y: 6, z: 4.7 }, 2: { x: -32.5, y: 6, z: -10 },
-    3: { x: -18, y: 6, z: -5 },  4: { x: -23.5, y: 6, z: 10 },
-    5: { x: 18, y: 6, z: 4.5 },  6: { x: 23.5, y: 6, z: -10.5 },
-    7: { x: 38.2, y: 6, z: -5.3 },8: { x: 38.2, y: 6, z: 0.6 },
+    1: { x: -38, y: 6, z: 4.7 },
+    2: { x: -32.5, y: 6, z: -10 },
+    3: { x: -18, y: 6, z: -5 },
+    4: { x: -23.5, y: 6, z: 10 },
+    5: { x: 18, y: 6, z: 4.5 },
+    6: { x: 23.5, y: 6, z: -10.5 },
+    7: { x: 38.2, y: 6, z: -5.3 },
+    8: { x: 38.2, y: 6, z: 0.6 },
     9: { x: 32.6, y: 6, z: 10.2 }
   };
 
@@ -98,29 +160,45 @@ function Simulation() {
   const junctionRoutes = {
     1: [{ nextLane: 12, turnType: "straight" }, { nextLane: 16, turnType: "right" }],
     2: [{ nextLane: 11, turnType: "straight" }], 3: [{ nextLane: null, turnType: "straight" }],
-    4: [{ nextLane: null, turnType: "straight" }], 5: [{ nextLane: 16, turnType: "straight" }, { nextLane: 4, turnType: "right" }],
-    6: [{ nextLane: 15, turnType: "straight" }], 7: [{ nextLane: null, turnType: "straight" }],
-    8: [{ nextLane: null, turnType: "straight" }], 9: [{ nextLane: 4, turnType: "straight" }, { nextLane: 8, turnType: "right" }],
-    10: [{ nextLane: 3, turnType: "straight" }], 11: [{ nextLane: 24, turnType: "straight" }],
+    4: [{ nextLane: null, turnType: "straight" }],
+    5: [{ nextLane: 16, turnType: "straight" }, { nextLane: 4, turnType: "right" }],
+    6: [{ nextLane: 15, turnType: "straight" }],
+    7: [{ nextLane: null, turnType: "straight" }],
+    8: [{ nextLane: null, turnType: "straight" }],
+    9: [{ nextLane: 4, turnType: "straight" }, { nextLane: 8, turnType: "right" }],
+    10: [{ nextLane: 3, turnType: "straight" }],
+    11: [{ nextLane: 24, turnType: "straight" }],
     12: [{ nextLane: 29, turnType: "right" }, { nextLane: 25, turnType: "straight" }],
     13: [{ nextLane: 8, turnType: "straight" }, { nextLane: 12, turnType: "right" }],
-    14: [{ nextLane: 7, turnType: "straight" }], 15: [{ nextLane: null, turnType: "straight" }],
-    16: [{ nextLane: null, turnType: "straight" }], 17: [{ nextLane: 29, turnType: "straight" }, { nextLane: 9, turnType: "right" }],
-    18: [{ nextLane: 28, turnType: "straight" }], 19: [{ nextLane: null, turnType: "straight" }],
-    20: [{ nextLane: null, turnType: "straight" }], 21: [{ nextLane: 9, turnType: "straight" }, { nextLane: 20, turnType: "right" }],
-    22: [{ nextLane: 10, turnType: "straight" }], 23: [{ nextLane: 28, turnType: "right" }],
-    24: [{ nextLane: null, turnType: "straight" }], 25: [{ nextLane: null, turnType: "straight" }],
+    14: [{ nextLane: 7, turnType: "straight" }],
+    15: [{ nextLane: null, turnType: "straight" }],
+    16: [{ nextLane: null, turnType: "straight" }],
+    17: [{ nextLane: 29, turnType: "straight" }, { nextLane: 9, turnType: "right" }],
+    18: [{ nextLane: 28, turnType: "straight" }],
+    19: [{ nextLane: null, turnType: "straight" }],
+    20: [{ nextLane: null, turnType: "straight" }],
+    21: [{ nextLane: 9, turnType: "straight" }, { nextLane: 20, turnType: "right" }],
+    22: [{ nextLane: 10, turnType: "straight" }],
+    23: [{ nextLane: 28, turnType: "right" }],
+    24: [{ nextLane: null, turnType: "straight" }],
+    25: [{ nextLane: null, turnType: "straight" }],
     26: [{ nextLane: 20, turnType: "straight" }, { nextLane: 25, turnType: "right" }],
-    27: [{ nextLane: 19, turnType: "straight" }], 28: [{ nextLane: null, turnType: "straight" }],
+    27: [{ nextLane: 19, turnType: "straight" }],
+    28: [{ nextLane: null, turnType: "straight" }],
     29: [{ nextLane: null, turnType: "straight" }]
   };
 
   // Next traffic light mapping.
   const nextTrafficLightMapping = {
-    1: [{ nextLight: 5, transitionPoint: { x: -25, y: 2, z: 5 } }, null], 2: null, 3: null,
-    4: [{ nextLight: 5, transitionPoint: { x: -25, y: 2, z: 5 } }, null], 5: null,
+    1: [{ nextLight: 5, transitionPoint: { x: -25, y: 2, z: 5 } }, null],
+    2: null,
+    3: null,
+    4: [{ nextLight: 5, transitionPoint: { x: -25, y: 2, z: 5 } }, null],
+    5: null,
     6: [{ nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } }, null],
-    7: [{ nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } }, null], 8: null, 9: null
+    7: [{ nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } }, null],
+    8: null,
+    9: null
   };
 
   // Smoothly transition a car mesh between lanes. (Reverted: Removed Y rotation)
@@ -397,7 +475,7 @@ function Simulation() {
       requestAnimationFrame(animate); // Request next frame first
 
       // *** Reverted: Use original constants where appropriate ***
-      const CAR_MOVE_SPEED = 0.1; // Reverted from 0.15 if needed, or keep faster speed
+      const CAR_MOVE_SPEED = 0.05; // Reverted from 0.15 if needed, or keep faster speed
       const STOP_DISTANCE = 3; // Original base stop distance
       const CAR_LENGTH = 3; // Original effective length
       const MIN_FOLLOW_DISTANCE = 2; // Original minimum gap

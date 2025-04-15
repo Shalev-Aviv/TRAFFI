@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +19,8 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 public class Junction {
     private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
 
-    private BitSet[] trafficLightsConnections;
-    private BitSet[] trafficLightsStrongConnections;
+    private BitSet[] trafficLightsConnections; // Array of bits representing the connections between traffic lights
+    private BitSet[] trafficLightsStrongConnections; // Array of bits representing the strong connections between traffic lights
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
     private Map<Integer, Integer[]> lanesMap; // Map of lanes to destinations
     private Lane[] lanes; // Lanes at the junction
@@ -101,9 +100,7 @@ public class Junction {
                 }
             }
         }
-    
-        Random rand = new Random();
-        return candidates.get(rand.nextInt(candidates.size()));
+        return candidates.get(TraffiApplication.rand.nextInt(candidates.size()));
     }
 
     @Autowired
@@ -121,21 +118,17 @@ public class Junction {
         System.out.println("Starting to add cars asynchronously");
 
         Car.CarType[] carType = {
-            // Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
-            // Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
-            // Car.CarType.POLICE, Car.CarType.POLICE,
-            // Car.CarType.AMBULANCE, Car.CarType.AMBULANCE
             Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
             Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
             Car.CarType.POLICE,
             Car.CarType.AMBULANCE
         };
-        Random rand = new Random();
+
         while (true) {
-            int randomIndex = rand.nextInt(carType.length);
+            int randomIndex = TraffiApplication.rand.nextInt(carType.length);
             Car newCar = new Car(carType[randomIndex]);
             // Pick a random lane from the entering lanes (1-indexed)
-            int laneId = this.enteringLanes.get(rand.nextInt(this.enteringLanes.size()));
+            int laneId = this.enteringLanes.get(TraffiApplication.rand.nextInt(this.enteringLanes.size()));
             // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
             lanes[laneId - 1].addCar(newCar);
             System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
@@ -227,8 +220,7 @@ public class Junction {
             }
         }
         // Randomize selection among candidates with the same weight
-        Random rand = new Random();
-        return candidates.get(rand.nextInt(candidates.size()));
+        return candidates.get(TraffiApplication.rand.nextInt(candidates.size()));
     }
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>
      * <STRONG>O(n^2 * k)</STRONG> k < n<p>
@@ -299,6 +291,7 @@ public class Junction {
     */
     private boolean canWeAddThis(BitSet clique, int index) {
         boolean canWeAdd = true;
+        
         for(int i = clique.nextSetBit(0); i >= 0 && canWeAdd; i = clique.nextSetBit(i+1)) {
             if(!trafficLightsConnections[index].get(i)) {
                 canWeAdd = false;
@@ -306,6 +299,7 @@ public class Junction {
         }
         return canWeAdd;
     }
+  
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
      * <STRONG>O(k)</STRONG> k < n<p>
      * n -> number of bits in <CODE>clique</CODE><p>
@@ -360,8 +354,17 @@ public class Junction {
     public String toString() {
         String str = "";
 
-        // Traffic light Matrxi
+        // Traffic light Matrix
         str += "Traffic light matrix:\n";
+        for (int i = 0; i < trafficLightsConnections.length; i++) {
+            str += trafficLightsConnections[i].toString() + "\n";
+        } str += "\n";
+
+        // Traffic light strong connections matrix
+        str += "Traffic light strong connections matrix:\n";
+        for (int i = 0; i < trafficLightsStrongConnections.length; i++) {
+            str += trafficLightsStrongConnections[i].toString() + "\n";
+        } str += "\n";
 
         // Traffic lights array
         str += "Traffic lights array:\n";

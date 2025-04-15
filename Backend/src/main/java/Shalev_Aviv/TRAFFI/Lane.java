@@ -18,7 +18,7 @@ public class Lane {
         this.id = id;
     }
 
-    // Method to set the parent traffic light
+    // Set the parent traffic light
     public void setParentTrafficLight(TrafficLight light) {
         this.parentTrafficLight = light;
     }

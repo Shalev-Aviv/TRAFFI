@@ -2,6 +2,7 @@ package Shalev_Aviv.TRAFFI;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -29,6 +30,8 @@ public class TraffiApplication {
     private Map<Integer, Integer[]> lightsToLanesMap; // Map of lights to lanes
     private Map<Integer, Integer[]> lanesToLanesMap; // Map of lanes to lanes
     private Junction junction; // junction
+
+    public static Random rand = new Random();
 
     public Map<Integer, Integer[]> getLanesToLanesMap() { return this.lanesToLanesMap; }
 
