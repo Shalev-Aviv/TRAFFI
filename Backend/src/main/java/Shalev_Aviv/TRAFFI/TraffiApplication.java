@@ -30,6 +30,7 @@ public class TraffiApplication {
     private Map<Integer, Integer[]> lightsToLanesMap; // Map of lights to lanes
     private Map<Integer, Integer[]> lanesToLanesMap; // Map of lanes to lanes
     private Junction junction; // junction
+    private volatile boolean isPaused = false; // Pause state
 
     public static Random rand = new Random();
 
@@ -149,6 +150,27 @@ public class TraffiApplication {
             e.printStackTrace();
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Error processing JSON: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/pause-resume")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Map<String, String>> togglePauseResume(@RequestBody Map<String, Boolean> request) {
+        try {
+            boolean shouldPause = request.get("isPaused");
+            isPaused = shouldPause;
+            
+            if (junction != null) {
+                junction.setPaused(shouldPause);
+            }
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", shouldPause ? "Simulation paused" : "Simulation resumed");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error toggling pause/resume: " + e.getMessage());
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

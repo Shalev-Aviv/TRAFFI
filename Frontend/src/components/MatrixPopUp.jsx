@@ -66,6 +66,8 @@ const lanesToLanesMap = `{
 
 const MatrixPopUp = () => {
     const [showPopup, setShowPopup] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
     const [graphText1, setGraphText1] = useState(trafficLightsMatrix);
     const [graphText2, setGraphText2] = useState(lightsToLanesMap);
     const [dictText, setDictText] = useState(lanesToLanesMap);
@@ -110,9 +112,28 @@ const MatrixPopUp = () => {
             const responseData = await response.json();
             console.log('Success:', responseData);
             setShowPopup(false);
+            setHasStarted(true); // Set hasStarted to true after successful start
         }
         catch (error) {
             console.error('Error sending JSON:', error);
+        }
+    };
+
+    const handlePauseResume = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/pause-resume', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isPaused: !isPaused })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            setIsPaused(!isPaused);
+        } catch (error) {
+            console.error('Error toggling pause/resume:', error);
         }
     };
 
@@ -120,7 +141,18 @@ const MatrixPopUp = () => {
         <div>
             <div className='Start-container'>
                 <div className='Auter-stroke'>
-                    <button className="Start-button" onClick={togglePopup}>Start simulation</button>
+                    <button className="Start-button" onClick={togglePopup}>
+                        Start simulation
+                    </button>
+                </div>
+                <div className='Auter-stroke'>
+                    <button 
+                        className={`Start-button ${!hasStarted ? 'disabled' : ''}`}
+                        onClick={hasStarted ? handlePauseResume : undefined}
+                        disabled={!hasStarted}
+                    >
+                        {isPaused ? 'Resume' : 'Pause'}
+                    </button>
                 </div>
             </div>
             {showPopup &&

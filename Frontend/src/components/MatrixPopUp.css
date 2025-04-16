@@ -2,6 +2,7 @@
   position: relative;
   display: flex;
   justify-content: center;
+  gap: 1em; /* Add gap between buttons */
 }
 .Auter-stroke {
   position: relative;
@@ -18,7 +19,7 @@
 .Start-button {
   color: Black;
   font-family: "Geist Mono", monospace;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
   font-size: 1rem;
   line-height: 1.3125rem;
@@ -31,6 +32,26 @@
   padding: 1.125em 1em;
 
   cursor: pointer;
+}
+
+.Start-button.disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    border-color: #cccccc;
+}
+
+.Start-button.disabled:hover {
+    background-color: #cccccc;
+    color: #666666;
+    border-color: #cccccc;
+}
+
+/* Update the existing Start-button hover state */
+.Start-button:not(.disabled):hover {
+    background-color: black;
+    color: white;
+    border-color: white;
 }
 
 .Popup {

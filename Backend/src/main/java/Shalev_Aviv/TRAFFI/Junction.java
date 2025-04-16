@@ -26,6 +26,8 @@ public class Junction {
     private Lane[] lanes; // Lanes at the junction
     private Set<Integer> destinationLanes; // Set of destination lanes
     private List<Integer> enteringLanes; // List of entering lanes
+    private volatile boolean isPaused = false; // Pause flag
+
     // Implement a priority queue with dictionary that stores the locations for O(1) max weight
 
     /** Constructor*/
@@ -123,17 +125,19 @@ public class Junction {
             Car.CarType.POLICE,
             Car.CarType.AMBULANCE
         };
-
-        while (true) {
-            int randomIndex = TraffiApplication.rand.nextInt(carType.length);
-            Car newCar = new Car(carType[randomIndex]);
-            // Pick a random lane from the entering lanes (1-indexed)
-            int laneId = this.enteringLanes.get(TraffiApplication.rand.nextInt(this.enteringLanes.size()));
-            // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
-            lanes[laneId - 1].addCar(newCar);
-            System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
-            // Send the update with the correct laneId
-            webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
+        boolean running = true;
+        while (running) {
+            if (!isPaused) {  // Only add cars when not paused
+                int randomIndex = TraffiApplication.rand.nextInt(carType.length);
+                Car newCar = new Car(carType[randomIndex]);
+                // Pick a random lane from the entering lanes (1-indexed)
+                int laneId = this.enteringLanes.get(TraffiApplication.rand.nextInt(this.enteringLanes.size()));
+                // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
+                lanes[laneId - 1].addCar(newCar);
+                System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
+                // Send the update with the correct laneId
+                webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
+            }
         
             try {
                 Thread.sleep(delay);
@@ -154,19 +158,22 @@ public class Junction {
     */
     @Async
     public void manageTrafficLights() {
-        while(true) {
-            int maxWeightIndex = maxWeightIndex();
-            System.out.println("Maximum-weighted-traffic-light: " + (maxWeightIndex + 1));
-            BitSet clique = findLargestClique(maxWeightIndex);
-            
-            // Print the clique
-            System.out.println("Clique:");
-            for (int i = clique.nextSetBit(0); i >= 0; i = clique.nextSetBit(i+1)) {
-                System.out.print(i+1+", ");
-            } System.out.println("\n");
+        boolean running = true;
+        while (running) {
+            if (!isPaused) {  // Only manage lights when not paused
+                int maxWeightIndex = maxWeightIndex();
+                System.out.println("Maximum-weighted-traffic-light: " + (maxWeightIndex + 1));
+                BitSet clique = findLargestClique(maxWeightIndex);
+                
+                // Print the clique
+                System.out.println("Clique:");
+                for (int i = clique.nextSetBit(0); i >= 0; i = clique.nextSetBit(i+1)) {
+                    System.out.print(i+1+", ");
+                } System.out.println("\n");
 
-            changeLights(clique);
-            System.out.println("Iteration complete\n");
+                changeLights(clique);
+                System.out.println("Iteration complete\n");
+            }
 
             // Delay before next iteration
             try {
@@ -348,6 +355,8 @@ public class Junction {
     public Lane[] getLanes() { return this.lanes; }
     public Set<Integer> getDestinationLanes() { return this.destinationLanes; }
     public List<Integer> getEnteringLanes() { return this.enteringLanes; }
+    public void setPaused(boolean paused) { this.isPaused = paused; }
+    public boolean isPaused() { return this.isPaused; }
 
     // ToString
     @Override

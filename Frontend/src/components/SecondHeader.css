@@ -1,9 +1,10 @@
 .Second-header {
-    top: 70%;
-    font-size: 2rem;
-    font-weight: 100;
-    color: white;
-    text-align: center;
-    margin: 0;
-    margin-bottom: 20%;
-  }
+  font-family: "Geist Mono", monospace;
+  top: 70%;
+  font-size: 2rem;
+  font-weight: 100;
+  color: white;
+  text-align: center;
+  margin: 0;
+  margin-bottom: 20%;
+}
