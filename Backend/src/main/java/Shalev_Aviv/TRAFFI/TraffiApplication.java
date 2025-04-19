@@ -53,7 +53,6 @@ public class TraffiApplication {
         lightsToLanesMap = JsonConverter.convertLightsToLanesMap(lanesToLightsMapJson);
         lanesToLanesMap = JsonConverter.convertlanesToLanesMap(lanesMapJson);
     }
-
     /** Create lanes based on the lanes map*/
     private Lane[] createLanes() {
         Lane[] lanes = new Lane[lanesToLanesMap.size()];
@@ -62,7 +61,6 @@ public class TraffiApplication {
         }
         return lanes;
     }
-    
     /** Create traffic lights based on the lanes they control*/
     private TrafficLight[] createTrafficLights(Lane[] lanes) {
         TrafficLight[] trafficLights = new TrafficLight[lightsToLanesMap.size()];
@@ -161,7 +159,7 @@ public class TraffiApplication {
     public ResponseEntity<Map<String, String>> togglePauseResume(@RequestBody Map<String, Boolean> request) {
         try {
             boolean shouldPause = request.get("isPaused");
-            this.isPaused = shouldPause;
+            isPaused = shouldPause;
             
             if (junction != null) {
                 junction.setPaused(shouldPause);

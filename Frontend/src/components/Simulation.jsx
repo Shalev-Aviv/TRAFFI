@@ -58,35 +58,35 @@ function Simulation() {
   };
 
   const laneStartPositions = {
-    1: { x: -90, y: 2, z: 7.3 },
+    1: { x: -90, y: 2, z: 7 },
     2: { x: -90, y: 2, z: 2.4 },
     3: { x: -37, y: 2, z: -2.5 },
     4: { x: -37, y: 2, z: -7.4 },
-    5: { x: -35, y: 2, z: -41.5 },
+    5: { x: -34.6, y: 2, z: -41.5 },
     6: { x: -30, y: 2, z: -41.5 },
-    7: { x: -25.9, y: 2, z: -9 },
+    7: { x: -25.3, y: 2, z: -9 },
     8: { x: -21, y: 2, z: -9 },
     9: { x: 19, y: 2, z: -7.4 },
     10: { x: 19, y: 2, z: -2.5 },
-    11: { x: -19, y: 2, z: 2.4 },
-    12: { x: -19, y: 2, z: 7.3 },
-    13: { x: -21, y: 2, z: 41 },
-    14: { x: -25.9, y: 2, z: 41 },
+    11: { x: -18.7, y: 2, z: 2.4 },
+    12: { x: -18.7, y: 2, z: 6.7 },
+    13: { x: -20.9, y: 2, z: 41 },
+    14: { x: -25.3, y: 2, z: 41 },
     15: { x: -30, y: 2, z: 9 },
-    16: { x: -35, y: 2, z: 9 },
+    16: { x: -34.6, y: 2, z: 9 },
     17: { x: 21, y: 2, z: -41 },
-    18: { x: 26, y: 2, z: -41 },
+    18: { x: 25.5, y: 2, z: -41 },
     19: { x: 30, y: 2, z: -9 },
-    20: { x: 35, y: 2, z: -9 },
+    20: { x: 34.6, y: 2, z: -9 },
     21: { x: 90, y: 2, z: -7.4 },
     22: { x: 90, y: 2, z: -3 },
-    23: { x: 90, y: 2, z: 0.7 },
+    23: { x: 90, y: 2, z: 0.6 },
     24: { x: 37, y: 2, z: 4.2 },
     25: { x: 37, y: 2, z: 7.6 },
-    26: { x: 35, y: 2, z: 41 },
-    27: { x: 30, y: 2, z: 41 },
-    28: { x: 25.7, y: 2, z: 9 },
-    29: { x: 21, y: 2, z: 11 }
+    26: { x: 34.6, y: 2, z: 41 },
+    27: { x: 29.8, y: 2, z: 41 },
+    28: { x: 25.3, y: 2, z: 9 },
+    29: { x: 21, y: 2, z: 9 }
   };
 
   const laneDirections = {
@@ -175,7 +175,7 @@ function Simulation() {
     20: [{ nextLane: null, turnType: "straight" }],
     21: [{ nextLane: 9, turnType: "straight" }, { nextLane: 20, turnType: "right" }],
     22: [{ nextLane: 10, turnType: "straight" }],
-    23: [{ nextLane: 28, turnType: "right" }],
+    23: [{ nextLane: 28, turnType: "left" }],
     24: [{ nextLane: null, turnType: "straight" }],
     25: [{ nextLane: null, turnType: "straight" }],
     26: [{ nextLane: 20, turnType: "straight" }, { nextLane: 25, turnType: "right" }],
@@ -197,32 +197,22 @@ function Simulation() {
   };
 
   const createQuadraticCurve = (start, end, direction, turnType) => {
-    // If going straight, return null to indicate no curve needed
     if (turnType !== "right" && turnType !== "left") {
       return null;
     }
   
-    const xDiff = end.x - start.x;
-    const zDiff = end.z - start.z;
-    let controlPoint;
+    // Vector from start to end
+    const startVec = new THREE.Vector3(start.x, start.y, start.z);
+    const endVec = new THREE.Vector3(end.x, end.y, end.z);
+    const midVec = startVec.clone().lerp(endVec, 0.5);
   
-    if (Math.abs(xDiff) > Math.abs(zDiff)) {
-      // Moving primarily along X axis
-      const turnPoint = new THREE.Vector3(
-        end.x,
-        start.y,
-        start.z
-      );
-      controlPoint = turnPoint;
-    } else {
-      // Moving primarily along Z axis
-      const turnPoint = new THREE.Vector3(
-        start.x,
-        start.y,
-        end.z
-      );
-      controlPoint = turnPoint;
-    }
+    // Perpendicular direction (in XZ plane)
+    let perp = new THREE.Vector3(end.z - start.z, 0, start.x - end.x).normalize();
+    if (turnType === "left") perp.negate();
+  
+    // Distance from mid-point to control point (radius)
+    const radius = startVec.distanceTo(endVec) / 2;
+    const controlPoint = midVec.clone().add(perp.multiplyScalar(radius));
   
     return controlPoint;
   };

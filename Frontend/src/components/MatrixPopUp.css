@@ -48,7 +48,7 @@
 }
 
 /* Update the existing Start-button hover state */
-.Start-button:not(.disabled):hover {
+#Start:hover {
     background-color: black;
     color: white;
     border-color: white;

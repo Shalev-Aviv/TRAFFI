@@ -141,16 +141,12 @@ const MatrixPopUp = () => {
         <div>
             <div className='Start-container'>
                 <div className='Auter-stroke'>
-                    <button className="Start-button" onClick={togglePopup}>
+                    <button className="Start-button" id='Start' onClick={togglePopup}>
                         Start simulation
                     </button>
                 </div>
                 <div className='Auter-stroke'>
-                    <button 
-                        className={`Start-button ${!hasStarted ? 'disabled' : ''}`}
-                        onClick={hasStarted ? handlePauseResume : undefined}
-                        disabled={!hasStarted}
-                    >
+                    <button className={`Start-button ${!hasStarted ? 'disabled' : ''}`} onClick={hasStarted ? handlePauseResume : undefined} disabled={!hasStarted}>
                         {isPaused ? 'Resume' : 'Pause'}
                     </button>
                 </div>
