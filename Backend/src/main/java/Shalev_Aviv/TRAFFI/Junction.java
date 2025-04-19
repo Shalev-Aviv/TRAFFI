@@ -17,8 +17,6 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 
 // Junction class - representing the entire junction
 public class Junction {
-    private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
-
     private BitSet[] trafficLightsConnections; // Array of bits representing the connections between traffic lights
     private BitSet[] trafficLightsStrongConnections; // Array of bits representing the strong connections between traffic lights
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
@@ -35,14 +33,6 @@ public class Junction {
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
-
-        // Build reverse mapping of lanes to traffic lights
-        this.laneToTrafficLightMap = new HashMap<>();
-        for (TrafficLight light : trafficLightsArray) {
-            for (Lane lane : light.getLanes()) {
-                laneToTrafficLightMap.put(lane, light);
-            }
-        }
 
         // Build destination lanes
         this.destinationLanes = new HashSet<>();
@@ -135,7 +125,6 @@ public class Junction {
                 int laneId = this.enteringLanes.get(TraffiApplication.rand.nextInt(this.enteringLanes.size()));
                 // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
                 lanes[laneId - 1].addCar(newCar);
-                System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
                 // Send the update with the correct laneId
                 webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
             }
@@ -153,7 +142,7 @@ public class Junction {
 
     /** Async function that works infinitly <CODE>while(true)</CODE> with a 5 seconds delay between each iteration<p>
     * Finds the maximum-weighted-traffic-light (MWTL), and finds the largest clique (based on weight) that the MWTL appears in, and set all traffic lights in the clique to green, and all the others to red<p>
-     * <STRONG>O(n^3)</STRONG> k < n<p>
+     * <STRONG>O(n^3)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
     */
     @Async
@@ -348,7 +337,6 @@ public class Junction {
     }
 
     // Getters
-    public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return this.laneToTrafficLightMap; }
     public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}
     public BitSet[] getTrafficLightsStrongConnections() { return this.trafficLightsStrongConnections; }
     public TrafficLight[] getTrafficLightsArray() { return this.trafficLightsArray; }

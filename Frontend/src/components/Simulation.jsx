@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import './Simulation.css';
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -10,6 +10,11 @@ function Simulation() {
   const trafficLights = useRef({});
   const trafficLightStatuses = useRef({});
   const lightStateChangeTimes = useRef({});
+  const carCounterRef = useRef(null);
+  const carCount = useRef(0);
+  const [mostGreenLight, setMostGreenLight] = useState(null);
+  const greenCountRef = useRef({}); // { lightId: count }
+  const trafficLightCounterRef = useRef(null);
 
   let socketCars = null;
   let socketTraffic = null;
@@ -220,7 +225,7 @@ function Simulation() {
   const smoothTransitionCarLane = (carMesh, newLane, duration = 1000, turnType = "straight", onComplete) => {
     const startPos = carMesh.position.clone();
     const targetPosData = laneStartPositions[newLane] || { x: startPos.x, y: startPos.y, z: startPos.z };
-    const targetPos = new THREE.Vector3(targetPosData.x, targetPosData.y, targetPosData.z);
+    const targetPos = new THREE.Vector3(targetPosData.x, startPos.y, targetPosData.z);
     
     // Only create curve for turning movements
     const controlPoint = createQuadraticCurve(startPos, targetPos, laneDirections[newLane], turnType);
@@ -276,6 +281,12 @@ function Simulation() {
         };
         carMeshes.current.set(carId, mesh);
         scene.add(mesh);
+
+        // Increment and update counter
+        carCount.current += 1;
+        if (carCounterRef.current) {
+          carCounterRef.current.textContent = `Cars: ${carCount.current}`;
+        }
     } else {
         if (mesh.userData.lane !== lane && !mesh.userData.isTransitioning) {
             mesh.userData.lane = lane;
@@ -395,6 +406,23 @@ function Simulation() {
       // Record timestamp when light turns green
       if (isGreen) {
         lightStateChangeTimes.current[lightId] = performance.now();
+
+        // Count how many times each light turned green
+        greenCountRef.current[lightId] = (greenCountRef.current[lightId] || 0) + 1;
+
+        // Find the light with the highest green count
+        let maxId = null;
+        let maxCount = 0;
+        for (const [id, count] of Object.entries(greenCountRef.current)) {
+          if (count > maxCount) {
+            maxCount = count;
+            maxId = id;
+          }
+        }
+        setMostGreenLight(maxId);
+        if(trafficLightCounterRef.current) {
+          trafficLightCounterRef.current.textContent = maxId ? `Most Green: ${maxId}` : "";
+        }
       } else {
         delete lightStateChangeTimes.current[lightId];
       }
@@ -642,7 +670,17 @@ function Simulation() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="ThreeJS"></canvas>;
+  return (
+    <div className="Scene">
+      <div className="Statistics" id="Car-counter" ref={carCounterRef}>
+        Cars: 0
+      </div>
+      <div className="Statistics" id="Traffic-light" ref={trafficLightCounterRef}>
+        Green: 
+      </div>
+      <canvas ref={canvasRef} className="ThreeJS"></canvas>
+    </div>
+  );
 }
 
 export default Simulation;
