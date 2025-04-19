@@ -9,6 +9,7 @@ function Simulation() {
   const carMeshes = useRef(new Map());
   const trafficLights = useRef({});
   const trafficLightStatuses = useRef({});
+  const lightStateChangeTimes = useRef({});
 
   let socketCars = null;
   let socketTraffic = null;
@@ -400,14 +401,22 @@ function Simulation() {
       const lightObject = trafficLights.current[`trafficLight${lightId}`];
       const isGreen = status === "GREEN";
       trafficLightStatuses.current[lightId] = isGreen;
+      
+      // Record timestamp when light turns green
+      if (isGreen) {
+        lightStateChangeTimes.current[lightId] = performance.now();
+      } else {
+        delete lightStateChangeTimes.current[lightId];
+      }
+
       if (lightObject) {
         let lightMesh = lightObject;
         lightObject.traverse((child) => {
           if (child.isMesh && child.name.toLowerCase().includes('bulb')) {
-             lightMesh = child;
+            lightMesh = child;
           }
         });
-         lightMesh.material = isGreen ? greenMaterial.clone() : redMaterial.clone();
+        lightMesh.material = isGreen ? greenMaterial.clone() : redMaterial.clone();
       } else {
          console.log(`Traffic light mesh ${lightId} not found in scene.`);
       }
@@ -533,6 +542,16 @@ function Simulation() {
                 if (isRedLight) {
                     shouldMove = false;
                     reasonStopped = `Red Light ${controllingLightId}`;
+                } else {
+                    // Add green light delay check
+                    const greenChangeTime = lightStateChangeTimes.current[controllingLightId];
+                    if (greenChangeTime) {
+                        const timeSinceGreen = performance.now() - greenChangeTime;
+                        if (timeSinceGreen < 500) { // 500ms delay
+                            shouldMove = false;
+                            reasonStopped = `Green Light Delay ${controllingLightId}`;
+                        }
+                    }
                 }
             }
 

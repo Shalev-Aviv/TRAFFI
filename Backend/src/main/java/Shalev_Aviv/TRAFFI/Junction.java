@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.BitSet;
@@ -17,8 +16,6 @@ import Shalev_Aviv.TRAFFI.WebSocket.TrafficLightWebSocketHandler;
 
 // Junction class - representing the entire junction
 public class Junction {
-    private Map<Lane, TrafficLight> laneToTrafficLightMap; // Map of lanes to traffic lights
-
     private BitSet[] trafficLightsConnections; // Array of bits representing the connections between traffic lights
     private BitSet[] trafficLightsStrongConnections; // Array of bits representing the strong connections between traffic lights
     private TrafficLight[] trafficLightsArray; // Traffic lights at the junction
@@ -28,8 +25,6 @@ public class Junction {
     private List<Integer> enteringLanes; // List of entering lanes
     private volatile boolean isPaused = false; // Pause flag
 
-    // Implement a priority queue with dictionary that stores the locations for O(1) max weight
-
     /** Constructor*/
     public Junction(BitSet[] trafficLightsConnections, BitSet[] trafficLightsStrongConnections, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
         this.trafficLightsConnections = trafficLightsConnections;
@@ -37,14 +32,6 @@ public class Junction {
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
-
-        // Build reverse mapping of lanes to traffic lights
-        this.laneToTrafficLightMap = new HashMap<>();
-        for (TrafficLight light : trafficLightsArray) {
-            for (Lane lane : light.getLanes()) {
-                laneToTrafficLightMap.put(lane, light);
-            }
-        }
 
         // Build destination lanes
         this.destinationLanes = new HashSet<>();
@@ -69,6 +56,7 @@ public class Junction {
     public int maxWeightIndex() {
         return maxRegularWeight(maxEmergencyWeight());
     }
+
     /** return the maximum emergency weight among all traffic lights<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
@@ -82,6 +70,7 @@ public class Junction {
         }
         return maxWeight;
     }
+
     /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
@@ -111,30 +100,31 @@ public class Junction {
     public void setCarsWebSocketHandler(CarWebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
     }
+
     /** Async function that works infinitly <CODE>while(true)</CODE> with a <CODE>delay</CODE> seconds delay between each iteration<p>
      * Add 1 car to a random lane from the entering lanes<p>
      * <STRONG>O(1)</STRONG><p>
     */
     @Async
     public void addCarsAsync(int delay) {
-        System.out.println("Starting to add cars asynchronously");
-
+        // Define array of car types to control the distribution of car types
         Car.CarType[] carType = {
             Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE, Car.CarType.PRIVATE,
             Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE, Car.CarType.MOTORCYCLE,
             Car.CarType.POLICE,
             Car.CarType.AMBULANCE
         };
+
         boolean running = true;
         while (running) {
-            if (!isPaused) {  // Only add cars when not paused
+            // Only add cars when not paused
+            if (!isPaused) {
                 int randomIndex = TraffiApplication.rand.nextInt(carType.length);
                 Car newCar = new Car(carType[randomIndex]);
                 // Pick a random lane from the entering lanes (1-indexed)
                 int laneId = this.enteringLanes.get(TraffiApplication.rand.nextInt(this.enteringLanes.size()));
                 // Use (laneId - 1) when accessing the lanes array (which is 0-indexed)
                 lanes[laneId - 1].addCar(newCar);
-                System.out.println("Added car to lane " + laneId + ", traffic light " + (laneToTrafficLightMap.get(lanes[laneId - 1]).getId()));
                 // Send the update with the correct laneId
                 webSocketHandler.sendCarUpdate(newCar.getId(), laneId, newCar.getType().toString());
             }
@@ -152,27 +142,17 @@ public class Junction {
 
     /** Async function that works infinitly <CODE>while(true)</CODE> with a 5 seconds delay between each iteration<p>
     * Finds the maximum-weighted-traffic-light (MWTL), and finds the largest clique (based on weight) that the MWTL appears in, and set all traffic lights in the clique to green, and all the others to red<p>
-     * <STRONG>O(n^2 * k)</STRONG> k < n<p>
-     * n -> length of <CODE>trafficLightsArray</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O(n^3)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
     */
     @Async
     public void manageTrafficLights() {
         boolean running = true;
         while (running) {
-            if (!isPaused) {  // Only manage lights when not paused
+            if (!isPaused) {
                 int maxWeightIndex = maxWeightIndex();
-                System.out.println("Maximum-weighted-traffic-light: " + (maxWeightIndex + 1));
                 BitSet clique = findLargestClique(maxWeightIndex);
-                
-                // Print the clique
-                System.out.println("Clique:");
-                for (int i = clique.nextSetBit(0); i >= 0; i = clique.nextSetBit(i+1)) {
-                    System.out.print(i+1+", ");
-                } System.out.println("\n");
-
                 changeLights(clique);
-                System.out.println("Iteration complete\n");
             }
 
             // Delay before next iteration
@@ -185,16 +165,18 @@ public class Junction {
             }
         }
     }
+
     /** finds the traffic light with the maximum weight in the set and returns it<p>
-     * <STRONG>O(k)</STRONG> k < n<p>
-     * k -> number of set bits inside <CODE>set</CODE>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> number of bits in <CODE>set</CODE>
     */
     private int maxWeightIndexFromSet(BitSet set) {
         return maxRegularWeightIndexFromSet(set, maxEmergencyWeightFromSet(set));
     }
+
     /** finds the maximum emergency weight inside <CODE>set</CODE><p>
-     * <STRONG>O(k)</STRONG> k < n<p>
-     * k -> number of set bits in <CODE>set</CODE>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> number of bits in <CODE>set</CODE>
     */
     private int maxEmergencyWeightFromSet(BitSet set) {
         int maxWeight = trafficLightsArray[set.nextSetBit(0)].getEmergencyWeight();
@@ -205,9 +187,10 @@ public class Junction {
         }
         return maxWeight;
     }
+
     /** finds the traffic light with the maximum regular weight inside <CODE>set</CODE>, given the <CODE>maxEmergencyWeight</CODE><p>
-     * <STRONG>O(k)</STRONG> k < n<p>
-     * k -> number of set bits in <CODE>set</CODE>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> number of bits in <CODE>set</CODE>
     */
     private int maxRegularWeightIndexFromSet(BitSet set, int maxEmergencyWeight) {
         List<Integer> candidates = new ArrayList<>();
@@ -229,10 +212,10 @@ public class Junction {
         // Randomize selection among candidates with the same weight
         return candidates.get(TraffiApplication.rand.nextInt(candidates.size()));
     }
+
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>
-     * <STRONG>O(n^2 * k)</STRONG> k < n<p>
-     * n -> length of <CODE>trafficLightsArray</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O(n^3)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
     */
     private BitSet findLargestClique(int maxWeightIndex) {
         BitSet clique = new BitSet(trafficLightsArray.length);
@@ -261,11 +244,10 @@ public class Junction {
 
         return clique;
     }
+
     /** Returns a set contains all the traffic light that can be added to the clique<p>
-     * <STRONG>O((n-k) * k)</STRONG> k < n<p>
-     * n -> number of bits in <CODE>clique</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE><p>
-     * n-k -> number of clear bits in <CODE>clique</CODE>
+     * <STRONG>O(n^2)</STRONG><p>
+     * n -> number of bits in <CODE>clique</CODE>
     */
     private BitSet AddToTempSet(BitSet clique) {
         int n = trafficLightsArray.length;
@@ -277,10 +259,10 @@ public class Junction {
         }
         return temp;
     }
+
     /** return false if we found the largest clique, return true otherwise<p>
-     * <STRONG>O(n * k)</STRONG> k < n<p>
-     * n -> size of <CODE>trafficLightArray</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O(n^2)</STRONG><p>
+     * n -> length of <CODE>trafficLightArray</CODE>
     */
     private boolean canWeAdd(BitSet clique) {
         boolean canWeAdd = false;
@@ -291,10 +273,10 @@ public class Junction {
         }
         return canWeAdd;
     }
+
     /** return true if we can add a trafficLightsArray[index] to the clique<p>
-     * <STRONG>O(k)</STRONG> k < n<p>
-     * n -> number of bits in <CODE>clique</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> number of bits in <CODE>clique</CODE>
     */
     private boolean canWeAddThis(BitSet clique, int index) {
         boolean canWeAdd = true;
@@ -308,9 +290,8 @@ public class Junction {
     }
   
     /** finds if a traffic light has a strong connection with another traffic light, and if so - add it to the clique<p>
-     * <STRONG>O(k)</STRONG> k < n<p>
-     * n -> number of bits in <CODE>clique</CODE><p>
-     * k -> number of set bits in <CODE>clique</CODE>
+     * <STRONG>O(n^2)</STRONG><p>
+     * n -> number of bits in <CODE>clique</CODE>
     */
     private void findStrongConnection(BitSet clique, int index) {
         for(int i = trafficLightsStrongConnections[index].nextSetBit(0); i >= 0; i = trafficLightsStrongConnections[index].nextSetBit(i+1)) {
@@ -326,28 +307,31 @@ public class Junction {
     public void setTrafficLightWebSocketHandler(TrafficLightWebSocketHandler trafficLightWebSocketHandler) {
         this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
     }
+    
     /** changes the lights of the traffic lights in the clique<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightArray</CODE>
     */
     private void changeLights(BitSet clique) {
         for (int i = 0; i < trafficLightsArray.length; i++) {
-            System.out.println("Traffic light " + (i+1) + " weights: " + trafficLightsArray[i].getEmergencyWeight() + ", " + trafficLightsArray[i].getRegularWeight());
-            if (clique.get(i)) {
-                trafficLightsArray[i].setColor(true);
-                trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, true);
+            // Determine if traffic light i is in the clique
+            boolean flag = clique.get(i);
+
+            // Set the traffic light color and send the update to the frontend via WebSocket
+            trafficLightsArray[i].setColor(flag);
+            trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, flag);
+
+            // Start or stop dequeueing cars based on the traffic light's state
+            if(flag) {
                 trafficLightsArray[i].startDequeue(lanesMap, lanes);
             }
             else {
-                trafficLightsArray[i].setColor(false);
-                trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, false);
                 trafficLightsArray[i].stopDequeue();
             }
         }
     }
 
     // Getters
-    public Map<Lane, TrafficLight> getLaneToTrafficLightMap() { return this.laneToTrafficLightMap; }
     public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}
     public BitSet[] getTrafficLightsStrongConnections() { return this.trafficLightsStrongConnections; }
     public TrafficLight[] getTrafficLightsArray() { return this.trafficLightsArray; }

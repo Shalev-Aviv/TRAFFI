@@ -2,7 +2,10 @@ package Shalev_Aviv.TRAFFI;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+
+import Shalev_Aviv.TRAFFI.WebSocket.CarWebSocketHandler;
 
 // TrafficLight class - representing a specific traffic light at a junction
 class TrafficLight {
@@ -41,6 +44,12 @@ class TrafficLight {
         }
     }
 
+    @Autowired
+    private CarWebSocketHandler webSocketHandler;
+    // Setter for manual injection
+    public void setCarsWebSocketHandler(CarWebSocketHandler webSocketHandler) {
+        this.webSocketHandler = webSocketHandler;
+    }
     /** Start dequeuing cars from every lane in the lanes array<p>
      * <STRONG>O(n)</STRONG<p>
      * n -> length of <CODE>lanes</CODE><p>
@@ -59,6 +68,7 @@ class TrafficLight {
                                 if(destIds != null && destIds.length > 0) {
                                     int destId = destIds[TraffiApplication.rand.nextInt(destIds.length)];
                                     if(destId > 0 && destId <= lanes.length) {
+                                        webSocketHandler.sendCarLaneChange(car.getId(), destId);
                                         lanes[destId - 1].addCar(car);
                                     }
                                 }

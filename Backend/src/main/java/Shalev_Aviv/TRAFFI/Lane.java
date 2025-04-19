@@ -31,46 +31,62 @@ public class Lane {
             if (parentTrafficLight != null) {
                 parentTrafficLight.incrementEmergencyWeight(1);
             }
-        } else {
+        }
+        else {
             this.regularCarsCounter++;
             if (parentTrafficLight != null) {
                 parentTrafficLight.incrementRegularWeight(1);
             }
         }
     }
-    /** Remove and return the first car from the lane, or null if the lane is empty, and update the weights of the parent traffic light accordingly*/
+
+    /** Remove and return the first car from the lane and update the weights of the parent traffic light accordingly<p>
+     * return null if <CODE>cars.isEmpty()</CODE>
+    */
     public Car removeCar() {
-        if (cars.isEmpty()) return null;
+        Car removedCar = null;
         
-        Car removedCar = cars.poll();
-        if(removedCar == null) {
-            return null;
+        if (!cars.isEmpty()) {
+            removedCar = cars.poll();
+            updateCountersAndWeights(removedCar);
         }
         
-        if(removedCar.getEmergency()) {
+        return removedCar;
+    }
+    /** Update the counters and weights of the parent traffic light based on the car's type*/
+    private void updateCountersAndWeights(Car car) {
+        if (car != null) {
+            boolean isEmergency = car.getEmergency();
+            updateCarCounter(isEmergency);
+            
+            if (parentTrafficLight != null) {
+                updateTrafficLightWeights(isEmergency);
+            }
+        }
+    }
+    /** Update the car counter based on whether the car is an emergency vehicle or not*/
+    private void updateCarCounter(boolean isEmergency) {
+        if (isEmergency) {
             this.emergencyCarsCounter--;
-            if(this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0;
+            this.emergencyCarsCounter = this.emergencyCarsCounter > 0 ? this.emergencyCarsCounter : 0; // Ensure non-negative count
         }
         else {
             this.regularCarsCounter--;
-            if(this.regularCarsCounter < 0) this.regularCarsCounter = 0;
+            this.regularCarsCounter = this.regularCarsCounter > 0 ? this.regularCarsCounter : 0; // Ensure non-negative count
         }
-
-        if (parentTrafficLight != null) {
-            if (removedCar.getEmergency()) {
-                this.emergencyCarsCounter--;
-                if (this.emergencyCarsCounter < 0) this.emergencyCarsCounter = 0;
-                parentTrafficLight.incrementEmergencyWeight(-1);
-                if(parentTrafficLight.getEmergencyWeight() < 0) parentTrafficLight.setEmergencyWeight(0);
-            }
-            else {
-                this.regularCarsCounter--;
-                if (this.regularCarsCounter < 0) this.regularCarsCounter = 0;
-                parentTrafficLight.incrementRegularWeight(-1);
-                if(parentTrafficLight.getRegularWeight() < 0) parentTrafficLight.setRegularWeight(0);
-            }
+    }
+    /** Update the weights of the parent traffic light based on whether the car is an emergency vehicle or not*/
+    private void updateTrafficLightWeights(boolean isEmergency) {
+        if (isEmergency) {
+            parentTrafficLight.incrementEmergencyWeight(-1);
+            int newWeight = Math.max(0, parentTrafficLight.getEmergencyWeight());
+            parentTrafficLight.setEmergencyWeight(newWeight);
         }
-        return removedCar;
+        else {
+            parentTrafficLight.incrementRegularWeight(-1);
+            int newWeight = Math.max(0, parentTrafficLight.getRegularWeight());
+            parentTrafficLight.setRegularWeight(newWeight);
+        }
     }
 
     // Getters

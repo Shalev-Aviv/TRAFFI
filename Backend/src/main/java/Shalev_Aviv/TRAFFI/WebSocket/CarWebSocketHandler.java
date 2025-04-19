@@ -31,7 +31,10 @@ public class CarWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void sendCarUpdate(int carId, int lane, String type) {
-        String jsonMessage = "{\"carId\": " + carId + ", \"lane\": " + lane + ", \"type\": \"" + type + "\"}";
+        String jsonMessage = String.format(
+            "{\"carId\": %d, \"lane\": %d, \"type\": \"%s\"}",
+            carId, lane, type
+        );
         System.out.println("Sending car update: " + jsonMessage);
         sessions.forEach(session -> {
             try {
@@ -41,6 +44,23 @@ public class CarWebSocketHandler extends TextWebSocketHandler {
             }
             catch (IOException e) {
                 System.err.println("Error sending car update: " + e.getMessage());
+            }
+        });
+    }
+    public void sendCarLaneChange(int carId, int NextLane) {
+        String jsonMessage = String.format(
+            "{\"carId\": %d, \"NextLane\": %d}",
+            carId, NextLane
+        );
+        System.out.println("Sending car lane change: " + jsonMessage);
+        sessions.forEach(session -> {
+            try {
+                if (session.isOpen()) {
+                    session.sendMessage(new TextMessage(jsonMessage));
+                }
+            }
+            catch (IOException e) {
+                System.err.println("Error sending car lane change: " + e.getMessage());
             }
         });
     }
