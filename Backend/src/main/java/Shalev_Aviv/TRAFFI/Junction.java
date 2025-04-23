@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.BitSet;
@@ -228,15 +227,18 @@ public class Junction {
     */
     private BitSet findLargestClique(int maxWeightIndex) {
         BitSet clique = new BitSet(trafficLightsArray.length);
-        clique.set(maxWeightIndex);
         boolean stop = false;
+        
+        // Add to the clique the MWTL
+        clique.set(maxWeightIndex);
+
+        // Find strong connecions with the MWTL (if any)
+        findStrongConnection(clique, maxWeightIndex);
+
+        // Add all possible traffic lights to temp set
+        BitSet temp = AddToTempSet(clique);
+
         do {
-           findStrongConnection(clique, maxWeightIndex);
-
-           // Add all possible traffic lights to temp set
-           BitSet temp = AddToTempSet(clique);
-
-            // Find the traffic light with the maximum weight in the temp set and add it to the clique
             if(temp.isEmpty()) {
                 stop = true;
             }
@@ -247,10 +249,24 @@ public class Junction {
                 }
                 else {
                     clique.set(candidate);
+                    temp.clear(candidate);
+                    findStrongConnection(clique, candidate);
+                    removeFromTemp(clique, temp);
                 }
             }
-        } while(!stop && canWeAdd(clique));
+
+        } while(!stop);
+
         return clique;
+    }
+
+    // Remove all the lights that can no longer work with the clique O(n^2)
+    private void removeFromTemp(BitSet clique, BitSet temp) {
+        for(int i = temp.nextSetBit(0); i >= 0; i = temp.nextSetBit(i+1)) {
+            if(!canWeAddThis(clique, i)) {
+                temp.clear(i);
+            }
+        }
     }
 
     /** Returns a set contains all the traffic light that can be added to the clique<p>

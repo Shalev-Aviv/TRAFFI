@@ -54,6 +54,7 @@ npm start
   - [x] TrafficLight class
   - [x] TraffiApplication class
   - [x] Junction class
+  - [ ] Edge-cases
 - [x] Both
   - [x] Create `Start Simulaion` logic
   - [x] Car's web socket
