@@ -352,6 +352,8 @@ public class Junction {
         }
     }
 
+    public void setPaused(boolean paused) { this.isPaused = paused; }
+    
     // Getters
     public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}
     public BitSet[] getTrafficLightsStrongConnections() { return this.trafficLightsStrongConnections; }
@@ -360,8 +362,7 @@ public class Junction {
     public Lane[] getLanes() { return this.lanes; }
     public Set<Integer> getDestinationLanes() { return this.destinationLanes; }
     public List<Integer> getEnteringLanes() { return this.enteringLanes; }
-    public void setPaused(boolean paused) { this.isPaused = paused; }
-    public boolean isPaused() { return this.isPaused; }
+    public boolean getIsPaused() { return this.isPaused; }
 
     // ToString
     @Override
