@@ -162,7 +162,7 @@ public class TraffiApplication {
             isPaused = shouldPause;
             
             if (junction != null) {
-                junction.setPaused(shouldPause);
+                junction.setIsPaused(shouldPause);
             }
 
             Map<String, String> response = new HashMap<>();

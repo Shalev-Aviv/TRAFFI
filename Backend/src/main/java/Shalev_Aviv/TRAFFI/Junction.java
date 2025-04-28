@@ -284,20 +284,6 @@ public class Junction {
         return temp;
     }
 
-    /** return false if we found the largest clique, return true otherwise<p>
-     * <STRONG>O(n^2)</STRONG><p>
-     * n -> number of bits in <CODE>clique</CODE>
-    */
-    private boolean canWeAdd(BitSet clique) {
-        boolean canWeAdd = false;
-        for(int i = 0; i < trafficLightsArray.length && !canWeAdd; i++) {
-            if(!clique.get(i) && canWeAddThis(clique, i)) {
-                canWeAdd = true;
-            }
-        }
-        return canWeAdd;
-    }
-
     /** return true if we can add a trafficLightsArray[index] to the clique<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> number of bits in <CODE>clique</CODE>
@@ -352,7 +338,7 @@ public class Junction {
         }
     }
 
-    public void setPaused(boolean paused) { this.isPaused = paused; }
+    public void setIsPaused(boolean paused) { this.isPaused = paused; }
     
     // Getters
     public BitSet[] getTrafficLightsConnections() { return this.trafficLightsConnections;}

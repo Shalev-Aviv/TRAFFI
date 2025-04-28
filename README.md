@@ -67,3 +67,10 @@ Contributions are welcome! Feel free to submit issues or pull requests.
 
 ## License📄
 This project is licensed under the MIT License.
+
+## Credits🥰
+UI inspiration - <a href="https://x.ai/">Grok<a> (Before the renovation) & <a href="https://www.cursor.com/">Curser<a><p>
+Private car model - <a href="https://sketchfab.com/3d-models/low-poly-ford-mustang-b4519356d2cc4bd09bb58c8285c3d705">kulonee<a><p>
+Motorcycle model - <a href="https://sketchfab.com/3d-models/motorcycle-38404e2077ca4b209cd2f1db30541b94">animanyarty<a><p>
+Police model - <a href="https://sketchfab.com/3d-models/cop-sedan-90-low-poly-model-dc81625478a744649b210c7f248b0b6a">Daniel Zhabotinsky<a><p>
+Ambulance model - <a href="https://sketchfab.com/3d-models/ambulance-car-low-poly-25392b75045946f7a4c9a03e3bea969e">Jasmin Daniel<a>

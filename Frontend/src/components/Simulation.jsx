@@ -225,85 +225,108 @@ function Simulation() {
   const smoothTransitionCarLane = (carMesh, newLane, duration = 1000, turnType = "straight", onComplete) => {
     const startPos = carMesh.position.clone();
     const targetPosData = laneStartPositions[newLane] || { x: startPos.x, y: startPos.y, z: startPos.z };
-    const targetPos = new THREE.Vector3(targetPosData.x, startPos.y, targetPosData.z);
-    
+    const targetPos = new THREE.Vector3(targetPosData.x, startPos.y, targetPosData.z); // Fixed here
+
     // Only create curve for turning movements
     const controlPoint = createQuadraticCurve(startPos, targetPos, laneDirections[newLane], turnType);
-    
+
     let startTime = null;
-    
+
+    // Calculate the target rotation based on the turn type
+    let targetRotationY = carMesh.rotation.y; // Default to current rotation
+    if (turnType === "right") {
+      targetRotationY -= Math.PI / 2; // Rotate 90 degrees clockwise
+    }
+    else if (turnType === "left") {
+      targetRotationY += Math.PI / 2; // Rotate 90 degrees counterclockwise
+    }
+
+    const initialRotationY = carMesh.rotation.y;
+
     const animateTransition = (time) => {
       if (!startTime) startTime = time;
       const elapsed = time - startTime;
       const t = Math.min(elapsed / duration, 1);
-      
+      // Interpolate position
       if (controlPoint) {
         // Use quadratic curve for turns
         const t1 = 1 - t;
         carMesh.position.x = t1 * t1 * startPos.x + 2 * t1 * t * controlPoint.x + t * t * targetPos.x;
         carMesh.position.y = startPos.y;
         carMesh.position.z = t1 * t1 * startPos.z + 2 * t1 * t * controlPoint.z + t * t * targetPos.z;
-      } else {
+      }
+      else {
         // Use linear interpolation for straight movement
         carMesh.position.x = startPos.x + (targetPos.x - startPos.x) * t;
         carMesh.position.y = startPos.y;
         carMesh.position.z = startPos.z + (targetPos.z - startPos.z) * t;
       }
-  
+      // Interpolate rotation
+      carMesh.rotation.y = initialRotationY + (targetRotationY - initialRotationY) * t;
       if (t < 1) {
         requestAnimationFrame(animateTransition);
-      } else {
+      }
+      else {
         carMesh.position.copy(targetPos);
+        carMesh.rotation.y = targetRotationY; // Ensure final rotation is exact
         if (onComplete) onComplete();
       }
     };
-    
-    requestAnimationFrame(animateTransition);
-  };
+  requestAnimationFrame(animateTransition);
+};
 
   const upsertCarMesh = (carId, lane, type) => {
     const scene = sceneRef.current;
     let mesh = carMeshes.current.get(carId);
+
     if (!mesh) {
-        const geometry = new THREE.CircleGeometry(0.75, 16);
-        const material = new THREE.MeshBasicMaterial({ color: carColorByType(type) });
-        mesh = new THREE.Mesh(geometry, material);
-        mesh.rotation.x = -Math.PI / 2;
-
         const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
-        mesh.position.set(startPos.x, startPos.y, startPos.z);
+        const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
 
-        mesh.userData = {
+        // Calculate initial rotation based on lane direction and adjust by 90 degrees clockwise
+        const initialRotationY = Math.atan2(direction.x, direction.z) - Math.PI / 2;
+
+        // Load the car model based on the type
+        const loader = new GLTFLoader();
+        loader.load(`/${type.toLowerCase()}_model.glb`, (gltf) => {
+          const carModel = gltf.scene;
+          carModel.position.set(startPos.x, startPos.y, startPos.z);
+          carModel.rotation.y = initialRotationY; // Set initial rotation
+          carModel.scale.set(1, 1, 1); // Scale the model to fit the scene
+          carModel.userData = {
             carId, lane, type, stopped: false, queuePosition: 0,
             hasCrossedLight: false, progressAlongLane: 0,
             controllingTrafficLight: laneToTrafficLightMapping[lane],
             nextTrafficLightChecked: false, isTransitioning: false
-        };
-        carMeshes.current.set(carId, mesh);
-        scene.add(mesh);
+          };
+          carMeshes.current.set(carId, carModel);
+          scene.add(carModel);
 
-        // Increment and update counter
-        carCount.current += 1;
-        if (carCounterRef.current) {
-          carCounterRef.current.textContent = `Cars: ${carCount.current}`;
-        }
-    } else {
-        if (mesh.userData.lane !== lane && !mesh.userData.isTransitioning) {
-            mesh.userData.lane = lane;
-            mesh.userData.hasCrossedLight = false;
-            mesh.userData.progressAlongLane = 0;
-            mesh.userData.controllingTrafficLight = laneToTrafficLightMapping[lane];
-            mesh.userData.nextTrafficLightChecked = false;
-            const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
-            mesh.position.set(startPos.x, startPos.y, startPos.z);
-        }
-        if (mesh.userData.type !== type) {
-            mesh.userData.type = type;
-            mesh.material.color.setHex(carColorByType(type));
-        }
+          // Increment and update counter
+          carCount.current += 1;
+          if (carCounterRef.current) {
+            carCounterRef.current.textContent = `Cars: ${carCount.current}`;
+          }
+        }, undefined, (error) => {
+          console.error(`Failed to load model for type ${type}:`, error);
+        });
+    }
+    else {
+      if (mesh.userData.lane !== lane && !mesh.userData.isTransitioning) {
+        mesh.userData.lane = lane;
+        mesh.userData.hasCrossedLight = false;
+        mesh.userData.progressAlongLane = 0;
+        mesh.userData.controllingTrafficLight = laneToTrafficLightMapping[lane];
+        mesh.userData.nextTrafficLightChecked = false;
+        const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
+        mesh.position.set(startPos.x, startPos.y, startPos.z);
+      }
+      if (mesh.userData.type !== type) {
+        mesh.userData.type = type;
+      }
     }
     return mesh;
-  };
+};
 
   const changeCarLane = (carMesh, routeOption) => {
     const currentLane = carMesh.userData.lane;
@@ -346,20 +369,20 @@ function Simulation() {
 
   const checkAndUpdateTrafficLight = (carMesh) => {
     if (!carMesh.userData.hasCrossedLight || carMesh.userData.nextTrafficLightChecked) {
-        return;
+      return;
     }
 
     const currentLightId = carMesh.userData.controllingTrafficLight;
     if (!currentLightId) {
-        carMesh.userData.nextTrafficLightChecked = true;
-        return;
+      carMesh.userData.nextTrafficLightChecked = true;
+      return;
     }
 
     let mappingArray = nextTrafficLightMapping[currentLightId];
 
     if (!mappingArray || !Array.isArray(mappingArray)) {
-        carMesh.userData.nextTrafficLightChecked = true;
-        return;
+      carMesh.userData.nextTrafficLightChecked = true;
+      return;
     }
 
     const validOptions = mappingArray.filter(o => o !== null && o.nextLight && o.transitionPoint);
@@ -367,14 +390,16 @@ function Simulation() {
     let optionToUse = null;
 
     if (validOptions.length === 0) {
-        carMesh.userData.nextTrafficLightChecked = true;
-        return;
-    } else if (validOptions.length === 1) {
-        optionToUse = validOptions[0];
-    } else {
-        console.warn(`Car ${carMesh.userData.carId} at light ${currentLightId} has multiple next light options. Cannot auto-select.`);
-        carMesh.userData.nextTrafficLightChecked = true;
-        return;
+      carMesh.userData.nextTrafficLightChecked = true;
+      return;
+    }
+    else if (validOptions.length === 1) {
+      optionToUse = validOptions[0];
+    }
+    else {
+      console.warn(`Car ${carMesh.userData.carId} at light ${currentLightId} has multiple next light options. Cannot auto-select.`);
+      carMesh.userData.nextTrafficLightChecked = true;
+      return;
     }
 
     const { nextLight, transitionPoint } = optionToUse;
@@ -384,10 +409,10 @@ function Simulation() {
     const TRANSITION_THRESHOLD = 3;
 
     if (distanceToTransition < TRANSITION_THRESHOLD) {
-        console.log(`Car ${carMesh.userData.carId} reached transition zone. Changing control from light ${currentLightId} to light ${nextLight}`);
-        carMesh.userData.controllingTrafficLight = nextLight;
-        carMesh.userData.hasCrossedLight = false;
-        carMesh.userData.nextTrafficLightChecked = true;
+      console.log(`Car ${carMesh.userData.carId} reached transition zone. Changing control from light ${currentLightId} to light ${nextLight}`);
+      carMesh.userData.controllingTrafficLight = nextLight;
+      carMesh.userData.hasCrossedLight = false;
+      carMesh.userData.nextTrafficLightChecked = true;
     }
   };
 
@@ -436,7 +461,7 @@ function Simulation() {
         });
         lightMesh.material = isGreen ? greenMaterial.clone() : redMaterial.clone();
       } else {
-         console.log(`Traffic light mesh ${lightId} not found in scene.`);
+        console.log(`Traffic light mesh ${lightId} not found in scene.`);
       }
     };
 
@@ -455,15 +480,15 @@ function Simulation() {
       scene.add(loadedModel);
       loadedModel.traverse((object) => {
         if (object.isMesh) {
-           object.material.needsUpdate = true;
+          object.material.needsUpdate = true;
         }
         for (let i = 1; i <= 9; i++) {
-            if (object.name === `trafficLight${i}`) {
-                console.log(`Found traffic light: ${object.name}`);
-                trafficLights.current[object.name] = object;
-                 updateTrafficLight(i, "RED");
-            }
-         }
+          if (object.name === `trafficLight${i}`) {
+            console.log(`Found traffic light: ${object.name}`);
+            trafficLights.current[object.name] = object;
+            updateTrafficLight(i, "RED");
+          }
+        }
       });
        for (let i = 1; i <= 9; i++) {
          if (trafficLightStatuses.current[i] === undefined) {
@@ -495,13 +520,12 @@ function Simulation() {
     scene.add(directionalLight);
 
     const getDistanceToPoint = (carPos, targetPos, direction) => {
-        if (!direction || !targetPos) return Infinity;
-
-        if (Math.abs(direction.x) > Math.abs(direction.z)) {
-            return direction.x > 0 ? (targetPos.x - carPos.x) : (carPos.x - targetPos.x);
-        } else {
-            return direction.z > 0 ? (targetPos.z - carPos.z) : (carPos.z - targetPos.z);
-        }
+      if (!direction || !targetPos) return Infinity;
+      if (Math.abs(direction.x) > Math.abs(direction.z)) {
+        return direction.x > 0 ? (targetPos.x - carPos.x) : (carPos.x - targetPos.x);
+      } else {
+        return direction.z > 0 ? (targetPos.z - carPos.z) : (carPos.z - targetPos.z);
+      }
     };
 
     const animate = () => {
@@ -510,7 +534,7 @@ function Simulation() {
       const CAR_MOVE_SPEED = 0.05;
       const STOP_DISTANCE = 3;
       const CAR_LENGTH = 3;
-      const MIN_FOLLOW_DISTANCE = 2;
+      const MIN_FOLLOW_DISTANCE = 5;
       const LIGHT_CROSS_THRESHOLD = 1;
       const REMOVAL_DISTANCE = 200;
 
@@ -525,11 +549,11 @@ function Simulation() {
       const laneQueues = new Map();
       carMeshes.current.forEach((mesh) => {
         if (!mesh.userData.isTransitioning) {
-            const lane = mesh.userData.lane;
-            if (!laneQueues.has(lane)) {
-                laneQueues.set(lane, []);
-            }
-            laneQueues.get(lane).push(mesh);
+          const lane = mesh.userData.lane;
+          if (!laneQueues.has(lane)) {
+            laneQueues.set(lane, []);
+          }
+          laneQueues.get(lane).push(mesh);
         }
       });
 
@@ -552,74 +576,70 @@ function Simulation() {
         let reasonStopped = "";
 
         if (controllingLightId && stopPos && !mesh.userData.hasCrossedLight) {
-            const distanceToStopLine = getDistanceToPoint(mesh.position, stopPos, direction);
-            const isRedLight = !trafficLightStatuses.current[controllingLightId];
-            const dynamicStopDistance = STOP_DISTANCE + (queuePosition * CAR_LENGTH);
-
-            if (distanceToStopLine <= dynamicStopDistance) {
-                if (isRedLight) {
+          const distanceToStopLine = getDistanceToPoint(mesh.position, stopPos, direction);
+          const isRedLight = !trafficLightStatuses.current[controllingLightId];
+          const dynamicStopDistance = STOP_DISTANCE + (queuePosition * CAR_LENGTH);
+          if (distanceToStopLine <= dynamicStopDistance) {
+            if (isRedLight) {
+              shouldMove = false;
+              reasonStopped = `Red Light ${controllingLightId}`;
+            } else {
+                // Add green light delay check
+                const greenChangeTime = lightStateChangeTimes.current[controllingLightId];
+                if (greenChangeTime) {
+                  const timeSinceGreen = performance.now() - greenChangeTime;
+                  if (timeSinceGreen < 700) { // 700ms delay
                     shouldMove = false;
-                    reasonStopped = `Red Light ${controllingLightId}`;
-                } else {
-                    // Add green light delay check
-                    const greenChangeTime = lightStateChangeTimes.current[controllingLightId];
-                    if (greenChangeTime) {
-                        const timeSinceGreen = performance.now() - greenChangeTime;
-                        if (timeSinceGreen < 500) { // 500ms delay
-                            shouldMove = false;
-                            reasonStopped = `Green Light Delay ${controllingLightId}`;
-                        }
-                    }
+                    reasonStopped = `Green Light Delay ${controllingLightId}`;
+                  }
                 }
+              }
+          }
+          if (distanceToStopLine <= LIGHT_CROSS_THRESHOLD) {
+            if (!mesh.userData.hasCrossedLight) {
+              mesh.userData.hasCrossedLight = true;
+              const wasGreen = !isRedLight;
+              if (wasGreen) {
+                const routeOptions = junctionRoutes[lane];
+                if (routeOptions && routeOptions.length > 0) {
+                  let routeToTake = routeOptions[0];
+                  if (!changeCarLane(mesh, routeToTake)) {
+                    return;
+                  }
+                }
+              }
             }
-
-             if (distanceToStopLine <= LIGHT_CROSS_THRESHOLD) {
-                 if (!mesh.userData.hasCrossedLight) {
-                     mesh.userData.hasCrossedLight = true;
-
-                    const wasGreen = !isRedLight;
-                    if (wasGreen) {
-                        const routeOptions = junctionRoutes[lane];
-                        if (routeOptions && routeOptions.length > 0) {
-                            let routeToTake = routeOptions[0];
-                            if (!changeCarLane(mesh, routeToTake)) {
-                                 return;
-                            }
-                        }
-                     }
-                 }
-            }
+          }
         }
 
         if (shouldMove && queuePosition > 0) {
-            const laneQueue = laneQueues.get(lane);
-            const carInFront = laneQueue ? laneQueue[queuePosition - 1] : null;
-            if (carInFront) {
-                const distanceToCar = mesh.position.distanceTo(carInFront.position);
-                if (distanceToCar < MIN_FOLLOW_DISTANCE) {
-                    shouldMove = false;
-                    reasonStopped = `Car Ahead (${carInFront.userData.carId})`;
-                }
+          const laneQueue = laneQueues.get(lane);
+          const carInFront = laneQueue ? laneQueue[queuePosition - 1] : null;
+          if (carInFront) {
+            const distanceToCar = mesh.position.distanceTo(carInFront.position);
+            if (distanceToCar < MIN_FOLLOW_DISTANCE) {
+              shouldMove = false;
+              reasonStopped = `Car Ahead (${carInFront.userData.carId})`;
             }
+          }
         }
 
         if (shouldMove) {
-            if (mesh.userData.stopped) {
-              mesh.userData.stopped = false;
-            }
-            mesh.position.x += direction.x * CAR_MOVE_SPEED;
-            mesh.position.y += direction.y * CAR_MOVE_SPEED;
-            mesh.position.z += direction.z * CAR_MOVE_SPEED;
-        } else {
-           if (!mesh.userData.stopped) {
-           }
-           mesh.userData.stopped = true;
+          if (mesh.userData.stopped) {
+            mesh.userData.stopped = false;
+          }
+          mesh.position.x += direction.x * CAR_MOVE_SPEED;
+          mesh.position.y += direction.y * CAR_MOVE_SPEED;
+          mesh.position.z += direction.z * CAR_MOVE_SPEED;
+        }
+        else {
+          mesh.userData.stopped = true;
         }
 
         if (mesh.position.length() > REMOVAL_DISTANCE) {
-            console.log(`Removing car ${carId} (too far)`);
-            scene.remove(mesh);
-            carMeshes.current.delete(carId);
+          console.log(`Removing car ${carId} (too far)`);
+          scene.remove(mesh);
+          carMeshes.current.delete(carId);
         }
       });
 
@@ -635,12 +655,12 @@ function Simulation() {
       try {
         const data = JSON.parse(event.data);
         if (data.lightId && data.status) {
-            updateTrafficLight(data.lightId, data.status);
+          updateTrafficLight(data.lightId, data.status);
         } else {
-            console.warn("Invalid traffic data received:", data);
+          console.warn("Invalid traffic data received:", data);
         }
       } catch (e) {
-          console.error("Failed to parse traffic message:", event.data, e);
+        console.error("Failed to parse traffic message:", event.data, e);
       }
     };
     socketTraffic.onclose = () => console.log("Traffic WebSocket Disconnected");
@@ -649,24 +669,24 @@ function Simulation() {
     socketCars.onopen = () => console.log("Cars WebSocket Connected");
     socketCars.onerror = (error) => console.error("Cars WebSocket Error:", error);
     socketCars.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-             if (data.carId !== undefined && data.lane !== undefined && data.type !== undefined) {
-                upsertCarMesh(data.carId, data.lane, data.type);
-            } else {
-                 console.warn("Invalid car data received:", data);
-            }
-        } catch (e) {
-             console.error("Failed to parse car message:", event.data, e);
+      try {
+        const data = JSON.parse(event.data);
+         if (data.carId !== undefined && data.lane !== undefined && data.type !== undefined) {
+          upsertCarMesh(data.carId, data.lane, data.type);
+        } else {
+          console.warn("Invalid car data received:", data);
         }
+      } catch (e) {
+        console.error("Failed to parse car message:", event.data, e);
+      }
     };
     socketCars.onclose = () => console.log("Cars WebSocket Disconnected");
 
     return () => {
-        console.log("Closing WebSockets and removing resize listener.");
-        socketCars?.close();
-        socketTraffic?.close();
-        window.removeEventListener("resize", updateSize);
+      console.log("Closing WebSockets and removing resize listener.");
+      socketCars?.close();
+      socketTraffic?.close();
+      window.removeEventListener("resize", updateSize);
     };
   }, []);
 
@@ -676,7 +696,7 @@ function Simulation() {
         Cars: 0
       </div>
       <div className="Statistics" id="Traffic-light" ref={trafficLightCounterRef}>
-        Green: 
+        Green: 0
       </div>
       <canvas ref={canvasRef} className="ThreeJS"></canvas>
     </div>
