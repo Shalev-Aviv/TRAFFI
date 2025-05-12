@@ -23,6 +23,7 @@ public class Junction {
     private Lane[] lanes; // Lanes at the junction
     private Set<Integer> destinationLanes; // Set of destination lanes
     private List<Integer> enteringLanes; // List of entering lanes
+    private static final int MAX_GREEN_DURATION = 5; // Maximum green durations for each traffic light
     private volatile boolean isPaused = false; // Pause flag
 
     /** Constructor*/
@@ -229,14 +230,18 @@ public class Junction {
         BitSet clique = new BitSet(trafficLightsArray.length);
         boolean stop = false;
         
-        // Add to the clique the MWTL
-        clique.set(maxWeightIndex);
+        // Validate no light is suffering from starvation
+        int greedy = findGreedyIfStarvation(maxWeightIndex);
 
-        // Find strong connecions with the MWTL (if any)
-        findStrongConnection(clique, maxWeightIndex);
+        // Add the MWTL to the clique
+        if(maxWeightIndex != greedy && canWeAddThis(clique, maxWeightIndex)) {
+            clique.set(maxWeightIndex);
+            // Find strong connecions with the MWTL (if any)
+            findStrongConnection(clique, maxWeightIndex, greedy);
+        }
 
         // Add all possible traffic lights to temp set
-        BitSet temp = AddToTempSet(clique);
+        BitSet temp = AddToTempSet(clique, greedy);
 
         do {
             if(temp.isEmpty()) {
@@ -250,7 +255,7 @@ public class Junction {
                 else {
                     clique.set(candidate);
                     temp.clear(candidate);
-                    findStrongConnection(clique, candidate);
+                    findStrongConnection(clique, candidate, greedy);
                     removeFromTemp(clique, temp);
                 }
             }
@@ -260,7 +265,40 @@ public class Junction {
         return clique;
     }
 
-    // Remove all the lights that can no longer work with the clique O(n^2)
+    /** Checks if the MWTL is greedy, and it causing a different traffic light to starve<p>
+     * if so - return the index of the MWTL, else - return -1 (ignore)<p>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+    */
+    private int findGreedyIfStarvation(int maxWeightIndex) {
+        int res = -1;
+        if(trafficLightsArray[maxWeightIndex].getGreenDuration() > MAX_GREEN_DURATION) {
+            if(starving(maxWeightIndex)) res = maxWeightIndex;
+        }
+        return res;
+    }
+
+    /** Check if the greedy traffic light is starving other traffic lights<p>
+     * <STRONG>O(n)</STRONG><p>
+     * n -> length of <CODE>trafficLightsArray</CODE>
+    */
+    private boolean starving(int maxWeightIndex) {
+        boolean flag = false;
+        for(int i = 0; i < trafficLightsArray.length; i++) {
+            if(i != maxWeightIndex && !trafficLightsConnections[maxWeightIndex].get(i)) {
+                if(trafficLightsArray[i].getEmergencyWeight() > 0 || trafficLightsArray[i].getRegularWeight() > 0) {
+                    flag = true;
+                }
+            }
+        }
+        return flag;
+    }
+
+    /**
+     * Remove all the lights that can no longer work with the clique<p>
+     * <STRONG>O(n^2)</STRONG><p>
+     * n -> number of bits in <CODE>clique</CODE>
+    */
     private void removeFromTemp(BitSet clique, BitSet temp) {
         for(int i = temp.nextSetBit(0); i >= 0; i = temp.nextSetBit(i+1)) {
             if(!canWeAddThis(clique, i)) {
@@ -273,11 +311,11 @@ public class Junction {
      * <STRONG>O(n^2)</STRONG><p>
      * n -> number of bits in <CODE>clique</CODE>
     */
-    private BitSet AddToTempSet(BitSet clique) {
+    private BitSet AddToTempSet(BitSet clique, int greedy) {
         int n = trafficLightsArray.length;
         BitSet temp = new BitSet(n);
         for(int i = clique.nextClearBit(0); i >= 0 && i < n; i = clique.nextClearBit(i+1)) {
-            if(canWeAddThis(clique, i)) {
+            if(i != greedy && canWeAddThis(clique, i)) {
                 temp.set(i);
             }
         }
@@ -302,9 +340,9 @@ public class Junction {
      * <STRONG>O(n^2)</STRONG><p>
      * n -> number of bits in <CODE>clique</CODE>
     */
-    private void findStrongConnection(BitSet clique, int index) {
+    private void findStrongConnection(BitSet clique, int index, int greedy) {
         for(int i = trafficLightsStrongConnections[index].nextSetBit(0); i >= 0; i = trafficLightsStrongConnections[index].nextSetBit(i+1)) {
-            if(!clique.get(i) && canWeAddThis(clique, i)) {
+            if(!clique.get(i) && i != greedy && canWeAddThis(clique, i)) {
                 clique.set(i);
             }
         }
@@ -317,7 +355,7 @@ public class Junction {
         this.trafficLightWebSocketHandler = trafficLightWebSocketHandler;
     }
 
-    /** changes the lights of the traffic lights in the clique<p>
+    /** changes the lights of the traffic lights in the junction<p>
      * <STRONG>O(n)</STRONG><p>
      * n -> length of <CODE>trafficLightArray</CODE>
     */
@@ -330,9 +368,11 @@ public class Junction {
             trafficLightWebSocketHandler.sendTrafficLightUpdate(i+1, flag);
             
             if(flag) {
+                trafficLightsArray[i].setGreenDuration(trafficLightsArray[i].getGreenDuration()+1);
                 trafficLightsArray[i].startDequeue(lanesMap, lanes);
             }
             else {
+                trafficLightsArray[i].setGreenDuration(0);
                 trafficLightsArray[i].stopDequeue();
             }
         }

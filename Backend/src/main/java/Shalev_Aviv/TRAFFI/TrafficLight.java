@@ -13,6 +13,7 @@ class TrafficLight {
 
     private Color color; // The color of the light (RED, GREEN)
     private Lane[] lanes; // Array of lanes that are controlled by this traffic light
+    private int greenDuration; // Duration of the green light
     private int emergencyWeight; // Represents the emergency weight of this light
     private int regularWeight; // Represents the regular weight of this light
     private int id; // light's id
@@ -21,6 +22,7 @@ class TrafficLight {
     public TrafficLight(Lane[] lanes, int id) {
         this.color = Color.RED;
         this.lanes = lanes;
+        this.greenDuration = 0;
         this.emergencyWeight = 0;
         this.regularWeight = 0;
         this.id = id;
@@ -84,12 +86,14 @@ class TrafficLight {
 
     /** Turns the traffic light on (true) or off (false)*/
     public void setColor(boolean set) { this.color = set ? Color.GREEN : Color.RED; }
+    public void setGreenDuration(int duration) { this.greenDuration = duration; }
     public void setRegularWeight(int weight) { this.regularWeight = weight; }
     public void setEmergencyWeight(int weight) { this.emergencyWeight = weight; }
     
     // Getters
     public Color getColor() { return this.color; }
     public Lane[] getLanes() { return this.lanes; }
+    public int getGreenDuration() { return this.greenDuration; }
     public int getEmergencyWeight() {
         synchronized(weightLock) {
             return this.emergencyWeight;

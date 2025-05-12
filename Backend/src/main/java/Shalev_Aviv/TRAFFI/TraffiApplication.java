@@ -30,7 +30,6 @@ public class TraffiApplication {
     private Map<Integer, Integer[]> lightsToLanesMap; // Map of lights to lanes
     private Map<Integer, Integer[]> lanesToLanesMap; // Map of lanes to lanes
     private Junction junction; // junction
-    private volatile boolean isPaused = false; // Pause state
 
     public static Random rand = new Random();
 
@@ -159,7 +158,6 @@ public class TraffiApplication {
     public ResponseEntity<Map<String, String>> togglePauseResume(@RequestBody Map<String, Boolean> request) {
         try {
             boolean shouldPause = request.get("isPaused");
-            isPaused = shouldPause;
             
             if (junction != null) {
                 junction.setIsPaused(shouldPause);
