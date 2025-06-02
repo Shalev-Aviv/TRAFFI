@@ -11,8 +11,8 @@ const Scrollbar = ({ children }) => {
       el: containerRef.current,
       smooth: true,
       smoothMobile: true,
-      inertia: 0.3, /* Scroll's speed */
-      multiplier: 3.0, /* How much the scroll scrolls */
+      inertia: 0.3 /* Scroll's speed */,
+      multiplier: 3.0 /* How much the scroll scrolls */,
     });
 
     // Cleanup on unmount

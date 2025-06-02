@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import ReactDOM from 'react-dom';
-import './MatrixPopUp.css';
+import React, { useState, useRef } from "react";
+import ReactDOM from "react-dom";
+import "./MatrixPopUp.css";
 
 const trafficLightsMatrix = `{
   "Lights To Lights": [
@@ -65,117 +65,141 @@ const lanesToLanesMap = `{
 }`;
 
 const MatrixPopUp = () => {
-    const [showPopup, setShowPopup] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const [hasStarted, setHasStarted] = useState(false);
-    const [graphText1, setGraphText1] = useState(trafficLightsMatrix);
-    const [graphText2, setGraphText2] = useState(lightsToLanesMap);
-    const [dictText, setDictText] = useState(lanesToLanesMap);
-    const graphRef1 = useRef(null);
-    const graphRef2 = useRef(null);
-    const dictRef = useRef(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [graphText1, setGraphText1] = useState(trafficLightsMatrix);
+  const [graphText2, setGraphText2] = useState(lightsToLanesMap);
+  const [dictText, setDictText] = useState(lanesToLanesMap);
+  const graphRef1 = useRef(null);
+  const graphRef2 = useRef(null);
+  const dictRef = useRef(null);
 
-    const togglePopup = () => {
-        setShowPopup(!showPopup);
+  const togglePopup = () => {
+    setShowPopup(!showPopup);
+  };
+
+  // Prevent empty textarea by setting default if value is empty
+  const handleGraph1Change = (e) => {
+    setGraphText1(e.target.value || trafficLightsMatrix);
+  };
+  const handleGraph2Change = (e) => {
+    setGraphText2(e.target.value || lightsToLanesMap);
+  };
+  const handleDictChange = (e) => {
+    setDictText(e.target.value || lanesToLanesMap);
+  };
+
+  const handleSend = async () => {
+    const jsonData = {
+      trafficLightsMatrix: graphText1,
+      lightsToLanesMap: graphText2,
+      lanesToLanesMap: dictText,
     };
 
-    // Prevent empty textarea by setting default if value is empty
-    const handleGraph1Change = (e) => {
-        setGraphText1(e.target.value || trafficLightsMatrix);
-    };
-    const handleGraph2Change = (e) => {
-        setGraphText2(e.target.value || lightsToLanesMap);
-    };
-    const handleDictChange = (e) => {
-        setDictText(e.target.value || lanesToLanesMap);
-    };
+    try {
+      const response = await fetch("http://localhost:8080/parsing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
+      });
 
-    const handleSend = async () => {
-        const jsonData = { 
-            trafficLightsMatrix: graphText1, 
-            lightsToLanesMap: graphText2,
-            lanesToLanesMap: dictText 
-        };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${
+            errorData.message || response.statusText
+          }`
+        );
+      }
 
-        try {
-            const response = await fetch('http://localhost:8080/parsing', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jsonData),
-            });
+      const responseData = await response.json();
+      console.log("Success:", responseData);
+      setShowPopup(false);
+      setHasStarted(true); // Set hasStarted to true after successful start
+    } catch (error) {
+      console.error("Error sending JSON:", error);
+    }
+  };
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || response.statusText}`);
-            }
+  const handlePauseResume = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/pause-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPaused: !isPaused }),
+      });
 
-            const responseData = await response.json();
-            console.log('Success:', responseData);
-            setShowPopup(false);
-            setHasStarted(true); // Set hasStarted to true after successful start
-        }
-        catch (error) {
-            console.error('Error sending JSON:', error);
-        }
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    const handlePauseResume = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/pause-resume', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isPaused: !isPaused })
-            });
+      setIsPaused(!isPaused);
+    } catch (error) {
+      console.error("Error toggling pause/resume:", error);
+    }
+  };
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            setIsPaused(!isPaused);
-        } catch (error) {
-            console.error('Error toggling pause/resume:', error);
-        }
-    };
-
-    return (
-        <div>
-            <div className='Start-container'>
-                <div className='Auter-stroke'>
-                    <button className="Start-button" id='Start' onClick={togglePopup}>
-                        Start simulation
-                    </button>
-                </div>
-                <div className='Auter-stroke'>
-                    <button className={`Start-button ${!hasStarted ? 'disabled' : ''}`} onClick={hasStarted ? handlePauseResume : undefined} disabled={!hasStarted}>
-                        {isPaused ? 'Resume' : 'Pause'}
-                    </button>
-                </div>
-            </div>
-            {showPopup &&
-                ReactDOM.createPortal(
-                    <div className="Popup">
-                        <div className="Popup-inner">
-                            <div className="Split-container">
-                                <div className="Left-container">
-                                    <textarea className="Graph-textarea" ref={graphRef1} value={graphText1} onChange={handleGraph1Change} />
-                                    <textarea className="Graph-textarea" ref={graphRef2} value={graphText2} onChange={handleGraph2Change} />
-                                </div>
-                                <div className="Right-container">
-                                    <textarea className="Dict-textarea" ref={dictRef} value={dictText} onChange={handleDictChange} 
-                                    />
-                                </div>
-                            </div>
-                            <div className="Popup-buttons">
-                                <button className="Send" onClick={handleSend}>Send</button>
-                                <button className="Close" onClick={togglePopup}>Close</button>
-                            </div>
-                        </div>
-                    </div>,
-                    document.body
-                )
-            }
+  return (
+    <div>
+      <div className="Start-container">
+        <div className="Auter-stroke">
+          <button className="Start-button" id="Start" onClick={togglePopup}>
+            Start simulation
+          </button>
         </div>
-    );
+        <div className="Auter-stroke">
+          <button
+            className={`Start-button ${!hasStarted ? "disabled" : ""}`}
+            onClick={hasStarted ? handlePauseResume : undefined}
+            disabled={!hasStarted}
+          >
+            {isPaused ? "Resume" : "Pause"}
+          </button>
+        </div>
+      </div>
+      {showPopup &&
+        ReactDOM.createPortal(
+          <div className="Popup">
+            <div className="Popup-inner">
+              <div className="Split-container">
+                <div className="Left-container">
+                  <textarea
+                    className="Graph-textarea"
+                    ref={graphRef1}
+                    value={graphText1}
+                    onChange={handleGraph1Change}
+                  />
+                  <textarea
+                    className="Graph-textarea"
+                    ref={graphRef2}
+                    value={graphText2}
+                    onChange={handleGraph2Change}
+                  />
+                </div>
+                <div className="Right-container">
+                  <textarea
+                    className="Dict-textarea"
+                    ref={dictRef}
+                    value={dictText}
+                    onChange={handleDictChange}
+                  />
+                </div>
+              </div>
+              <div className="Popup-buttons">
+                <button className="Send" onClick={handleSend}>
+                  Send
+                </button>
+                <button className="Close" onClick={togglePopup}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+    </div>
+  );
 };
 
 export default MatrixPopUp;

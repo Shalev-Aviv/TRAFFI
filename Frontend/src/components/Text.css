@@ -11,18 +11,18 @@
 }
 
 .Blog h3 {
-    position: relative;
-    font-size: 1.25em;
-    font-weight: 700;
+  position: relative;
+  font-size: 1.25em;
+  font-weight: 700;
 }
 
 .Blog h4 {
-    position: relative;
-    font-weight: 400;
-    line-height: 1.6;
+  position: relative;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 .Blog span {
-    position: relative;
-    font-weight: 600;
+  position: relative;
+  font-weight: 600;
 }

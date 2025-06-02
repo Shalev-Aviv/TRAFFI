@@ -8,7 +8,11 @@
   height: 4rem;
   width: 22rem;
   aspect-ratio: 4/22;
-  background: linear-gradient(to left, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+  background: linear-gradient(
+    to left,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.4)
+  );
   backdrop-filter: blur(8px);
   border-top-right-radius: 17% 100%;
   border-bottom-right-radius: 17% 100%;

@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@100;200;300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@100;200;300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
 
 [data-scroll-container] {
   overflow: hidden; /*Required for Locomotive Scroll to work*/
@@ -15,7 +15,7 @@
 }
 
 .Hero {
-  position: relative; 
+  position: relative;
 }
 
 .Junction {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import './Simulation.css';
+import "./Simulation.css";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
@@ -24,10 +24,10 @@ function Simulation() {
   const CANVAS_HEIGHT_EM = 33.33;
 
   const carColorByType = (type) => {
-    if(type === "POLICE") return 0x0000ff; // Blue for police
-    if(type === "AMBULANCE") return 0xff0000; // Red for ambulance
-    if(type === "PRIVATE") return 0xffa500; // Orange for private
-    if(type === "MOTORCYCLE") return 0x00ff00; // Green for motorcycle
+    if (type === "POLICE") return 0x0000ff; // Blue for police
+    if (type === "AMBULANCE") return 0xff0000; // Red for ambulance
+    if (type === "PRIVATE") return 0xffa500; // Orange for private
+    if (type === "MOTORCYCLE") return 0x00ff00; // Green for motorcycle
   };
 
   const laneToTrafficLightMapping = {
@@ -59,7 +59,7 @@ function Simulation() {
     26: 9,
     27: 9,
     28: null,
-    29: null
+    29: null,
   };
 
   const laneStartPositions = {
@@ -91,7 +91,7 @@ function Simulation() {
     26: { x: 34.6, y: 2, z: 41 },
     27: { x: 29.8, y: 2, z: 41 },
     28: { x: 25.3, y: 2, z: 9 },
-    29: { x: 21, y: 2, z: 9 }
+    29: { x: 21, y: 2, z: 9 },
   };
 
   const laneDirections = {
@@ -123,7 +123,7 @@ function Simulation() {
     26: { x: 0, y: 0, z: -1 },
     27: { x: 0, y: 0, z: -1 },
     28: { x: 0, y: 0, z: 1 },
-    29: { x: 0, y: 0, z: 1 }
+    29: { x: 0, y: 0, z: 1 },
   };
 
   const trafficLightPositions = {
@@ -135,7 +135,7 @@ function Simulation() {
     6: { x: 23.5, y: 6, z: -10.5 },
     7: { x: 38.2, y: 6, z: -5.3 },
     8: { x: 38.2, y: 6, z: 0.6 },
-    9: { x: 32.6, y: 6, z: 10.2 }
+    9: { x: 32.6, y: 6, z: 10.2 },
   };
 
   const laneStopPositions = {
@@ -144,49 +144,74 @@ function Simulation() {
     5: { x: laneStartPositions[5].x, y: 2, z: trafficLightPositions[2].z },
     6: { x: laneStartPositions[6].x, y: 2, z: trafficLightPositions[2].z },
     9: { x: trafficLightPositions[3].x, y: 2, z: laneStartPositions[9].z },
-    10:{ x: trafficLightPositions[3].x, y: 2, z: laneStartPositions[10].z },
-    11:{ x: trafficLightPositions[5].x, y: 2, z: laneStartPositions[11].z },
-    12:{ x: trafficLightPositions[5].x, y: 2, z: laneStartPositions[12].z },
-    13:{ x: laneStartPositions[13].x, y: 2, z: trafficLightPositions[4].z },
-    14:{ x: laneStartPositions[14].x, y: 2, z: trafficLightPositions[4].z },
-    17:{ x: laneStartPositions[17].x, y: 2, z: trafficLightPositions[6].z },
-    18:{ x: laneStartPositions[18].x, y: 2, z: trafficLightPositions[6].z },
-    21:{ x: trafficLightPositions[7].x, y: 2, z: laneStartPositions[21].z },
-    22:{ x: trafficLightPositions[7].x, y: 2, z: laneStartPositions[22].z },
-    23:{ x: trafficLightPositions[8].x, y: 2, z: laneStartPositions[23].z },
-    26:{ x: laneStartPositions[26].x, y: 2, z: trafficLightPositions[9].z },
-    27:{ x: laneStartPositions[27].x, y: 2, z: trafficLightPositions[9].z }
+    10: { x: trafficLightPositions[3].x, y: 2, z: laneStartPositions[10].z },
+    11: { x: trafficLightPositions[5].x, y: 2, z: laneStartPositions[11].z },
+    12: { x: trafficLightPositions[5].x, y: 2, z: laneStartPositions[12].z },
+    13: { x: laneStartPositions[13].x, y: 2, z: trafficLightPositions[4].z },
+    14: { x: laneStartPositions[14].x, y: 2, z: trafficLightPositions[4].z },
+    17: { x: laneStartPositions[17].x, y: 2, z: trafficLightPositions[6].z },
+    18: { x: laneStartPositions[18].x, y: 2, z: trafficLightPositions[6].z },
+    21: { x: trafficLightPositions[7].x, y: 2, z: laneStartPositions[21].z },
+    22: { x: trafficLightPositions[7].x, y: 2, z: laneStartPositions[22].z },
+    23: { x: trafficLightPositions[8].x, y: 2, z: laneStartPositions[23].z },
+    26: { x: laneStartPositions[26].x, y: 2, z: trafficLightPositions[9].z },
+    27: { x: laneStartPositions[27].x, y: 2, z: trafficLightPositions[9].z },
   };
 
   const junctionRoutes = {
-    1: [{ nextLane: 12, turnType: "straight" }, { nextLane: 16, turnType: "right" }],
-    2: [{ nextLane: 11, turnType: "straight" }], 3: [{ nextLane: null, turnType: "straight" }],
+    1: [
+      { nextLane: 12, turnType: "straight" },
+      { nextLane: 16, turnType: "right" },
+    ],
+    2: [{ nextLane: 11, turnType: "straight" }],
+    3: [{ nextLane: null, turnType: "straight" }],
     4: [{ nextLane: null, turnType: "straight" }],
-    5: [{ nextLane: 16, turnType: "straight" }, { nextLane: 4, turnType: "right" }],
+    5: [
+      { nextLane: 16, turnType: "straight" },
+      { nextLane: 4, turnType: "right" },
+    ],
     6: [{ nextLane: 15, turnType: "straight" }],
     7: [{ nextLane: null, turnType: "straight" }],
     8: [{ nextLane: null, turnType: "straight" }],
-    9: [{ nextLane: 4, turnType: "straight" }, { nextLane: 8, turnType: "right" }],
+    9: [
+      { nextLane: 4, turnType: "straight" },
+      { nextLane: 8, turnType: "right" },
+    ],
     10: [{ nextLane: 3, turnType: "straight" }],
     11: [{ nextLane: 24, turnType: "straight" }],
-    12: [{ nextLane: 29, turnType: "right" }, { nextLane: 25, turnType: "straight" }],
-    13: [{ nextLane: 8, turnType: "straight" }, { nextLane: 12, turnType: "right" }],
+    12: [
+      { nextLane: 29, turnType: "right" },
+      { nextLane: 25, turnType: "straight" },
+    ],
+    13: [
+      { nextLane: 8, turnType: "straight" },
+      { nextLane: 12, turnType: "right" },
+    ],
     14: [{ nextLane: 7, turnType: "straight" }],
     15: [{ nextLane: null, turnType: "straight" }],
     16: [{ nextLane: null, turnType: "straight" }],
-    17: [{ nextLane: 29, turnType: "straight" }, { nextLane: 9, turnType: "right" }],
+    17: [
+      { nextLane: 29, turnType: "straight" },
+      { nextLane: 9, turnType: "right" },
+    ],
     18: [{ nextLane: 28, turnType: "straight" }],
     19: [{ nextLane: null, turnType: "straight" }],
     20: [{ nextLane: null, turnType: "straight" }],
-    21: [{ nextLane: 9, turnType: "straight" }, { nextLane: 20, turnType: "right" }],
+    21: [
+      { nextLane: 9, turnType: "straight" },
+      { nextLane: 20, turnType: "right" },
+    ],
     22: [{ nextLane: 10, turnType: "straight" }],
     23: [{ nextLane: 28, turnType: "left" }],
     24: [{ nextLane: null, turnType: "straight" }],
     25: [{ nextLane: null, turnType: "straight" }],
-    26: [{ nextLane: 20, turnType: "straight" }, { nextLane: 25, turnType: "right" }],
+    26: [
+      { nextLane: 20, turnType: "straight" },
+      { nextLane: 25, turnType: "right" },
+    ],
     27: [{ nextLane: 19, turnType: "straight" }],
     28: [{ nextLane: null, turnType: "straight" }],
-    29: [{ nextLane: null, turnType: "straight" }]
+    29: [{ nextLane: null, turnType: "straight" }],
   };
 
   const nextTrafficLightMapping = {
@@ -198,37 +223,60 @@ function Simulation() {
     6: [{ nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } }, null],
     7: [{ nextLight: 3, transitionPoint: { x: 0, y: 2, z: -5 } }, null],
     8: null,
-    9: null
+    9: null,
   };
 
   const createQuadraticCurve = (start, end, direction, turnType) => {
     if (turnType !== "right" && turnType !== "left") {
       return null;
     }
-  
+
     // Vector from start to end
     const startVec = new THREE.Vector3(start.x, start.y, start.z);
     const endVec = new THREE.Vector3(end.x, end.y, end.z);
     const midVec = startVec.clone().lerp(endVec, 0.5);
-  
+
     // Perpendicular direction (in XZ plane)
-    let perp = new THREE.Vector3(end.z - start.z, 0, start.x - end.x).normalize();
+    let perp = new THREE.Vector3(
+      end.z - start.z,
+      0,
+      start.x - end.x
+    ).normalize();
     if (turnType === "left") perp.negate();
-  
+
     // Distance from mid-point to control point (radius)
     const radius = startVec.distanceTo(endVec) / 2;
     const controlPoint = midVec.clone().add(perp.multiplyScalar(radius));
-  
+
     return controlPoint;
   };
 
-  const smoothTransitionCarLane = (carMesh, newLane, duration = 1000, turnType = "straight", onComplete) => {
+  const smoothTransitionCarLane = (
+    carMesh,
+    newLane,
+    duration = 1000,
+    turnType = "straight",
+    onComplete
+  ) => {
     const startPos = carMesh.position.clone();
-    const targetPosData = laneStartPositions[newLane] || { x: startPos.x, y: startPos.y, z: startPos.z };
-    const targetPos = new THREE.Vector3(targetPosData.x, startPos.y, targetPosData.z); // Fixed here
+    const targetPosData = laneStartPositions[newLane] || {
+      x: startPos.x,
+      y: startPos.y,
+      z: startPos.z,
+    };
+    const targetPos = new THREE.Vector3(
+      targetPosData.x,
+      startPos.y,
+      targetPosData.z
+    ); // Fixed here
 
     // Only create curve for turning movements
-    const controlPoint = createQuadraticCurve(startPos, targetPos, laneDirections[newLane], turnType);
+    const controlPoint = createQuadraticCurve(
+      startPos,
+      targetPos,
+      laneDirections[newLane],
+      turnType
+    );
 
     let startTime = null;
 
@@ -236,8 +284,7 @@ function Simulation() {
     let targetRotationY = carMesh.rotation.y; // Default to current rotation
     if (turnType === "right") {
       targetRotationY -= Math.PI / 2; // Rotate 90 degrees clockwise
-    }
-    else if (turnType === "left") {
+    } else if (turnType === "left") {
       targetRotationY += Math.PI / 2; // Rotate 90 degrees counterclockwise
     }
 
@@ -251,53 +298,67 @@ function Simulation() {
       if (controlPoint) {
         // Use quadratic curve for turns
         const t1 = 1 - t;
-        carMesh.position.x = t1 * t1 * startPos.x + 2 * t1 * t * controlPoint.x + t * t * targetPos.x;
+        carMesh.position.x =
+          t1 * t1 * startPos.x +
+          2 * t1 * t * controlPoint.x +
+          t * t * targetPos.x;
         carMesh.position.y = startPos.y;
-        carMesh.position.z = t1 * t1 * startPos.z + 2 * t1 * t * controlPoint.z + t * t * targetPos.z;
-      }
-      else {
+        carMesh.position.z =
+          t1 * t1 * startPos.z +
+          2 * t1 * t * controlPoint.z +
+          t * t * targetPos.z;
+      } else {
         // Use linear interpolation for straight movement
         carMesh.position.x = startPos.x + (targetPos.x - startPos.x) * t;
         carMesh.position.y = startPos.y;
         carMesh.position.z = startPos.z + (targetPos.z - startPos.z) * t;
       }
       // Interpolate rotation
-      carMesh.rotation.y = initialRotationY + (targetRotationY - initialRotationY) * t;
+      carMesh.rotation.y =
+        initialRotationY + (targetRotationY - initialRotationY) * t;
       if (t < 1) {
         requestAnimationFrame(animateTransition);
-      }
-      else {
+      } else {
         carMesh.position.copy(targetPos);
         carMesh.rotation.y = targetRotationY; // Ensure final rotation is exact
         if (onComplete) onComplete();
       }
     };
-  requestAnimationFrame(animateTransition);
-};
+    requestAnimationFrame(animateTransition);
+  };
 
   const upsertCarMesh = (carId, lane, type) => {
     const scene = sceneRef.current;
     let mesh = carMeshes.current.get(carId);
 
     if (!mesh) {
-        const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
-        const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
+      const startPos = laneStartPositions[lane] || { x: 0, y: 0, z: 0 };
+      const direction = laneDirections[lane] || { x: 0, y: 0, z: 0 };
 
-        // Calculate initial rotation based on lane direction and adjust by 90 degrees clockwise
-        const initialRotationY = Math.atan2(direction.x, direction.z) - Math.PI / 2;
+      // Calculate initial rotation based on lane direction and adjust by 90 degrees clockwise
+      const initialRotationY =
+        Math.atan2(direction.x, direction.z) - Math.PI / 2;
 
-        // Load the car model based on the type
-        const loader = new GLTFLoader();
-        loader.load(`/${type.toLowerCase()}_model.glb`, (gltf) => {
+      // Load the car model based on the type
+      const loader = new GLTFLoader();
+      loader.load(
+        `/${type.toLowerCase()}_model.glb`,
+        (gltf) => {
           const carModel = gltf.scene;
           carModel.position.set(startPos.x, startPos.y, startPos.z);
           carModel.rotation.y = initialRotationY; // Set initial rotation
           carModel.scale.set(1, 1, 1); // Scale the model to fit the scene
           carModel.userData = {
-            carId, lane, type, stopped: false, queuePosition: 0,
-            hasCrossedLight: false, progressAlongLane: 0,
+            carId,
+            lane,
+            type,
+            stopped: false,
+            queuePosition: 0,
+            hasCrossedLight: false,
+            progressAlongLane: 0,
             controllingTrafficLight: laneToTrafficLightMapping[lane],
-            nextTrafficLightChecked: false, isTransitioning: false
+            nextTrafficLightChecked: false,
+            isTransitioning: false,
           };
           carMeshes.current.set(carId, carModel);
           scene.add(carModel);
@@ -307,11 +368,13 @@ function Simulation() {
           if (carCounterRef.current) {
             carCounterRef.current.textContent = `Cars: ${carCount.current}`;
           }
-        }, undefined, (error) => {
+        },
+        undefined,
+        (error) => {
           console.error(`Failed to load model for type ${type}:`, error);
-        });
-    }
-    else {
+        }
+      );
+    } else {
       if (mesh.userData.lane !== lane && !mesh.userData.isTransitioning) {
         mesh.userData.lane = lane;
         mesh.userData.hasCrossedLight = false;
@@ -326,49 +389,64 @@ function Simulation() {
       }
     }
     return mesh;
-};
+  };
 
   const changeCarLane = (carMesh, routeOption) => {
     const currentLane = carMesh.userData.lane;
     const newLane = routeOption.nextLane;
     const turnType = routeOption.turnType;
-  
+
     if (!newLane) {
-      console.log(`Car ${carMesh.userData.carId} exiting from lane ${currentLane}`);
+      console.log(
+        `Car ${carMesh.userData.carId} exiting from lane ${currentLane}`
+      );
       sceneRef.current.remove(carMesh);
       carMeshes.current.delete(carMesh.userData.carId);
       return false;
     }
-  
-    console.log(`Car ${carMesh.userData.carId} changing from lane ${currentLane} to ${newLane} (${turnType})`);
-  
+
+    console.log(
+      `Car ${carMesh.userData.carId} changing from lane ${currentLane} to ${newLane} (${turnType})`
+    );
+
     carMesh.userData.lane = newLane;
     carMesh.userData.hasCrossedLight = false;
     carMesh.userData.queuePosition = 0;
     carMesh.userData.progressAlongLane = 0;
-    carMesh.userData.controllingTrafficLight = laneToTrafficLightMapping[newLane];
+    carMesh.userData.controllingTrafficLight =
+      laneToTrafficLightMapping[newLane];
     carMesh.userData.nextTrafficLightChecked = false;
     carMesh.userData.isTransitioning = true;
-  
+
     smoothTransitionCarLane(carMesh, newLane, 1000, turnType, () => {
       carMesh.userData.isTransitioning = false;
-      carMesh.userData.progressAlongLane = calculateProgressAlongLane(carMesh.position, newLane);
+      carMesh.userData.progressAlongLane = calculateProgressAlongLane(
+        carMesh.position,
+        newLane
+      );
     });
-  
+
     return true;
   };
 
   const calculateProgressAlongLane = (carPosition, laneNumber) => {
     const direction = laneDirections[laneNumber] || { x: 0, y: 0, z: 0 };
     const laneStart = laneStartPositions[laneNumber] || { x: 0, y: 0, z: 0 };
-    const carVec = new THREE.Vector3(carPosition.x - laneStart.x, 0, carPosition.z - laneStart.z);
+    const carVec = new THREE.Vector3(
+      carPosition.x - laneStart.x,
+      0,
+      carPosition.z - laneStart.z
+    );
     const dirVec = new THREE.Vector3(direction.x, 0, direction.z).normalize();
     if (dirVec.lengthSq() === 0) return 0;
     return carVec.dot(dirVec);
   };
 
   const checkAndUpdateTrafficLight = (carMesh) => {
-    if (!carMesh.userData.hasCrossedLight || carMesh.userData.nextTrafficLightChecked) {
+    if (
+      !carMesh.userData.hasCrossedLight ||
+      carMesh.userData.nextTrafficLightChecked
+    ) {
       return;
     }
 
@@ -385,31 +463,39 @@ function Simulation() {
       return;
     }
 
-    const validOptions = mappingArray.filter(o => o !== null && o.nextLight && o.transitionPoint);
+    const validOptions = mappingArray.filter(
+      (o) => o !== null && o.nextLight && o.transitionPoint
+    );
 
     let optionToUse = null;
 
     if (validOptions.length === 0) {
       carMesh.userData.nextTrafficLightChecked = true;
       return;
-    }
-    else if (validOptions.length === 1) {
+    } else if (validOptions.length === 1) {
       optionToUse = validOptions[0];
-    }
-    else {
-      console.warn(`Car ${carMesh.userData.carId} at light ${currentLightId} has multiple next light options. Cannot auto-select.`);
+    } else {
+      console.warn(
+        `Car ${carMesh.userData.carId} at light ${currentLightId} has multiple next light options. Cannot auto-select.`
+      );
       carMesh.userData.nextTrafficLightChecked = true;
       return;
     }
 
     const { nextLight, transitionPoint } = optionToUse;
     const carPos = carMesh.position;
-    const transPoint = new THREE.Vector3(transitionPoint.x, transitionPoint.y, transitionPoint.z);
+    const transPoint = new THREE.Vector3(
+      transitionPoint.x,
+      transitionPoint.y,
+      transitionPoint.z
+    );
     const distanceToTransition = carPos.distanceTo(transPoint);
     const TRANSITION_THRESHOLD = 3;
 
     if (distanceToTransition < TRANSITION_THRESHOLD) {
-      console.log(`Car ${carMesh.userData.carId} reached transition zone. Changing control from light ${currentLightId} to light ${nextLight}`);
+      console.log(
+        `Car ${carMesh.userData.carId} reached transition zone. Changing control from light ${currentLightId} to light ${nextLight}`
+      );
       carMesh.userData.controllingTrafficLight = nextLight;
       carMesh.userData.hasCrossedLight = false;
       carMesh.userData.nextTrafficLightChecked = true;
@@ -418,22 +504,27 @@ function Simulation() {
 
   useEffect(() => {
     const greenMaterial = new THREE.MeshStandardMaterial({
-      color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.5
+      color: 0x00ff00,
+      emissive: 0x00ff00,
+      emissiveIntensity: 0.5,
     });
     const redMaterial = new THREE.MeshStandardMaterial({
-      color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.5
+      color: 0xff0000,
+      emissive: 0xff0000,
+      emissiveIntensity: 0.5,
     });
     const updateTrafficLight = (lightId, status) => {
       const lightObject = trafficLights.current[`trafficLight${lightId}`];
       const isGreen = status === "GREEN";
       trafficLightStatuses.current[lightId] = isGreen;
-      
+
       // Record timestamp when light turns green
       if (isGreen) {
         lightStateChangeTimes.current[lightId] = performance.now();
 
         // Count how many times each light turned green
-        greenCountRef.current[lightId] = (greenCountRef.current[lightId] || 0) + 1;
+        greenCountRef.current[lightId] =
+          (greenCountRef.current[lightId] || 0) + 1;
 
         // Find the light with the highest green count
         let maxId = null;
@@ -445,8 +536,10 @@ function Simulation() {
           }
         }
         setMostGreenLight(maxId);
-        if(trafficLightCounterRef.current) {
-          trafficLightCounterRef.current.textContent = maxId ? `Most Green: ${maxId}` : "";
+        if (trafficLightCounterRef.current) {
+          trafficLightCounterRef.current.textContent = maxId
+            ? `Most Green: ${maxId}`
+            : "";
         }
       } else {
         delete lightStateChangeTimes.current[lightId];
@@ -455,57 +548,75 @@ function Simulation() {
       if (lightObject) {
         let lightMesh = lightObject;
         lightObject.traverse((child) => {
-          if (child.isMesh && child.name.toLowerCase().includes('bulb')) {
+          if (child.isMesh && child.name.toLowerCase().includes("bulb")) {
             lightMesh = child;
           }
         });
-        lightMesh.material = isGreen ? greenMaterial.clone() : redMaterial.clone();
+        lightMesh.material = isGreen
+          ? greenMaterial.clone()
+          : redMaterial.clone();
       } else {
         console.log(`Traffic light mesh ${lightId} not found in scene.`);
       }
     };
 
-    document.documentElement.style.setProperty('--canvas-width', `${CANVAS_WIDTH_EM}em`);
-    document.documentElement.style.setProperty('--canvas-height', `${CANVAS_HEIGHT_EM}em`);
+    document.documentElement.style.setProperty(
+      "--canvas-width",
+      `${CANVAS_WIDTH_EM}em`
+    );
+    document.documentElement.style.setProperty(
+      "--canvas-height",
+      `${CANVAS_HEIGHT_EM}em`
+    );
     const scene = sceneRef.current;
-    scene.background = new THREE.Color('white');
+    scene.background = new THREE.Color("white");
     const aspectRatio = CANVAS_WIDTH_EM / CANVAS_HEIGHT_EM;
     camera = new THREE.PerspectiveCamera(50, aspectRatio, 0.1, 1000);
     camera.position.set(0, 100, 0);
     camera.lookAt(0, 0, 0);
 
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('/junction.glb', (gltfScene) => {
-      const loadedModel = gltfScene.scene;
-      scene.add(loadedModel);
-      loadedModel.traverse((object) => {
-        if (object.isMesh) {
-          object.material.needsUpdate = true;
-        }
+    gltfLoader.load(
+      "/junction.glb",
+      (gltfScene) => {
+        const loadedModel = gltfScene.scene;
+        scene.add(loadedModel);
+        loadedModel.traverse((object) => {
+          if (object.isMesh) {
+            object.material.needsUpdate = true;
+          }
+          for (let i = 1; i <= 9; i++) {
+            if (object.name === `trafficLight${i}`) {
+              console.log(`Found traffic light: ${object.name}`);
+              trafficLights.current[object.name] = object;
+              updateTrafficLight(i, "RED");
+            }
+          }
+        });
         for (let i = 1; i <= 9; i++) {
-          if (object.name === `trafficLight${i}`) {
-            console.log(`Found traffic light: ${object.name}`);
-            trafficLights.current[object.name] = object;
+          if (trafficLightStatuses.current[i] === undefined) {
             updateTrafficLight(i, "RED");
           }
         }
-      });
-       for (let i = 1; i <= 9; i++) {
-         if (trafficLightStatuses.current[i] === undefined) {
-            updateTrafficLight(i, "RED");
-         }
-       }
-    }, undefined, (error) => {
-      console.error('Error loading GLB model:', error);
-    });
+      },
+      undefined,
+      (error) => {
+        console.error("Error loading GLB model:", error);
+      }
+    );
 
-    renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: true });
-    renderer.setClearColor('white', 1);
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.current,
+      antialias: true,
+    });
+    renderer.setClearColor("white", 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.shadowMap.enabled = false;
 
     const updateSize = () => {
-      const fontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const fontSize = parseFloat(
+        getComputedStyle(document.documentElement).fontSize
+      );
       const widthPx = CANVAS_WIDTH_EM * fontSize;
       const heightPx = CANVAS_HEIGHT_EM * fontSize;
       renderer.setSize(widthPx, heightPx);
@@ -522,9 +633,13 @@ function Simulation() {
     const getDistanceToPoint = (carPos, targetPos, direction) => {
       if (!direction || !targetPos) return Infinity;
       if (Math.abs(direction.x) > Math.abs(direction.z)) {
-        return direction.x > 0 ? (targetPos.x - carPos.x) : (carPos.x - targetPos.x);
+        return direction.x > 0
+          ? targetPos.x - carPos.x
+          : carPos.x - targetPos.x;
       } else {
-        return direction.z > 0 ? (targetPos.z - carPos.z) : (carPos.z - targetPos.z);
+        return direction.z > 0
+          ? targetPos.z - carPos.z
+          : carPos.z - targetPos.z;
       }
     };
 
@@ -541,7 +656,10 @@ function Simulation() {
       carMeshes.current.forEach((mesh) => {
         if (!mesh.userData.isTransitioning) {
           const lane = mesh.userData.lane;
-          mesh.userData.progressAlongLane = calculateProgressAlongLane(mesh.position, lane);
+          mesh.userData.progressAlongLane = calculateProgressAlongLane(
+            mesh.position,
+            lane
+          );
           checkAndUpdateTrafficLight(mesh);
         }
       });
@@ -558,10 +676,12 @@ function Simulation() {
       });
 
       laneQueues.forEach((queue) => {
-          queue.sort((a, b) => b.userData.progressAlongLane - a.userData.progressAlongLane);
-          queue.forEach((mesh, index) => {
-              mesh.userData.queuePosition = index;
-          });
+        queue.sort(
+          (a, b) => b.userData.progressAlongLane - a.userData.progressAlongLane
+        );
+        queue.forEach((mesh, index) => {
+          mesh.userData.queuePosition = index;
+        });
       });
 
       carMeshes.current.forEach((mesh, carId) => {
@@ -576,24 +696,31 @@ function Simulation() {
         let reasonStopped = "";
 
         if (controllingLightId && stopPos && !mesh.userData.hasCrossedLight) {
-          const distanceToStopLine = getDistanceToPoint(mesh.position, stopPos, direction);
+          const distanceToStopLine = getDistanceToPoint(
+            mesh.position,
+            stopPos,
+            direction
+          );
           const isRedLight = !trafficLightStatuses.current[controllingLightId];
-          const dynamicStopDistance = STOP_DISTANCE + (queuePosition * CAR_LENGTH);
+          const dynamicStopDistance =
+            STOP_DISTANCE + queuePosition * CAR_LENGTH;
           if (distanceToStopLine <= dynamicStopDistance) {
             if (isRedLight) {
               shouldMove = false;
               reasonStopped = `Red Light ${controllingLightId}`;
             } else {
-                // Add green light delay check
-                const greenChangeTime = lightStateChangeTimes.current[controllingLightId];
-                if (greenChangeTime) {
-                  const timeSinceGreen = performance.now() - greenChangeTime;
-                  if (timeSinceGreen < 700) { // 700ms delay
-                    shouldMove = false;
-                    reasonStopped = `Green Light Delay ${controllingLightId}`;
-                  }
+              // Add green light delay check
+              const greenChangeTime =
+                lightStateChangeTimes.current[controllingLightId];
+              if (greenChangeTime) {
+                const timeSinceGreen = performance.now() - greenChangeTime;
+                if (timeSinceGreen < 700) {
+                  // 700ms delay
+                  shouldMove = false;
+                  reasonStopped = `Green Light Delay ${controllingLightId}`;
                 }
               }
+            }
           }
           if (distanceToStopLine <= LIGHT_CROSS_THRESHOLD) {
             if (!mesh.userData.hasCrossedLight) {
@@ -631,8 +758,7 @@ function Simulation() {
           mesh.position.x += direction.x * CAR_MOVE_SPEED;
           mesh.position.y += direction.y * CAR_MOVE_SPEED;
           mesh.position.z += direction.z * CAR_MOVE_SPEED;
-        }
-        else {
+        } else {
           mesh.userData.stopped = true;
         }
 
@@ -650,7 +776,8 @@ function Simulation() {
 
     socketTraffic = new WebSocket("ws://localhost:8080/traffic");
     socketTraffic.onopen = () => console.log("Traffic WebSocket Connected");
-    socketTraffic.onerror = (error) => console.error("Traffic WebSocket Error:", error);
+    socketTraffic.onerror = (error) =>
+      console.error("Traffic WebSocket Error:", error);
     socketTraffic.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -667,11 +794,16 @@ function Simulation() {
 
     socketCars = new WebSocket("ws://localhost:8080/cars");
     socketCars.onopen = () => console.log("Cars WebSocket Connected");
-    socketCars.onerror = (error) => console.error("Cars WebSocket Error:", error);
+    socketCars.onerror = (error) =>
+      console.error("Cars WebSocket Error:", error);
     socketCars.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-         if (data.carId !== undefined && data.lane !== undefined && data.type !== undefined) {
+        if (
+          data.carId !== undefined &&
+          data.lane !== undefined &&
+          data.type !== undefined
+        ) {
           upsertCarMesh(data.carId, data.lane, data.type);
         } else {
           console.warn("Invalid car data received:", data);
@@ -695,7 +827,11 @@ function Simulation() {
       <div className="Statistics" id="Car-counter" ref={carCounterRef}>
         Cars: 0
       </div>
-      <div className="Statistics" id="Traffic-light" ref={trafficLightCounterRef}>
+      <div
+        className="Statistics"
+        id="Traffic-light"
+        ref={trafficLightCounterRef}
+      >
         Green: 0
       </div>
       <canvas ref={canvasRef} className="ThreeJS"></canvas>

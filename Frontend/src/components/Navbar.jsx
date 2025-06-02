@@ -1,4 +1,4 @@
-import './Navbar.css'
+import "./Navbar.css";
 import React, { useEffect, useRef } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import { Github, House, Gamepad2, FileSpreadsheet } from "lucide-react";
@@ -29,12 +29,14 @@ const Navbar = () => {
     if (scrollRef.current) {
       const container = document.querySelector("[data-scroll-container]");
       animatingRef.current = true;
-      
+
       const handleUserScroll = (e) => {
         if (animatingRef.current && scrollRef.current) {
           scrollRef.current.stop();
           animatingRef.current = false;
-          container.removeEventListener("wheel", handleUserScroll, { passive: true });
+          container.removeEventListener("wheel", handleUserScroll, {
+            passive: true,
+          });
         }
       };
 
@@ -47,7 +49,9 @@ const Navbar = () => {
         easing: [0.25, 0.0, 0.25, 0.5],
         callback: () => {
           animatingRef.current = false;
-          container.removeEventListener("wheel", handleUserScroll, { passive: true });
+          container.removeEventListener("wheel", handleUserScroll, {
+            passive: true,
+          });
           scrollRef.current.start();
         },
       });
@@ -56,21 +60,25 @@ const Navbar = () => {
 
   const scrollToSimulation = () => {
     if (scrollRef.current) {
-      const startButton = document.querySelector('.Start-container');
+      const startButton = document.querySelector(".Start-container");
       if (startButton) {
         const container = document.querySelector("[data-scroll-container]");
         animatingRef.current = true;
-        
+
         const handleUserScroll = (e) => {
           if (animatingRef.current && scrollRef.current) {
             scrollRef.current.stop();
             animatingRef.current = false;
-            container.removeEventListener("wheel", handleUserScroll, { passive: true });
+            container.removeEventListener("wheel", handleUserScroll, {
+              passive: true,
+            });
           }
         };
 
         interruptionHandlerRef.current = handleUserScroll;
-        container.addEventListener("wheel", handleUserScroll, { passive: true });
+        container.addEventListener("wheel", handleUserScroll, {
+          passive: true,
+        });
 
         scrollRef.current.stop();
         scrollRef.current.scrollTo(startButton, {
@@ -79,7 +87,9 @@ const Navbar = () => {
           offset: -100, // Scroll to 100px above the button
           callback: () => {
             animatingRef.current = false;
-            container.removeEventListener("wheel", handleUserScroll, { passive: true });
+            container.removeEventListener("wheel", handleUserScroll, {
+              passive: true,
+            });
             scrollRef.current.start();
           },
         });
@@ -90,7 +100,11 @@ const Navbar = () => {
   return (
     <nav className="Master">
       <div className="IconsContainer">
-        <a href="https://github.com/Shalev-Aviv/TRAFFI" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://github.com/Shalev-Aviv/TRAFFI"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <Github className="Icons" id="Github" />
         </a>
         <a onClick={scrollToTop} style={{ cursor: "pointer" }} href="#">
@@ -99,7 +113,7 @@ const Navbar = () => {
         <a onClick={scrollToSimulation} style={{ cursor: "pointer" }} href="#">
           <Gamepad2 className="Icons" id="Controller" />
         </a>
-        <a style={{ cursor: "pointer"}} href='#'>
+        <a style={{ cursor: "pointer" }} href="#">
           <FileSpreadsheet className="Icons" id="Read" />
         </a>
       </div>
