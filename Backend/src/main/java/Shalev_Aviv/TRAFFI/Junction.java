@@ -1,4 +1,8 @@
 package Shalev_Aviv.TRAFFI;
+
+
+import Shalev_Aviv.TRAFFI.Service.TrafficLightComparator;
+import Shalev_Aviv.TRAFFI.Service.TrafficLightMaxHeap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +29,7 @@ public class Junction {
     private List<Integer> enteringLanes; // List of entering lanes
     private static final int MAX_GREEN_DURATION = 5; // Maximum green durations for each traffic light
     private volatile boolean isPaused = false; // Pause flag
+    private TrafficLightMaxHeap trafficLightHeap; // Max-heap
 
     /** Constructor*/
     public Junction(BitSet[] trafficLightsConnections, BitSet[] trafficLightsStrongConnections, TrafficLight[] trafficLightsArray, Map<Integer, Integer[]> lanesMap, Lane[] lanes) {
@@ -33,6 +38,11 @@ public class Junction {
         this.trafficLightsArray = trafficLightsArray;
         this.lanesMap = lanesMap;
         this.lanes = lanes;
+
+        // Set the junction reference in each lane
+        for (Lane lane : lanes) {
+            lane.setJunction(this);
+        }
 
         // Build destination lanes
         this.destinationLanes = new HashSet<>();
@@ -48,51 +58,25 @@ public class Junction {
                 enteringLanes.add(entry.getKey());
             }
         }
+        
+        // Initialize the max-heap
+        this.trafficLightHeap = new TrafficLightMaxHeap(trafficLightsArray);
     }
 
     /** return the index of the traffic light with the largest weight<p>
-     * <STRONG>O(n)</STRONG><p>
-     * n -> length of <CODE>trafficLightsArray</CODE>
+     * <STRONG>O(1)</STRONG>
     */
     public int maxWeightIndex() {
-        return maxRegularWeight(maxEmergencyWeight());
+        TrafficLight max = trafficLightHeap.peek();
+        return max.getId();
     }
 
-    /** return the maximum emergency weight among all traffic lights<p>
-     * <STRONG>O(n)</STRONG><p>
+    /** Changes the heap to match the new<p>
+     * <STRONG>O(log n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
-    */
-    private int maxEmergencyWeight() {
-        int maxWeight = 0;
-        for(TrafficLight light : trafficLightsArray) {
-            if(light.getEmergencyWeight() > maxWeight) {
-                maxWeight = light.getEmergencyWeight();
-            }
-        }
-        return maxWeight;
-    }
-
-    /** return the index of the traffic light with the largest regular weight among the lights with the same maximum emergency weight<p>
-     * <STRONG>O(n)</STRONG><p>
-     * n -> length of <CODE>trafficLightsArray</CODE>
-    */
-    private int maxRegularWeight(int maxEmergencyWeight) {
-        List<Integer> candidates = new ArrayList<>();
-        int maxWeight = 0;
-        // First find all traffic lights with the maximum emergency weight
-        for (int i = 0; i < trafficLightsArray.length; i++) {
-            if (trafficLightsArray[i].getEmergencyWeight() == maxEmergencyWeight) {
-                if (trafficLightsArray[i].getRegularWeight() > maxWeight) {
-                    maxWeight = trafficLightsArray[i].getRegularWeight();
-                    candidates.clear();
-                    candidates.add(i);
-                }
-                else if (trafficLightsArray[i].getRegularWeight() == maxWeight) {
-                    candidates.add(i);
-                }
-            }
-        }
-        return candidates.get(TraffiApplication.rand.nextInt(candidates.size()));
+    */ 
+    public void updateTrafficLightWeight(TrafficLight tl) {
+        trafficLightHeap.updateWeight(tl);
     }
 
     @Autowired
@@ -177,49 +161,19 @@ public class Junction {
 
     /** finds the traffic light with the maximum weight in the set and returns it<p>
      * <STRONG>O(n)</STRONG><p>
-     * n -> number of bits inside <CODE>set</CODE>
+     * n -> number of set bits in <CODE>set</CODE>
     */
     private int maxWeightIndexFromSet(BitSet set) {
-        return maxRegularWeightIndexFromSet(set, maxEmergencyWeightFromSet(set));
-    }
-
-    /** finds the maximum emergency weight inside <CODE>set</CODE><p>
-     * <STRONG>O(n)</STRONG><p>
-     * n -> number of bits in <CODE>set</CODE>
-    */
-    private int maxEmergencyWeightFromSet(BitSet set) {
-        int maxWeight = trafficLightsArray[set.nextSetBit(0)].getEmergencyWeight();
-        for(int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i+1)) {
-            if(trafficLightsArray[i].getEmergencyWeight() > maxWeight) {
-                maxWeight = trafficLightsArray[i].getEmergencyWeight();
+        int maxIndex = 0;
+        TrafficLight max = null;
+        for (int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i + 1)) {
+            TrafficLight tl = trafficLightsArray[i];
+            if (max == null || new TrafficLightComparator().compare(tl, max) < 0) {
+                max = tl;
+                maxIndex = i;
             }
         }
-        return maxWeight;
-    }
-
-    /** finds the traffic light with the maximum regular weight inside <CODE>set</CODE>, given the <CODE>maxEmergencyWeight</CODE><p>
-     * <STRONG>O(n)</STRONG><p>
-     * n -> number of bits in <CODE>set</CODE>
-    */
-    private int maxRegularWeightIndexFromSet(BitSet set, int maxEmergencyWeight) {
-        List<Integer> candidates = new ArrayList<>();
-        int maxRegularWeight = 0;
-    
-        for (int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i+1)) {
-            TrafficLight light = trafficLightsArray[i];
-            if (light.getEmergencyWeight() == maxEmergencyWeight) {
-                if (light.getRegularWeight() > maxRegularWeight) {
-                    maxRegularWeight = light.getRegularWeight();
-                    candidates.clear();
-                    candidates.add(i);
-                }
-                else if (light.getRegularWeight() == maxRegularWeight) {
-                    candidates.add(i);
-                }
-            }
-        }
-        // Randomize selection among candidates with the same weight
-        return candidates.get(TraffiApplication.rand.nextInt(candidates.size()));
+        return maxIndex;
     }
 
     /** finds the largest clique in the graph that contains the maximum weighted traffic light<p>

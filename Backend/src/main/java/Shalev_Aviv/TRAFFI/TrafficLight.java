@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Async;
 
 // TrafficLight class - representing a specific traffic light at a junction
-class TrafficLight {
+public class TrafficLight {
     public enum Color{ RED, GREEN }
     
     private volatile boolean isDequeuing = false;
@@ -35,6 +35,7 @@ class TrafficLight {
             if(this.emergencyWeight < 0) this.emergencyWeight = 0;
         }
     }
+
     /** Increment the regular weight of the traffic light*/
     public void incrementRegularWeight(int delta) {
         synchronized(weightLock) {
@@ -44,6 +45,7 @@ class TrafficLight {
     }
 
     /** Start dequeuing cars from every lane in the lanes array<p>
+     * Async function
      * <STRONG>O(n)</STRONG<p>
      * n -> length of <CODE>lanes</CODE><p>
     */
@@ -77,6 +79,7 @@ class TrafficLight {
             }).start();
         }
     }
+    
     /** stop dequeuing cars from every lane in the lanes array<p>
      * <STRONG>O(1)</STRONG
     */
