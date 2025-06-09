@@ -1,4 +1,5 @@
 package Shalev_Aviv.TRAFFI;
+
 import java.util.*;
 
 // Lane class - representing a queue of cars in a specific lane

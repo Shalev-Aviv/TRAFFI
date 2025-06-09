@@ -1,6 +1,6 @@
 package Shalev_Aviv.TRAFFI.Service;
-
 import Shalev_Aviv.TRAFFI.TrafficLight;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

@@ -1,4 +1,5 @@
 package Shalev_Aviv.TRAFFI;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 // Car class - representing a single vehicle in the simulation

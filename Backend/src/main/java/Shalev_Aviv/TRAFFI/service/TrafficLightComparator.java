@@ -1,6 +1,6 @@
 package Shalev_Aviv.TRAFFI.Service;
-
 import Shalev_Aviv.TRAFFI.TrafficLight;
+
 import java.util.Comparator;
 
 public class TrafficLightComparator implements Comparator<TrafficLight> {

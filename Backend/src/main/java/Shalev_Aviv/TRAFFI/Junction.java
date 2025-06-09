@@ -1,6 +1,5 @@
 package Shalev_Aviv.TRAFFI;
 
-
 import Shalev_Aviv.TRAFFI.Service.TrafficLightComparator;
 import Shalev_Aviv.TRAFFI.Service.TrafficLightMaxHeap;
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class Junction {
         return max.getId();
     }
 
-    /** Changes the heap to match the new<p>
+    /** Update the locations of the max-heap based on the changed weights<p>
      * <STRONG>O(log n)</STRONG><p>
      * n -> length of <CODE>trafficLightsArray</CODE>
     */ 
